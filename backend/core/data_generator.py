@@ -1,0 +1,205 @@
+import json
+from datetime import datetime, timedelta
+from typing import Dict, Any, List
+from backend.config import CASE_DATA_FILE
+from backend.core.knowledge_graph import kg_store
+
+def generate_default_intelligence_cases() -> Dict[str, Any]:
+    """
+    Generates rich, high-fidelity Indian Law Enforcement intelligence cases
+    strictly adhering to CCTNS/ICJS schemas and BNS/BNSS/BSA statutory frameworks.
+    """
+    # ==========================================
+    # CASE 1: OPERATION ICHHAPUR MATRIX
+    # ==========================================
+    case_1_nodes = [
+        # Kingpins / Command
+        {"id": "PERSON_001", "label": "Person", "properties": {"name": "Tariq 'The Ghost' Al-Hasani", "aliases": ["Tariq Hasan", "T. A. Hasani", "Kabir Bhai"], "role": "Syndicate Kingpin / Strategic Boss", "threat_score": 0.95, "attribute_load": 4.8, "age": 49, "cctns_id": "WB-CCTNS-2026-08819", "bns_sections": ["BNS Sec 111 (Organized Crime)", "BNS Sec 318 (Cheating)", "BSA Sec 63"]}},
+        {"id": "PERSON_002", "label": "Person", "properties": {"name": "Sunil 'Doctor' Roy", "aliases": ["Dr. S. K. Roy", "Sunil Kumar Roy"], "role": "Chief Hawala Broker & Money Launderer", "threat_score": 0.88, "attribute_load": 4.2, "age": 44, "cctns_id": "WB-CCTNS-2026-09102", "bns_sections": ["BNS Sec 111", "BNS Sec 316 (Breach of Trust)"]}},
+        
+        # Operational Lieutenants
+        {"id": "PERSON_003", "label": "Person", "properties": {"name": "Raju 'Black Cat' Mondal", "aliases": ["R. Mondal", "Raju Sardar"], "role": "Contraband Logistics Coordinator", "threat_score": 0.82, "attribute_load": 3.6, "age": 38, "cctns_id": "WB-CCTNS-2026-04412", "bns_sections": ["BNS Sec 111", "Arms Act Sec 25"]}},
+        {"id": "PERSON_004", "label": "Person", "properties": {"name": "Imran 'Proxy' Sheikh", "aliases": ["Md. Imran", "Imran Ali"], "role": "Cyber & Communication Operator", "threat_score": 0.76, "attribute_load": 3.1, "age": 29, "cctns_id": "WB-CCTNS-2026-11045", "bns_sections": ["IT Act Sec 66D", "BNS Sec 318"]}},
+        
+        # Street Operatives & Enforcers
+        {"id": "PERSON_005", "label": "Person", "properties": {"name": "Bikram 'Shooter' Das", "aliases": ["Bikky Das"], "role": "Ground Enforcer & Transport Driver", "threat_score": 0.71, "attribute_load": 2.4, "age": 26, "cctns_id": "WB-CCTNS-2026-15201", "bns_sections": ["BNS Sec 109 (Attempted Murder)", "Arms Act"]}},
+        {"id": "PERSON_006", "label": "Person", "properties": {"name": "Debabrata 'Debu' Paul", "aliases": ["D. Paul"], "role": "Smuggling Convoy Navigator", "threat_score": 0.65, "attribute_load": 2.1, "age": 33, "cctns_id": "WB-CCTNS-2026-16982", "bns_sections": ["BNS Sec 111"]}},
+        {"id": "PERSON_007", "label": "Person", "properties": {"name": "Ananya 'Fin' Sen", "aliases": ["A. Sen"], "role": "Shell Entity Director & Account Mule", "threat_score": 0.58, "attribute_load": 2.0, "age": 31, "cctns_id": "WB-CCTNS-2026-18774", "bns_sections": ["BNS Sec 316"]}},
+
+        # Communication Identifiers (Phones)
+        {"id": "PHONE_9830112233", "label": "Phone", "properties": {"number": "+919830112233", "subscriber": "Tariq Al-Hasani", "imei": "864201041122334", "service_provider": "Airtel Kolkata"}},
+        {"id": "PHONE_9831998877", "label": "Phone", "properties": {"number": "+919831998877", "subscriber": "Sunil Roy", "imei": "864201049988771", "service_provider": "Jio West Bengal"}},
+        {"id": "PHONE_9874556611", "label": "Phone", "properties": {"number": "+919874556611", "subscriber": "Raju Mondal", "imei": "864201045566119", "service_provider": "Vodafone-Idea"}},
+        {"id": "PHONE_9830447722", "label": "Phone", "properties": {"number": "+919830447722", "subscriber": "Imran Sheikh", "imei": "864201044477220", "service_provider": "Airtel Kolkata"}},
+        
+        # Vehicles
+        {"id": "VEHICLE_WB02AB1234", "label": "Vehicle", "properties": {"plate_number": "WB-02-AB-1234", "make_model": "Mahindra Scorpio Black", "vin": "MA1TA2BK8H1234567", "registered_owner": "Raju Mondal"}},
+        {"id": "VEHICLE_WB24K9988", "label": "Vehicle", "properties": {"plate_number": "WB-24-K-9988", "make_model": "Toyota Innova Crysta", "vin": "MB1TB3CK9J9988112", "registered_owner": "Debabrata Paul"}},
+
+        # Locations & Safehouses
+        {"id": "LOC_ICHHAPUR", "label": "Location", "properties": {"name": "Ichhapur Defence Estate Perimeter Safehouse", "district": "North 24 Parganas", "lat": 22.8124, "lng": 88.3752, "facility_type": "Logistics Cache"}},
+        {"id": "LOC_PORT_KOLKATA", "label": "Location", "properties": {"name": "Kolkata Port Trust Dock-7 Warehouse", "district": "Kolkata", "lat": 22.5411, "lng": 88.3217, "facility_type": "Maritime Contraband Ingress"}},
+        {"id": "LOC_SILIGURI", "label": "Location", "properties": {"name": "Siliguri Transit Junction Hub", "district": "Darjeeling", "lat": 26.7271, "lng": 88.3953, "facility_type": "Northern Ingress Point"}},
+        {"id": "LOC_ASANSOL", "label": "Location", "properties": {"name": "Asansol Industrial Depot", "district": "Paschim Bardhaman", "lat": 23.6889, "lng": 86.9661, "facility_type": "Arms Stockpile"}},
+        
+        # Financial Instruments (Bank Accounts & Crypto)
+        {"id": "BANK_HDFC_99182", "label": "BankAccount", "properties": {"account_number": "50100991823411", "bank_name": "HDFC Bank Park Street", "holder": "Sunil Roy / Matrix Impex", "balance_flagged": 45000000}},
+        {"id": "UPI_TARIQ_HAWALA", "label": "BankAccount", "properties": {"upi_id": "matrixops@okhdfcbank", "linked_name": "Tariq Hasan", "daily_flow_avg": 2500000}},
+        {"id": "CRYPTO_BTC_VAULT", "label": "CryptoWallet", "properties": {"wallet_address": "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh", "blockchain": "Bitcoin", "detected_balance_btc": 14.5}},
+
+        # Statutory Case & FIR Nodes
+        {"id": "FIR_2026_094", "label": "FIR", "properties": {"fir_number": "FIR-2026/094/WB-BKP", "statute": "BNS 2024", "sections": "Sec 111, 318, 316", "police_station": "Barrackpore Thana", "is_zero_fir": True, "origin_station": "Siliguri Junction PS"}}
+    ]
+
+    case_1_edges = [
+        # Kingpin to Lieutenant orders
+        {"id": "EDGE_001", "source": "PERSON_001", "target": "PERSON_002", "type": "COMMANDS", "properties": {"confidence": 0.98, "weight": 2.5, "intercept_count": 84}},
+        {"id": "EDGE_002", "source": "PERSON_001", "target": "PERSON_003", "type": "COMMANDS", "properties": {"confidence": 0.96, "weight": 2.2, "intercept_count": 62}},
+        
+        # Financial Flow
+        {"id": "EDGE_003", "source": "PERSON_002", "target": "BANK_HDFC_99182", "type": "CONTROLS", "properties": {"confidence": 0.99, "weight": 3.0}},
+        {"id": "EDGE_004", "source": "BANK_HDFC_99182", "target": "UPI_TARIQ_HAWALA", "type": "TRANSFERRED_FUNDS_TO", "properties": {"amount": 12500000, "timestamp": "2026-08-20T11:15:00Z", "weight": 2.8, "confidence": 0.99}},
+        {"id": "EDGE_005", "source": "UPI_TARIQ_HAWALA", "target": "CRYPTO_BTC_VAULT", "type": "TRANSFERRED_FUNDS_TO", "properties": {"amount": 8000000, "timestamp": "2026-08-21T16:40:00Z", "weight": 2.5, "confidence": 0.97}},
+        {"id": "EDGE_006", "source": "PERSON_002", "target": "PERSON_007", "type": "TRANSFERRED_FUNDS_TO", "properties": {"amount": 1500000, "timestamp": "2026-08-22T09:30:00Z", "weight": 1.8, "confidence": 0.95}},
+        
+        # Communications (CDR / IPDR)
+        {"id": "EDGE_007", "source": "PERSON_001", "target": "PHONE_9830112233", "type": "OWNS", "properties": {"confidence": 0.99}},
+        {"id": "EDGE_008", "source": "PERSON_002", "target": "PHONE_9831998877", "type": "OWNS", "properties": {"confidence": 0.99}},
+        {"id": "EDGE_009", "source": "PERSON_003", "target": "PHONE_9874556611", "type": "OWNS", "properties": {"confidence": 0.99}},
+        {"id": "EDGE_010", "source": "PHONE_9830112233", "target": "PHONE_9831998877", "type": "CALLED", "properties": {"call_frequency": 42, "duration_seconds": 12400, "weight": 2.2, "confidence": 0.99}},
+        {"id": "EDGE_011", "source": "PHONE_9831998877", "target": "PHONE_9874556611", "type": "CALLED", "properties": {"call_frequency": 31, "duration_seconds": 8900, "weight": 1.9, "confidence": 0.99}},
+        {"id": "EDGE_012", "source": "PERSON_004", "target": "PHONE_9830447722", "type": "OWNS", "properties": {"confidence": 0.99}},
+        {"id": "EDGE_013", "source": "PHONE_9830447722", "target": "PHONE_9830112233", "type": "CALLED", "properties": {"call_frequency": 19, "duration_seconds": 3200, "weight": 1.5, "confidence": 0.96}},
+        
+        # Vehicle & Logistics
+        {"id": "EDGE_014", "source": "PERSON_003", "target": "VEHICLE_WB02AB1234", "type": "OWNS", "properties": {"confidence": 0.99}},
+        {"id": "EDGE_015", "source": "PERSON_006", "target": "VEHICLE_WB24K9988", "type": "OWNS", "properties": {"confidence": 0.99}},
+        {"id": "EDGE_016", "source": "PERSON_005", "target": "VEHICLE_WB02AB1234", "type": "OPERATES_IN", "properties": {"confidence": 0.92, "weight": 1.6}},
+        
+        # Spatial Presence & Safehouses
+        {"id": "EDGE_017", "source": "PERSON_003", "target": "LOC_ICHHAPUR", "type": "PRESENT_AT", "properties": {"timestamp": "2026-08-24T21:00:00Z", "weight": 2.0, "confidence": 0.95}},
+        {"id": "EDGE_018", "source": "PERSON_005", "target": "LOC_ICHHAPUR", "type": "PRESENT_AT", "properties": {"timestamp": "2026-08-24T21:15:00Z", "weight": 2.0, "confidence": 0.95}},
+        {"id": "EDGE_019", "source": "PERSON_006", "target": "LOC_ICHHAPUR", "type": "PRESENT_AT", "properties": {"timestamp": "2026-08-24T21:30:00Z", "weight": 2.0, "confidence": 0.95}},
+        {"id": "EDGE_020", "source": "PERSON_003", "target": "LOC_PORT_KOLKATA", "type": "PRESENT_AT", "properties": {"timestamp": "2026-08-23T14:20:00Z", "weight": 1.7, "confidence": 0.93}},
+        {"id": "EDGE_021", "source": "PERSON_005", "target": "LOC_ASANSOL", "type": "PRESENT_AT", "properties": {"timestamp": "2026-08-19T18:00:00Z", "weight": 1.5, "confidence": 0.90}},
+        
+        # Co-Offending & Statutory Links
+        {"id": "EDGE_022", "source": "PERSON_001", "target": "FIR_2026_094", "type": "ASSOCIATED_WITH", "properties": {"role": "Accused Kingpin", "confidence": 0.99}},
+        {"id": "EDGE_023", "source": "PERSON_003", "target": "FIR_2026_094", "type": "ASSOCIATED_WITH", "properties": {"role": "Accused Enforcer", "confidence": 0.99}},
+        {"id": "EDGE_024", "source": "PERSON_005", "target": "PERSON_006", "type": "ARRESTED_WITH", "properties": {"timestamp": "2024-11-12T04:30:00Z", "location": "Barrackpore Toll", "weight": 2.0, "confidence": 0.99}}
+    ]
+
+    # Entity Resolution Benchmark Records (Simulating Fragmented Identities across Police Stations)
+    er_benchmark_records = [
+        {
+            "id": "REC_001_KOLKATA",
+            "full_name": "Tariq Al-Hasani",
+            "age": 49,
+            "phones": ["+919830112233"],
+            "vehicles": ["WB-02-AB-1234"],
+            "financial_ids": ["matrixops@okhdfcbank"],
+            "known_associates": ["Sunil Roy", "Raju Mondal"],
+            "source_db": "Kolkata Port Narcotics Division (2026)"
+        },
+        {
+            "id": "REC_002_SILIGURI",
+            "full_name": "Tariq Hasan",
+            "age": 48,
+            "phones": ["+919830112233"],
+            "vehicles": ["WB-02-AB-1234"],
+            "financial_ids": ["matrixops@okhdfcbank"],
+            "known_associates": ["Sunil Kumar Roy"],
+            "source_db": "Siliguri Zero-FIR Ingestion Stream (2026)"
+        },
+        {
+            "id": "REC_003_ASANSOL",
+            "full_name": "Kabir Bhai urf T. A. Hasani",
+            "age": 50,
+            "phones": ["+919830112233"],
+            "vehicles": [],
+            "financial_ids": ["bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"],
+            "known_associates": ["Raju Sardar"],
+            "source_db": "Asansol Intelligence General Diary (2024)"
+        },
+        {
+            "id": "REC_004_BARRACKPORE",
+            "full_name": "Md Tarique Husain",
+            "age": 31,
+            "phones": ["+919874001199"],
+            "vehicles": ["WB-24-X-0001"],
+            "financial_ids": ["thos@oksbi"],
+            "known_associates": ["Arun Das"],
+            "source_db": "Barrackpore Routine Traffic Stop (Distinct Person)"
+        },
+        {
+            "id": "REC_005_HAWALA_LOG",
+            "full_name": "Dr. Sunil K. Roy",
+            "age": 44,
+            "phones": ["+919831998877"],
+            "vehicles": [],
+            "financial_ids": ["50100991823411"],
+            "known_associates": ["Tariq Hasan"],
+            "source_db": "FIU Bank STR Report (2026)"
+        },
+        {
+            "id": "REC_006_CCTNS_OLD",
+            "full_name": "Sunil Kumar Roy",
+            "age": 43,
+            "phones": ["+919831998877"],
+            "vehicles": [],
+            "financial_ids": ["50100991823411"],
+            "known_associates": ["Tariq Al-Hasani"],
+            "source_db": "Legacy CCTNS West Bengal (2023)"
+        }
+    ]
+
+    # Spatio-Temporal Event Trajectory Points (GPS, Toll Booths, Cell Tower Pings)
+    spatio_temporal_events = [
+        # Convoy 1: Ichhapur Defence Estate Corridor (Night of Aug 24)
+        {"id": "EVT_001", "lat": 22.8124, "lng": 88.3752, "timestamp": "2026-08-24T21:00:00Z", "entity_name": "Raju Mondal", "vehicle_plate": "WB-02-AB-1234", "type": "GPS_PING", "location_name": "Ichhapur Safehouse Gate"},
+        {"id": "EVT_002", "lat": 22.8128, "lng": 88.3759, "timestamp": "2026-08-24T21:08:00Z", "entity_name": "Bikram Das", "vehicle_plate": "WB-02-AB-1234", "type": "CELL_TOWER_HIT", "location_name": "Ichhapur North Tower"},
+        {"id": "EVT_003", "lat": 22.8131, "lng": 88.3765, "timestamp": "2026-08-24T21:15:00Z", "entity_name": "Debabrata Paul", "vehicle_plate": "WB-24-K-9988", "type": "GPS_PING", "location_name": "Ichhapur Ordnance Approach"},
+        {"id": "EVT_004", "lat": 22.8135, "lng": 88.3770, "timestamp": "2026-08-24T21:22:00Z", "entity_name": "Debabrata Paul", "vehicle_plate": "WB-24-K-9988", "type": "TOLL_ANPR", "location_name": "Barrackpore-Ichhapur Link Toll"},
+        
+        # Hotspot 2: Kolkata Port Trust Maritime Corridor (Aug 23)
+        {"id": "EVT_005", "lat": 22.5411, "lng": 88.3217, "timestamp": "2026-08-23T14:10:00Z", "entity_name": "Raju Mondal", "vehicle_plate": "WB-02-AB-1234", "type": "CRIME_INCIDENT", "location_name": "Kolkata Dock-7 Ingress"},
+        {"id": "EVT_006", "lat": 22.5418, "lng": 88.3225, "timestamp": "2026-08-23T14:40:00Z", "entity_name": "Bikram Das", "vehicle_plate": "WB-02-AB-1234", "type": "CRIME_INCIDENT", "location_name": "Kolkata Port Container Yard"},
+        {"id": "EVT_007", "lat": 22.5425, "lng": 88.3231, "timestamp": "2026-08-23T15:10:00Z", "entity_name": "Tariq Al-Hasani", "vehicle_plate": "None", "type": "CELL_TOWER_HIT", "location_name": "Port Trust Cell Tower"},
+
+        # Hotspot 3: Siliguri Corridor Transit (Aug 21)
+        {"id": "EVT_008", "lat": 26.7271, "lng": 88.3953, "timestamp": "2026-08-21T08:30:00Z", "entity_name": "Debabrata Paul", "vehicle_plate": "WB-24-K-9988", "type": "TOLL_ANPR", "location_name": "Siliguri NH-27 Toll"},
+        {"id": "EVT_009", "lat": 26.7280, "lng": 88.3962, "timestamp": "2026-08-21T09:15:00Z", "entity_name": "Raju Mondal", "vehicle_plate": "WB-02-AB-1234", "type": "GPS_PING", "location_name": "Siliguri Freight Terminal"},
+        
+        # Noise / Independent Trajectory
+        {"id": "EVT_010", "lat": 23.6889, "lng": 86.9661, "timestamp": "2026-08-19T18:00:00Z", "entity_name": "Ananya Sen", "vehicle_plate": "None", "type": "ATM_TRANSACTION", "location_name": "Asansol Main Bazaar ATM"}
+    ]
+
+    cases = {
+        "active_case_id": "CASE-WB-2026-ICHHAPUR-01",
+        "case_title": "Operation Ichhapur Matrix: Trans-Border Contraband & Hawala Syndicate",
+        "jurisdiction": "West Bengal Police • CID Special Intelligence Cell (Ichhapur Hub)",
+        "statutory_framework": "Bharatiya Nyaya Sanhita (BNS) 2024 & Bharatiya Sakshya Adhiniyam (BSA)",
+        "graph_data": {
+            "nodes": case_1_nodes,
+            "edges": case_1_edges
+        },
+        "entity_resolution_dataset": er_benchmark_records,
+        "spatio_temporal_events": spatio_temporal_events,
+        "cctns_icjs_pillars": {
+            "police_cctns": {"connected_stations": 15400, "status": "ONLINE_SYNCHRONIZED"},
+            "ecourts": {"case_filing_status": "CHARGE_SHEET_PREPARED", "warrant_issued": True},
+            "eprisons": {"custody_lookup": "2 associates lodged in Alipore Central Jail"},
+            "eforensic": {"ballistics_report": "Matched 9mm cartridge casing to Ichhapur safehouse cache"},
+            "eprosecution": {"status": "Admissible under BSA 2024 Sec 63 digital certificate"}
+        }
+    }
+
+    return cases
+
+def initialize_knowledge_graph():
+    """Seeds the global in-memory knowledge graph store with default intelligence case."""
+    case_data = generate_default_intelligence_cases()
+    kg_store.load_from_dict(case_data["graph_data"])
+    with open(CASE_DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump(case_data, f, indent=2)
+    return case_data

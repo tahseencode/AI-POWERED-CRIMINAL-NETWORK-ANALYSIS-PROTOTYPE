@@ -1,0 +1,86 @@
+[
+  {
+    "log_index": 0,
+    "timestamp": "2026-08-27T22:26:19.744545Z",
+    "officer_badge": "GENESIS-SUPERVISOR-001",
+    "role": "System Administrator (Admin)",
+    "action": "GENESIS_NODE_INITIALIZED",
+    "query_or_target": "System initialization at Ichhapur Hub",
+    "resource_hash": "a35816af1be6013feaee5ddb9368e0c564f71fc2ed1481d298c0190176080df3",
+    "prev_entry_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "entry_hash": "c3948d221ab1aeebb9526e1ca75068fa7b9c85fcd0585883cb57bd7b07057a19",
+    "hmac_sig": "308b06a094cf3e230264a0c444b20223cfafef753c8d8b481fdac8b5429770c7"
+  },
+  {
+    "log_index": 1,
+    "timestamp": "2026-08-27T22:26:33.809642Z",
+    "officer_badge": "IO-KOLKATA-8842",
+    "role": "Investigating Officer (IO)",
+    "action": "GRAPHRAG_INTELLIGENCE_INTERROGATION",
+    "query_or_target": "Show me financial transfers connected to hawala",
+    "resource_hash": "d173fe99ccd753fae63b03438946fb0e2d3fb27a74babb1c55252093be3110c1",
+    "prev_entry_hash": "c3948d221ab1aeebb9526e1ca75068fa7b9c85fcd0585883cb57bd7b07057a19",
+    "entry_hash": "2382c2fb2c54faf930d6cbad2713d6fc2fa5d9339fbdd0b74c6d728be08f4102",
+    "hmac_sig": "ab6445bf7220608f22d6788c20acdfd2b163938f8ec33919d5b9c98207035730"
+  },
+  {
+    "log_index": 2,
+    "timestamp": "2026-08-27T22:26:33.833856Z",
+    "officer_badge": "TEST-IO-999",
+    "role": "Investigating Officer (IO)",
+    "action": "TEST_ACTION",
+    "query_or_target": "Unit test verification",
+    "resource_hash": "e8a09e7c9dbb47c4293edec3a284129a91e7d8ed367bde3bcbb2e94054169882",
+    "prev_entry_hash": "2382c2fb2c54faf930d6cbad2713d6fc2fa5d9339fbdd0b74c6d728be08f4102",
+    "entry_hash": "18ea4d4738315b600da10b7414c0e13e63089d6e1b4c69ebcfaa8c3271301906",
+    "hmac_sig": "110c47d3ea81913d0e840e485759cbd9547384eb2a84895bf6d237bd52974636"
+  },
+  {
+    "log_index": 3,
+    "timestamp": "2026-08-27T22:33:00.300975+00:00Z",
+    "officer_badge": "IO-KOLKATA-8842",
+    "role": "Investigating Officer (IO)",
+    "action": "GRAPHRAG_INTELLIGENCE_INTERROGATION",
+    "query_or_target": "Show me hawala transfers",
+    "resource_hash": "d173fe99ccd753fae63b03438946fb0e2d3fb27a74babb1c55252093be3110c1",
+    "prev_entry_hash": "18ea4d4738315b600da10b7414c0e13e63089d6e1b4c69ebcfaa8c3271301906",
+    "entry_hash": "5cf491b50e4b22dd6c68b567874a6be7e7764b49822e263515d6fa9efbf2caf8",
+    "hmac_sig": "3aeeb3debaadf9d18df82dfb09da64e494815093f8a0ea7bd9dca6f9f15a35f1"
+  },
+  {
+    "log_index": 4,
+    "timestamp": "2026-08-27T22:33:02.321545+00:00Z",
+    "officer_badge": "IA-SPECIAL-CELL-104",
+    "role": "Intelligence Analyst (IA)",
+    "action": "NETWORK_DISRUPTION_SIMULATION",
+    "query_or_target": "Targets: PERSON_001, PERSON_002",
+    "resource_hash": "600ed67499766f8cea3552d1785a2625f362def4815195a6926e484dc44de464",
+    "prev_entry_hash": "5cf491b50e4b22dd6c68b567874a6be7e7764b49822e263515d6fa9efbf2caf8",
+    "entry_hash": "ee9042fc9684d0066b3847318ac5526b95c3d480d018973e03be40afeaf323c8",
+    "hmac_sig": "cc6690d21cfd50517de4da375d9283ce768817786dd2c5bd5ce745e58dc9e015"
+  },
+  {
+    "log_index": 5,
+    "timestamp": "2026-08-27T22:33:29.763811+00:00Z",
+    "officer_badge": "IO-KOLKATA-8842",
+    "role": "Investigating Officer (IO)",
+    "action": "GRAPHRAG_INTELLIGENCE_INTERROGATION",
+    "query_or_target": "Show me hawala transfers",
+    "resource_hash": "d173fe99ccd753fae63b03438946fb0e2d3fb27a74babb1c55252093be3110c1",
+    "prev_entry_hash": "ee9042fc9684d0066b3847318ac5526b95c3d480d018973e03be40afeaf323c8",
+    "entry_hash": "299046db75e501ea3353d2c07fe58659fd52f94db5ede35e2ff275933cdbfbd7",
+    "hmac_sig": "5d8f0dd30c703c38333925256f627f8e1d8e852cfbd8b2a7c0d0939d547223af"
+  },
+  {
+    "log_index": 6,
+    "timestamp": "2026-08-27T22:33:31.776727+00:00Z",
+    "officer_badge": "IA-SPECIAL-CELL-104",
+    "role": "Intelligence Analyst (IA)",
+    "action": "NETWORK_DISRUPTION_SIMULATION",
+    "query_or_target": "Targets: PERSON_001, PERSON_002",
+    "resource_hash": "600ed67499766f8cea3552d1785a2625f362def4815195a6926e484dc44de464",
+    "prev_entry_hash": "299046db75e501ea3353d2c07fe58659fd52f94db5ede35e2ff275933cdbfbd7",
+    "entry_hash": "9007b1e3c65b1d0d5f535f97768910b2f54f7e6b0f78243c7745d35a4d24c145",
+    "hmac_sig": "d60a4a27b246439c194e50e4ea3eb648fef182a9f65b123ffc4de2a7202aa90d"
+  }
+]
