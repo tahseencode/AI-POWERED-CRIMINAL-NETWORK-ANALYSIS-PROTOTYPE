@@ -67,6 +67,50 @@ class IngestionRequest(BaseModel):
     officer_badge: Optional[str] = "IO-KOLKATA-8842"
     role: Optional[str] = UserRole.INVESTIGATING_OFFICER.value
 
+class StatutoryActDetail(BaseModel):
+    act: str = "Bharatiya Nyaya Sanhita (BNS) 2024"
+    section: str = "Section 111"
+    title: Optional[str] = "Organized Crime Syndicate Offence"
+    explanation: Optional[str] = ""
+
+class AddSuspectRequest(BaseModel):
+    name: str
+    aliases: Optional[List[str]] = []
+    role: Optional[str] = "Syndicate Operative"
+    threat_score: Optional[float] = 0.75
+    attribute_load: Optional[float] = 2.5
+    age: Optional[int] = 32
+    gender: Optional[str] = "Male"
+    cctns_id: Optional[str] = None
+    
+    # Detailed Crime Profile
+    crime_title: str = "Unlawful Syndicate Conspiracy & Contraband Operations"
+    crime_category: Optional[str] = "Organized Crime & Firearms Trafficking"
+    incident_narrative: str = "Suspect engaged in active conspiracy and logistical coordination of contraband."
+    modus_operandi: Optional[str] = "Operates through encrypted telecom channels and rapid physical dropoffs."
+    seized_contraband: Optional[str] = "Country-made weapons and unaccounted currency notes."
+    statutory_acts: Optional[List[StatutoryActDetail]] = []
+    bns_sections: Optional[List[str]] = []
+    fir_number: Optional[str] = ""
+    police_station: Optional[str] = "Barrackpore Special Thana"
+    incident_date: Optional[str] = ""
+    incident_locus: Optional[str] = "Ichhapur Safehouse Corridor"
+    case_status: Optional[str] = "Under Active Investigation / Warrant Issued"
+    
+    # Associated Network Entities
+    phone_numbers: Optional[List[str]] = []
+    vehicle_plates: Optional[List[str]] = []
+    bank_accounts: Optional[List[str]] = []
+    upi_ids: Optional[List[str]] = []
+    crypto_wallets: Optional[List[str]] = []
+    locations: Optional[List[str]] = []
+    known_associates: Optional[List[str]] = []
+    associate_relation: Optional[str] = "COLLABORATES_WITH"
+
+    # Audit & Security Context
+    officer_badge: Optional[str] = "IO-KOLKATA-8842"
+    role: Optional[str] = UserRole.INVESTIGATING_OFFICER.value
+
 # ==========================================
 # API ROUTES
 # ==========================================
@@ -242,6 +286,343 @@ def ingest_text_or_document(req: IngestionRequest):
     return {
         "ocr_processing": ocr_result,
         "legal_ner_extraction": ner_result
+    }
+
+# Suspect & Crime Intelligence Endpoints
+@app.get("/api/suspects")
+def get_all_suspects():
+    """Returns all suspects indexed in the Knowledge Graph with detailed crime dossiers."""
+    suspects = []
+    for nid, node in kg_store.nodes.items():
+        if node.get("label") == "Person":
+            props = node.get("properties", {})
+            suspects.append({
+                "id": nid,
+                "name": props.get("name", nid),
+                "aliases": props.get("aliases", []),
+                "role": props.get("role", "Unknown"),
+                "threat_score": props.get("threat_score", 0.5),
+                "age": props.get("age"),
+                "gender": props.get("gender", "Male"),
+                "cctns_id": props.get("cctns_id", ""),
+                "bns_sections": props.get("bns_sections", []),
+                "crime_details": props.get("crime_details", {}),
+                "neighbors_count": len(kg_store.get_neighbors(nid))
+            })
+    suspects.sort(key=lambda s: s.get("threat_score", 0.5), reverse=True)
+    return suspects
+
+@app.get("/api/crimes")
+def get_all_crimes():
+    """Returns all crime incidents, dossiers and statutory charges across the network."""
+    crimes = []
+    for nid, node in kg_store.nodes.items():
+        if node.get("label") == "CrimeIncident":
+            crimes.append({
+                "id": nid,
+                "type": "INCIDENT_NODE",
+                "title": node["properties"].get("name", nid),
+                "category": node["properties"].get("category", "General Crime"),
+                "summary": node["properties"].get("summary", ""),
+                "seized_items": node["properties"].get("seized_items", ""),
+                "date": node["properties"].get("date", ""),
+                "locus": node["properties"].get("locus", ""),
+                "threat_level": node["properties"].get("threat_level", "HIGH")
+            })
+        elif node.get("label") == "FIR":
+            crimes.append({
+                "id": nid,
+                "type": "FIR_RECORD",
+                "fir_number": node["properties"].get("fir_number", nid),
+                "title": node["properties"].get("crime_title", node["properties"].get("fir_number", nid)),
+                "statute": node["properties"].get("statute", "BNS 2024"),
+                "sections": node["properties"].get("sections", ""),
+                "police_station": node["properties"].get("police_station", ""),
+                "is_zero_fir": node["properties"].get("is_zero_fir", False),
+                "case_status": node["properties"].get("case_status", "Under Investigation")
+            })
+            
+    for nid, node in kg_store.nodes.items():
+        if node.get("label") == "Person" and "crime_details" in node.get("properties", {}):
+            cd = node["properties"]["crime_details"]
+            crimes.append({
+                "id": f"CRIME_PROFILE_{nid}",
+                "type": "SUSPECT_CRIME_DOSSIER",
+                "suspect_id": nid,
+                "suspect_name": node["properties"].get("name", nid),
+                "title": cd.get("crime_title", "Syndicate Offence"),
+                "category": cd.get("crime_category", "Organized Crime"),
+                "summary": cd.get("incident_narrative", ""),
+                "modus_operandi": cd.get("modus_operandi", ""),
+                "seized_items": cd.get("seized_contraband", ""),
+                "statutory_acts": cd.get("statutory_acts", []),
+                "fir_number": cd.get("fir_number", ""),
+                "police_station": cd.get("police_station", ""),
+                "date": cd.get("incident_date", ""),
+                "locus": cd.get("incident_locus", ""),
+                "case_status": cd.get("case_status", "Active Trial")
+            })
+    return crimes
+
+@app.post("/api/suspects/add")
+@app.post("/api/graph/add-suspect")
+def add_new_suspect(req: AddSuspectRequest):
+    """
+    Ingests a new suspect with complete biometrics, network entities, and rich crime details
+    directly into the Knowledge Graph and persists the intelligence.
+    """
+    import random
+    existing_person_ids = [nid for nid, n in kg_store.nodes.items() if n.get("label") == "Person"]
+    suspect_id = f"PERSON_{len(existing_person_ids) + 1:03d}"
+    
+    statutory_acts_data = []
+    if req.statutory_acts:
+        for sa in req.statutory_acts:
+            statutory_acts_data.append({
+                "act": sa.act,
+                "section": sa.section,
+                "title": sa.title or f"{sa.act} {sa.section}",
+                "explanation": sa.explanation or "Statutory offence committed as part of criminal syndicate."
+            })
+    else:
+        statutory_acts_data = [
+            {
+                "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
+                "section": "Section 111",
+                "title": "Organized Crime Syndicate Offence",
+                "explanation": "Active participation in organized syndicate conspiracy, extortion, and unlawful supply."
+            },
+            {
+                "act": "Arms Act 1959",
+                "section": "Section 25",
+                "title": "Unlawful Possession of Arms",
+                "explanation": "Procurement and transport of prohibited arms and ammunition."
+            }
+        ]
+
+    bns_sections_list = req.bns_sections or [f"{sa['act']} {sa['section']}" for sa in statutory_acts_data]
+
+    crime_details = {
+        "crime_title": req.crime_title,
+        "crime_category": req.crime_category or "Organized Crime Syndicate",
+        "incident_narrative": req.incident_narrative,
+        "modus_operandi": req.modus_operandi or "Operates in clandestine syndicates using burner communication devices.",
+        "seized_contraband": req.seized_contraband or "Unlicenced weaponry, forged credentials, and illicit funds.",
+        "statutory_acts": statutory_acts_data,
+        "fir_number": req.fir_number or f"FIR-2026/{random.randint(100, 999)}/WB-BKP",
+        "police_station": req.police_station or "Barrackpore Special Crime Thana",
+        "incident_date": req.incident_date or "2026-08-28 19:30 IST",
+        "incident_locus": req.incident_locus or "Kolkata-Ichhapur Tactical Hub",
+        "case_status": req.case_status or "Under Active Investigation / Warrant Issued",
+        "investigating_officer": req.officer_badge or "IO-KOLKATA-8842"
+    }
+
+    cctns_id = req.cctns_id or f"WB-CCTNS-2026-{random.randint(10000, 99999)}"
+    person_node = kg_store.add_node(
+        node_id=suspect_id,
+        label="Person",
+        properties={
+            "name": req.name,
+            "aliases": req.aliases or [],
+            "role": req.role or "Syndicate Operative",
+            "threat_score": float(req.threat_score or 0.75),
+            "attribute_load": float(req.attribute_load or 2.5),
+            "age": req.age or 32,
+            "gender": req.gender or "Male",
+            "cctns_id": cctns_id,
+            "bns_sections": bns_sections_list,
+            "crime_details": crime_details
+        }
+    )
+
+    nodes_added = [person_node]
+    edges_added = []
+
+    # Add Incident node
+    incident_id = f"INCIDENT_{len(kg_store.nodes) + 1:03d}"
+    incident_node = kg_store.add_node(
+        node_id=incident_id,
+        label="CrimeIncident",
+        properties={
+            "name": req.crime_title,
+            "category": req.crime_category,
+            "summary": req.incident_narrative,
+            "seized_items": req.seized_contraband,
+            "date": req.incident_date or "2026-08-28T19:30:00Z",
+            "locus": req.incident_locus,
+            "threat_level": "CRITICAL" if (req.threat_score or 0.75) >= 0.8 else "HIGH"
+        }
+    )
+    nodes_added.append(incident_node)
+    
+    edge_inc = kg_store.add_edge(
+        edge_id=f"EDGE_{len(kg_store.edges) + 1:03d}",
+        source=suspect_id,
+        target=incident_id,
+        rel_type="INVOLVED_IN",
+        properties={"confidence": 0.99, "weight": 2.2, "role": req.role}
+    )
+    edges_added.append(edge_inc)
+
+    # Phones
+    for idx, phone in enumerate(req.phone_numbers or []):
+        clean_num = phone.strip()
+        if clean_num:
+            phone_id = f"PHONE_{clean_num.replace('+', '').replace('-', '').replace(' ', '')[-10:]}"
+            p_node = kg_store.add_node(
+                node_id=phone_id,
+                label="Phone",
+                properties={"number": clean_num, "subscriber": req.name, "service_provider": "Airtel / Jio"}
+            )
+            nodes_added.append(p_node)
+            e = kg_store.add_edge(
+                edge_id=f"EDGE_{len(kg_store.edges) + 1:03d}",
+                source=suspect_id,
+                target=phone_id,
+                rel_type="OWNS",
+                properties={"confidence": 0.99}
+            )
+            edges_added.append(e)
+
+    # Vehicles
+    for idx, plate in enumerate(req.vehicle_plates or []):
+        clean_plate = plate.strip()
+        if clean_plate:
+            veh_id = f"VEHICLE_{clean_plate.replace('-', '').replace(' ', '').upper()}"
+            v_node = kg_store.add_node(
+                node_id=veh_id,
+                label="Vehicle",
+                properties={"plate_number": clean_plate, "make_model": "Transport Vehicle", "registered_owner": req.name}
+            )
+            nodes_added.append(v_node)
+            e = kg_store.add_edge(
+                edge_id=f"EDGE_{len(kg_store.edges) + 1:03d}",
+                source=suspect_id,
+                target=veh_id,
+                rel_type="OPERATES_IN",
+                properties={"confidence": 0.95, "weight": 1.8}
+            )
+            edges_added.append(e)
+
+    # Bank Accounts & UPI
+    for idx, acc in enumerate(req.bank_accounts or []):
+        clean_acc = acc.strip()
+        if clean_acc:
+            acc_id = f"BANK_{clean_acc.replace(' ', '')[-6:]}"
+            b_node = kg_store.add_node(
+                node_id=acc_id,
+                label="BankAccount",
+                properties={"account_number": clean_acc, "bank_name": "Commercial Bank", "holder": req.name, "balance_flagged": 2500000}
+            )
+            nodes_added.append(b_node)
+            e = kg_store.add_edge(
+                edge_id=f"EDGE_{len(kg_store.edges) + 1:03d}",
+                source=suspect_id,
+                target=acc_id,
+                rel_type="CONTROLS",
+                properties={"confidence": 0.98, "weight": 2.5}
+            )
+            edges_added.append(e)
+
+    for idx, upi in enumerate(req.upi_ids or []):
+        clean_upi = upi.strip()
+        if clean_upi:
+            upi_id = f"UPI_{clean_upi.replace('@', '_').replace('.', '_')}"
+            u_node = kg_store.add_node(
+                node_id=upi_id,
+                label="BankAccount",
+                properties={"upi_id": clean_upi, "linked_name": req.name, "daily_flow_avg": 500000}
+            )
+            nodes_added.append(u_node)
+            e = kg_store.add_edge(
+                edge_id=f"EDGE_{len(kg_store.edges) + 1:03d}",
+                source=suspect_id,
+                target=upi_id,
+                rel_type="CONTROLS",
+                properties={"confidence": 0.98, "weight": 2.0}
+            )
+            edges_added.append(e)
+
+    # Locations
+    for idx, loc in enumerate(req.locations or []):
+        clean_loc = loc.strip()
+        if clean_loc:
+            loc_id = f"LOC_{clean_loc.replace(' ', '_').upper()[:15]}"
+            l_node = kg_store.add_node(
+                node_id=loc_id,
+                label="Location",
+                properties={"name": clean_loc, "district": "West Bengal", "facility_type": "Suspect Locus"}
+            )
+            nodes_added.append(l_node)
+            e = kg_store.add_edge(
+                edge_id=f"EDGE_{len(kg_store.edges) + 1:03d}",
+                source=suspect_id,
+                target=loc_id,
+                rel_type="PRESENT_AT",
+                properties={"confidence": 0.94, "weight": 1.7, "timestamp": "2026-08-28T18:00:00Z"}
+            )
+            edges_added.append(e)
+
+    # Known Associates
+    for assoc_id in (req.known_associates or []):
+        if assoc_id in kg_store.nodes:
+            e = kg_store.add_edge(
+                edge_id=f"EDGE_{len(kg_store.edges) + 1:03d}",
+                source=suspect_id,
+                target=assoc_id,
+                rel_type=req.associate_relation or "COLLABORATES_WITH",
+                properties={"confidence": 0.96, "weight": 2.0, "intercept_count": 15}
+            )
+            edges_added.append(e)
+
+    # Persist to disk
+    try:
+        if Path(CASE_DATA_FILE).exists():
+            with open(CASE_DATA_FILE, "r", encoding="utf-8") as f:
+                cdata = json.load(f)
+            cdata["graph_data"]["nodes"] = list(kg_store.nodes.values())
+            cdata["graph_data"]["edges"] = kg_store.edges
+            cdata.setdefault("entity_resolution_dataset", []).append({
+                "id": f"REC_NEW_{suspect_id}",
+                "full_name": req.name,
+                "age": req.age or 32,
+                "phones": req.phone_numbers or [],
+                "vehicles": req.vehicle_plates or [],
+                "financial_ids": req.bank_accounts or req.upi_ids or [],
+                "known_associates": req.known_associates or [],
+                "source_db": f"{crime_details['police_station']} Digital Record (2026)"
+            })
+            with open(CASE_DATA_FILE, "w", encoding="utf-8") as f:
+                json.dump(cdata, f, indent=2)
+    except Exception as err:
+        print(f"Warning: Failed to persist to {CASE_DATA_FILE}: {err}")
+
+    # Audit log
+    audit_logger.log_action(
+        officer_badge=req.officer_badge or "IO-KOLKATA-8842",
+        role=req.role or "Investigating Officer (IO)",
+        action="SUSPECT_INGESTION_WITH_CRIME_DETAILS",
+        query_or_target=f"Added Suspect: {req.name} ({suspect_id}) | Crime: {req.crime_title}",
+        resource_data={
+            "suspect_id": suspect_id,
+            "crime_title": req.crime_title,
+            "statutory_acts_count": len(statutory_acts_data),
+            "threat_score": req.threat_score,
+            "nodes_added_count": len(nodes_added),
+            "edges_added_count": len(edges_added)
+        }
+    )
+
+    return {
+        "success": True,
+        "message": f"Suspect '{req.name}' with detailed crime dossier successfully added to Knowledge Graph.",
+        "suspect_id": suspect_id,
+        "incident_id": incident_id,
+        "suspect_node": person_node,
+        "nodes_added_count": len(nodes_added),
+        "edges_added_count": len(edges_added),
+        "total_graph_nodes": len(kg_store.nodes),
+        "total_graph_edges": len(kg_store.edges)
     }
 
 # Cybersecurity & Cryptographic Custody

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { FileText, UploadCloud, Cpu, CheckCircle2, Shield, Languages, FileCheck } from 'lucide-react';
+import { FileText, UploadCloud, Cpu, CheckCircle2, Shield, Languages, FileCheck, UserPlus, Sparkles } from 'lucide-react';
 
-export default function DataIngestionStudio({ currentRole }) {
+export default function DataIngestionStudio({ currentRole, onOpenAddSuspectWithData }) {
   const sampleFIRHindi = `प्रथम सूचना रिपोर्ट (FIR No. WB-2026/104)
 थाना: बैरकपुर, उत्तर 24 परगना
 दिनांक: 24/08/2026
@@ -58,6 +58,43 @@ Statutory Code: Section 111 BNS 2024, IT Act Sec 66D, BSA Sec 63.`;
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleTransferToGraph = () => {
+    if (!extractionResult || !onOpenAddSuspectWithData) return;
+    const ner = extractionResult.legal_ner_extraction?.entities || {};
+    const bio = ner.biographic_data?.[0] || {};
+    const comm = ner.communication_identifiers || [];
+    const veh = ner.vehicular_logistics || [];
+    const fin = ner.financial_instruments || [];
+    const loc = ner.spatial_and_geographic || [];
+    const stat = ner.statutory_and_legal || {};
+
+    const prefill = {
+      name: bio.suspect_name || "Extracted Suspect",
+      aliases: bio.aliases || [],
+      age: bio.age ? parseInt(bio.age, 10) : 35,
+      gender: "Male",
+      threat_score: 0.80,
+      crime_title: `Extracted Case: ${stat.fir_number || 'FIR Intelligence'}`,
+      crime_category: "Organized Crime & Syndicate",
+      incident_narrative: rawText.substring(0, 300),
+      fir_number: stat.fir_number || "",
+      police_station: stat.police_station || "Special Cell",
+      phone_numbers: comm.filter(c => c.type === 'PHONE').map(c => c.value),
+      vehicle_plates: veh.map(v => v.plate_number),
+      bank_accounts: fin.filter(f => f.type === 'BANK_ACCOUNT').map(f => f.identifier),
+      upi_ids: fin.filter(f => f.type === 'UPI_ID').map(f => f.identifier),
+      locations: loc.map(l => l.location_name || l.district),
+      statutory_acts: (stat.statutory_sections || []).map(sec => ({
+        act: sec.includes('Arms') ? 'Arms Act 1959' : sec.includes('IT') ? 'Information Technology Act 2000' : 'Bharatiya Nyaya Sanhita (BNS) 2024',
+        section: sec,
+        title: sec,
+        explanation: 'Extracted automatically from multilingual FIR narrative.'
+      }))
+    };
+
+    onOpenAddSuspectWithData(prefill);
   };
 
   return (
@@ -138,7 +175,7 @@ Statutory Code: Section 111 BNS 2024, IT Act Sec 66D, BSA Sec 63.`;
       <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto' }}>
         {extractionResult ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <span className="badge badge-cyan">
                   <Languages size={12} />
@@ -149,9 +186,26 @@ Statutory Code: Section 111 BNS 2024, IT Act Sec 66D, BSA Sec 63.`;
                   {extractionResult.legal_ner_extraction?.total_entities_extracted} Entities Extracted
                 </span>
               </div>
-              <span className="badge badge-violet" style={{ fontSize: '9px' }}>
-                Maitreyi-Y1 BNS LoRA
-              </span>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  type="button"
+                  onClick={handleTransferToGraph}
+                  className="btn-primary"
+                  style={{
+                    fontSize: '11px',
+                    padding: '5px 12px',
+                    background: 'linear-gradient(135deg, rgba(0, 229, 255, 0.25) 0%, rgba(124, 77, 255, 0.35) 100%)',
+                    border: '1px solid var(--accent-cyan)'
+                  }}
+                  title="Open Add Suspect Modal with extracted details"
+                >
+                  <UserPlus size={13} color="var(--accent-cyan)" />
+                  <span>+ Ingest Extracted Suspect to Graph</span>
+                </button>
+                <span className="badge badge-violet" style={{ fontSize: '9px' }}>
+                  Maitreyi-Y1 BNS LoRA
+                </span>
+              </div>
             </div>
 
             {/* 6 Core Categories Grid */}

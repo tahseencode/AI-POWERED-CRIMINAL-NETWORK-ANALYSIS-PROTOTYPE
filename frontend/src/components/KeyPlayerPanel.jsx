@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Target, Zap, ShieldAlert, Activity, CheckCircle, Flame, BarChart2, CornerDownRight } from 'lucide-react';
+import { Target, Zap, ShieldAlert, Activity, CheckCircle, Flame, BarChart2, CornerDownRight, ChevronDown, ChevronUp, Scale, FileText } from 'lucide-react';
 
 export default function KeyPlayerPanel({ currentRole }) {
   const [cppTriData, setCppTriData] = useState([]);
@@ -9,6 +9,7 @@ export default function KeyPlayerPanel({ currentRole }) {
   const [selectedTargets, setSelectedTargets] = useState([]);
   const [simulationResult, setSimulationResult] = useState(null);
   const [simulating, setSimulating] = useState(false);
+  const [expandedActorId, setExpandedActorId] = useState(null);
 
   useEffect(() => {
     fetchAnalyticsData();
@@ -53,6 +54,11 @@ export default function KeyPlayerPanel({ currentRole }) {
     }
   };
 
+  const toggleExpand = (e, nodeId) => {
+    e.stopPropagation();
+    setExpandedActorId(expandedActorId === nodeId ? null : nodeId);
+  };
+
   const runDisruptionSimulation = async (targets) => {
     setSimulating(true);
     try {
@@ -84,61 +90,146 @@ export default function KeyPlayerPanel({ currentRole }) {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Target size={20} color="var(--accent-crimson)" />
               <h2 style={{ fontSize: '15px', fontFamily: 'var(--font-tech)', color: '#fff', textTransform: 'uppercase' }}>
-                CPP TRI Multi-Criteria Threat Classification
+                CPP TRI Threat Classification & Crime Dossiers
               </h2>
             </div>
             <span className="badge badge-crimson">Borgatti KPP Engine</span>
           </div>
           <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '14px' }}>
-            Composition of Probabilistic Preferences synthesizing Degree, Betweenness, Eigenvector, and Energy Disruptive load into ordered threat categories.
+            Multi-criteria prioritization synthesizing Degree, Betweenness, Eigenvector, and Energy Disruptive load alongside full statutory crime profiles.
           </p>
 
           <div style={{ overflowX: 'auto' }}>
             <table className="intel-table">
               <thead>
                 <tr>
-                  <th>Target</th>
-                  <th>Suspect Name</th>
+                  <th>Strike</th>
+                  <th>Suspect & Crime Summary</th>
                   <th>Betweenness</th>
-                  <th>Energy Disruptive</th>
+                  <th>Disruptive</th>
                   <th>CPP Score</th>
                   <th>Threat Tier</th>
+                  <th>Dossier</th>
                 </tr>
               </thead>
               <tbody>
                 {cppTriData.map((actor) => {
                   const isSelected = selectedTargets.includes(actor.node_id);
+                  const isExpanded = expandedActorId === actor.node_id;
+                  const crime = actor.crime_details || {};
+
                   return (
-                    <tr 
-                      key={actor.node_id}
-                      onClick={() => toggleTarget(actor.node_id)}
-                      style={{ cursor: 'pointer', background: isSelected ? 'rgba(255, 23, 68, 0.12)' : 'transparent' }}
-                    >
-                      <td>
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => {}}
-                          style={{ cursor: 'pointer' }}
-                        />
-                      </td>
-                      <td>
-                        <div style={{ fontWeight: 600, color: '#fff' }}>{actor.name}</div>
-                        <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{actor.role}</div>
-                      </td>
-                      <td style={{ fontFamily: 'var(--font-mono)' }}>{actor.betweenness_centrality}</td>
-                      <td style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent-amber)', fontWeight: 600 }}>
-                        {actor.energy_disruptive_centrality}
-                      </td>
-                      <td style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent-cyan)', fontWeight: 700 }}>
-                        {actor.composite_cpp_score}
-                      </td>
-                      <td>
-                        <span className={`badge ${actor.threat_tier.includes('Tier 1') ? 'badge-crimson' : actor.threat_tier.includes('Tier 2') ? 'badge-amber' : 'badge-cyan'}`}>
-                          {actor.threat_tier.split(':')[0]}
-                        </span>
-                      </td>
-                    </tr>
+                    <React.Fragment key={actor.node_id}>
+                      <tr 
+                        onClick={() => toggleTarget(actor.node_id)}
+                        style={{ cursor: 'pointer', background: isSelected ? 'rgba(255, 23, 68, 0.12)' : isExpanded ? 'rgba(0, 229, 255, 0.05)' : 'transparent' }}
+                      >
+                        <td>
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => {}}
+                            style={{ cursor: 'pointer' }}
+                          />
+                        </td>
+                        <td>
+                          <div style={{ fontWeight: 600, color: '#fff' }}>{actor.name}</div>
+                          <div style={{ fontSize: '11px', color: 'var(--accent-amber)', fontFamily: 'var(--font-tech)' }}>
+                            {crime.crime_title || actor.role}
+                          </div>
+                        </td>
+                        <td style={{ fontFamily: 'var(--font-mono)' }}>{actor.betweenness_centrality}</td>
+                        <td style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent-amber)', fontWeight: 600 }}>
+                          {actor.energy_disruptive_centrality}
+                        </td>
+                        <td style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent-cyan)', fontWeight: 700 }}>
+                          {actor.composite_cpp_score}
+                        </td>
+                        <td>
+                          <span className={`badge ${actor.threat_tier.includes('Tier 1') ? 'badge-crimson' : actor.threat_tier.includes('Tier 2') ? 'badge-amber' : 'badge-cyan'}`}>
+                            {actor.threat_tier.split(':')[0]}
+                          </span>
+                        </td>
+                        <td>
+                          <button
+                            type="button"
+                            onClick={(e) => toggleExpand(e, actor.node_id)}
+                            className="btn-primary"
+                            style={{ padding: '4px 8px', fontSize: '10px' }}
+                            title="View Full Crime Dossier"
+                          >
+                            {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                          </button>
+                        </td>
+                      </tr>
+
+                      {/* Expandable Crime Dossier Row */}
+                      {isExpanded && (
+                        <tr>
+                          <td colSpan={7} style={{ background: 'rgba(7, 9, 14, 0.85)', padding: '14px 18px', borderLeft: '3px solid var(--accent-cyan)' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <Scale size={16} color="var(--accent-crimson)" />
+                                  <span style={{ fontSize: '13px', fontWeight: 700, color: '#fff' }}>
+                                    {crime.crime_title || 'Syndicate Crime Dossier'}
+                                  </span>
+                                </div>
+                                <span className="badge badge-crimson" style={{ fontSize: '10px' }}>
+                                  {crime.crime_category || 'Organized Syndicate'}
+                                </span>
+                              </div>
+
+                              {crime.incident_narrative && (
+                                <div style={{ fontSize: '11px', color: '#e2e8f0', lineHeight: 1.5, background: 'rgba(13, 18, 29, 0.8)', padding: '8px 12px', borderRadius: '6px' }}>
+                                  <strong style={{ color: 'var(--accent-cyan)' }}>Incident Narrative: </strong>
+                                  {crime.incident_narrative}
+                                </div>
+                              )}
+
+                              {crime.modus_operandi && (
+                                <div style={{ fontSize: '11px', color: '#fef08a', background: 'rgba(255, 179, 0, 0.08)', padding: '6px 10px', borderRadius: '4px', borderLeft: '3px solid var(--accent-amber)' }}>
+                                  <strong>🎯 Modus Operandi: </strong> {crime.modus_operandi}
+                                </div>
+                              )}
+
+                              {crime.seized_contraband && (
+                                <div style={{ fontSize: '11px', color: '#bae6fd', background: 'rgba(0, 229, 255, 0.06)', padding: '6px 10px', borderRadius: '4px' }}>
+                                  <strong>📦 Seized Contraband & Weapons: </strong> {crime.seized_contraband}
+                                </div>
+                              )}
+
+                              {/* Statutory Acts Breakdown */}
+                              {crime.statutory_acts && crime.statutory_acts.length > 0 && (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                  <span style={{ fontSize: '10px', color: 'var(--accent-cyan)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase' }}>
+                                    Statutory Acts & Legal Explanations:
+                                  </span>
+                                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                                    {crime.statutory_acts.map((act, aIdx) => (
+                                      <div key={aIdx} style={{ background: 'rgba(13, 18, 29, 0.9)', border: '1px solid var(--border-subtle)', padding: '6px 8px', borderRadius: '4px' }}>
+                                        <div style={{ fontWeight: 600, color: '#fff', fontSize: '11px' }}>
+                                          {act.act} • <span style={{ color: 'var(--accent-crimson)' }}>{act.section}</span>
+                                        </div>
+                                        <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '2px' }}>
+                                          {act.explanation || act.title}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              <div style={{ display: 'flex', gap: '16px', fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                                <div>FIR: <span style={{ color: '#fff' }}>{crime.fir_number || 'N/A'}</span></div>
+                                <div>Thana: <span style={{ color: '#fff' }}>{crime.police_station || 'Special Cell'}</span></div>
+                                <div>Status: <span style={{ color: 'var(--accent-amber)' }}>{crime.case_status || 'Under Active Investigation'}</span></div>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
                   );
                 })}
               </tbody>

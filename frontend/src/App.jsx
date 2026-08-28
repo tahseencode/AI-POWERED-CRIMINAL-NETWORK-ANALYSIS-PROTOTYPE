@@ -9,6 +9,7 @@ import EntityResolutionStudio from './components/EntityResolutionStudio.jsx';
 import DataIngestionStudio from './components/DataIngestionStudio.jsx';
 import AuditLogViewer from './components/AuditLogViewer.jsx';
 import CCTNSPillarsModal from './components/CCTNSPillarsModal.jsx';
+import AddSuspectModal from './components/AddSuspectModal.jsx';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('graph');
@@ -17,6 +18,8 @@ export default function App() {
   const [graphData, setGraphData] = useState(null);
   const [selectedNodeId, setSelectedNodeId] = useState(null);
   const [isCctnsModalOpen, setIsCctnsModalOpen] = useState(false);
+  const [isAddSuspectOpen, setIsAddSuspectOpen] = useState(false);
+  const [prefilledSuspectData, setPrefilledSuspectData] = useState(null);
 
   useEffect(() => {
     fetchInitialData();
@@ -39,6 +42,23 @@ export default function App() {
     fetchInitialData();
   };
 
+  const handleSuspectAdded = (resData) => {
+    fetchInitialData();
+    if (resData && resData.suspect_id) {
+      setSelectedNodeId(resData.suspect_id);
+      setActiveTab('graph');
+    }
+  };
+
+  // Extract existing suspects for linking
+  const existingSuspects = (graphData?.elements || [])
+    .filter(el => !el.data.source && el.data.entity_type === 'Person')
+    .map(el => ({
+      id: el.data.id,
+      name: el.data.label || el.data.id,
+      role: el.data.role || 'Suspect'
+    }));
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-primary)' }}>
       {/* Top Law-Enforcement Navigation Bar */}
@@ -48,6 +68,10 @@ export default function App() {
         systemStatus={systemStatus}
         onRefresh={handleRefresh}
         onOpenCctnsModal={() => setIsCctnsModalOpen(true)}
+        onOpenAddSuspectModal={() => {
+          setPrefilledSuspectData(null);
+          setIsAddSuspectOpen(true);
+        }}
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
@@ -96,6 +120,10 @@ export default function App() {
         {activeTab === 'ingest' && (
           <DataIngestionStudio
             currentRole={currentRole}
+            onOpenAddSuspectWithData={(data) => {
+              setPrefilledSuspectData(data);
+              setIsAddSuspectOpen(true);
+            }}
           />
         )}
 
@@ -105,6 +133,18 @@ export default function App() {
           />
         )}
       </main>
+
+      {/* Add Suspect & Detailed Crime Dossier Modal */}
+      <AddSuspectModal
+        isOpen={isAddSuspectOpen}
+        onClose={() => {
+          setIsAddSuspectOpen(false);
+          setPrefilledSuspectData(null);
+        }}
+        onSuspectAdded={handleSuspectAdded}
+        existingSuspects={existingSuspects}
+        prefilledData={prefilledSuspectData}
+      />
 
       {/* CCTNS / ICJS 5-Pillars Modal */}
       <CCTNSPillarsModal

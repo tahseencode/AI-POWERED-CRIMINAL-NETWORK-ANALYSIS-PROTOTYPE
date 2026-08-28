@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import cytoscape from 'cytoscape';
 import coseBilkent from 'cytoscape-cose-bilkent';
-import { Search, ZoomIn, ZoomOut, Maximize2, Filter, Layers, Info, ShieldAlert, Sparkles } from 'lucide-react';
+import { Search, ZoomIn, ZoomOut, Maximize2, Filter, Layers, Info, ShieldAlert, Sparkles, Scale } from 'lucide-react';
 
 cytoscape.use(coseBilkent);
 
@@ -426,6 +426,92 @@ export default function GraphExplorer({ graphData, onNodeSelect, selectedNodeId 
               </div>
             )}
 
+            {/* Comprehensive Crime Profile Dossier if present */}
+            {selectedEntity.properties?.crime_details && (
+              <div style={{
+                background: 'rgba(255, 23, 68, 0.06)',
+                border: '1px solid rgba(255, 23, 68, 0.35)',
+                borderRadius: '8px',
+                padding: '12px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--accent-crimson)', fontWeight: 700, fontFamily: 'var(--font-tech)', display: 'flex', alignItems: 'center', gap: '5px', textTransform: 'uppercase' }}>
+                    <Scale size={14} /> Comprehensive Crime Profile
+                  </span>
+                  <span className="badge badge-crimson" style={{ fontSize: '10px' }}>
+                    {selectedEntity.properties.crime_details.crime_category || 'Crime Record'}
+                  </span>
+                </div>
+
+                <div>
+                  <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#fff', lineHeight: 1.3 }}>
+                    {selectedEntity.properties.crime_details.crime_title}
+                  </h4>
+                  <div style={{ fontSize: '11px', color: 'var(--accent-amber)', marginTop: '3px', fontFamily: 'var(--font-tech)' }}>
+                    ⚖️ {selectedEntity.properties.crime_details.case_status || 'Under Active Investigation'}
+                  </div>
+                </div>
+
+                {selectedEntity.properties.crime_details.incident_narrative && (
+                  <div style={{ background: 'rgba(7, 9, 14, 0.6)', borderRadius: '6px', padding: '8px 10px', fontSize: '11px', color: '#e2e8f0', lineHeight: 1.5 }}>
+                    <strong style={{ color: 'var(--accent-cyan)' }}>Incident Summary: </strong>
+                    {selectedEntity.properties.crime_details.incident_narrative}
+                  </div>
+                )}
+
+                {selectedEntity.properties.crime_details.modus_operandi && (
+                  <div style={{ background: 'rgba(255, 179, 0, 0.08)', borderLeft: '3px solid var(--accent-amber)', borderRadius: '4px', padding: '6px 8px', fontSize: '11px', color: '#fef08a', lineHeight: 1.4 }}>
+                    <strong>🎯 Modus Operandi (M.O.): </strong>
+                    {selectedEntity.properties.crime_details.modus_operandi}
+                  </div>
+                )}
+
+                {selectedEntity.properties.crime_details.seized_contraband && (
+                  <div style={{ background: 'rgba(0, 229, 255, 0.06)', borderRadius: '6px', padding: '6px 8px', fontSize: '11px', color: '#bae6fd' }}>
+                    <strong style={{ color: 'var(--accent-cyan)' }}>📦 Seized Contraband & Weapons: </strong>
+                    {selectedEntity.properties.crime_details.seized_contraband}
+                  </div>
+                )}
+
+                {/* Statutory Acts Breakdown */}
+                {selectedEntity.properties.crime_details.statutory_acts && selectedEntity.properties.crime_details.statutory_acts.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <span style={{ fontSize: '10px', color: 'var(--accent-cyan)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase' }}>
+                      Statutory Acts & Explanations ({selectedEntity.properties.crime_details.statutory_acts.length} Sections)
+                    </span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {selectedEntity.properties.crime_details.statutory_acts.map((actItem, aIdx) => (
+                        <div key={aIdx} style={{ background: 'rgba(7, 9, 14, 0.7)', border: '1px solid var(--border-subtle)', borderRadius: '6px', padding: '6px 8px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ color: '#fff', fontWeight: 600, fontSize: '11px' }}>
+                              {actItem.act} • <span style={{ color: 'var(--accent-crimson)' }}>{actItem.section}</span>
+                            </span>
+                            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{actItem.title}</span>
+                          </div>
+                          {actItem.explanation && (
+                            <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px', lineHeight: 1.3 }}>
+                              {actItem.explanation}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* FIR, Locus & Station */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                  <div>FIR: <span style={{ color: '#fff' }}>{selectedEntity.properties.crime_details.fir_number || 'N/A'}</span></div>
+                  <div>Thana: <span style={{ color: '#fff' }}>{selectedEntity.properties.crime_details.police_station || 'Special Cell'}</span></div>
+                  <div>Date: <span style={{ color: '#fff' }}>{selectedEntity.properties.crime_details.incident_date || 'Aug 2026'}</span></div>
+                  <div>IO: <span style={{ color: '#fff' }}>{selectedEntity.properties.crime_details.investigating_officer || 'IO-8842'}</span></div>
+                </div>
+              </div>
+            )}
+
             {/* Properties Breakdown */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <h4 style={{ fontSize: '11px', color: 'var(--accent-cyan)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase' }}>
@@ -440,7 +526,9 @@ export default function GraphExplorer({ graphData, onNodeSelect, selectedNodeId 
                 flexDirection: 'column',
                 gap: '6px'
               }}>
-                {Object.entries(selectedEntity.properties || {}).map(([key, val]) => (
+                {Object.entries(selectedEntity.properties || {})
+                  .filter(([k]) => k !== 'crime_details')
+                  .map(([key, val]) => (
                   <div key={key} style={{ display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
                     <span style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: '11px' }}>
                       {key}:
@@ -470,7 +558,7 @@ export default function GraphExplorer({ graphData, onNodeSelect, selectedNodeId 
         ) : (
           <div style={{ textAlign: 'center', padding: '40px 10px', color: 'var(--text-muted)' }}>
             <Info size={32} style={{ margin: '0 auto 12px', opacity: 0.4 }} />
-            <p style={{ fontSize: '13px' }}>Click any node or relationship on the knowledge graph to inspect evidentiary attributes.</p>
+            <p style={{ fontSize: '13px' }}>Click any node or relationship on the knowledge graph to inspect evidentiary attributes and detailed crime dossiers.</p>
           </div>
         )}
       </div>

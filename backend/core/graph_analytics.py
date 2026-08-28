@@ -238,6 +238,9 @@ class CriminalNetworkAnalyticsEngine:
                 threat_tier = "Tier 4: Peripheral Associate"
                 recommended_action = "Routine Monitoring"
 
+            node_obj = self.graph_store.get_node(nid)
+            node_props = node_obj.get("properties", {}) if node_obj else {}
+
             scored_actors.append({
                 "node_id": nid,
                 "name": data["name"],
@@ -248,7 +251,9 @@ class CriminalNetworkAnalyticsEngine:
                 "energy_disruptive_centrality": eng,
                 "composite_cpp_score": round(composite_cpp_score, 4),
                 "threat_tier": threat_tier,
-                "recommended_action": recommended_action
+                "recommended_action": recommended_action,
+                "bns_sections": node_props.get("bns_sections", []),
+                "crime_details": node_props.get("crime_details", {})
             })
 
         scored_actors.sort(key=lambda x: x["composite_cpp_score"], reverse=True)

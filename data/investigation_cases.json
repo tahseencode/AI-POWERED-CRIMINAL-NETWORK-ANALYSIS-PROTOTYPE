@@ -19,12 +19,54 @@
           "threat_score": 0.95,
           "attribute_load": 4.8,
           "age": 49,
+          "gender": "Male",
           "cctns_id": "WB-CCTNS-2026-08819",
           "bns_sections": [
-            "BNS Sec 111 (Organized Crime)",
-            "BNS Sec 318 (Cheating)",
-            "BSA Sec 63"
-          ]
+            "BNS Sec 111 (Organized Crime Syndicate)",
+            "BNS Sec 318 (Cheating & Financial Fraud)",
+            "Arms Act Sec 25(1AA) (Prohibited Firearms)",
+            "BSA Sec 63 (Electronic Evidence Admissibility)"
+          ],
+          "crime_details": {
+            "crime_title": "Operation Ichhapur Matrix: Trans-Border Contraband, Arms & Hawala Conduit",
+            "crime_category": "Organized Crime Syndicate & Arms Smuggling",
+            "incident_narrative": "Accused mastermind orchestrated cross-border illegal firearms transit and automated Hawala money laundering channels across Kolkata Port Trust dockyards and North 24 Parganas safehouses. Directly directed subordinate courier cells using encrypted communications to stash arms caches and launder illegal proceeds through shell entity accounts.",
+            "modus_operandi": "Operates a multi-tier insulated syndicate. Communicates exclusively via encrypted burner SIMs, commands shell directors to layer funds into offshore Bitcoin vaults, and deploys high-speed scout convoys for physical arms movement.",
+            "seized_contraband": "3x 9mm Country-made Semi-Automatic Pistols, 45 live rounds, \u20b91.25 Crore unaccounted cash, 14.5 BTC encrypted hardware wallet",
+            "statutory_acts": [
+              {
+                "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
+                "section": "Section 111",
+                "title": "Organized Crime Syndicate Offence",
+                "explanation": "Engaging in continuous unlawful activity including extortion, hawala, and illegal weapon trafficking as part of an organized crime syndicate."
+              },
+              {
+                "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
+                "section": "Section 318",
+                "title": "Cheating & Fraudulent Inducement",
+                "explanation": "Executing fraudulent shell company transactions and deceptive hawala routing to siphon illicit wealth."
+              },
+              {
+                "act": "Arms Act 1959",
+                "section": "Section 25(1AA)",
+                "title": "Illegal Acquisition & Transport of Prohibited Arms",
+                "explanation": "Possession and interstate movement of prohibited firearms and unlicenced ammunition."
+              },
+              {
+                "act": "Bharatiya Sakshya Adhiniyam (BSA) 2024",
+                "section": "Section 63",
+                "title": "Admissibility of Electronic Records",
+                "explanation": "Cryptographically hashed CDR, IPDR, and UPI interception logs certified under digital chain of custody."
+              }
+            ],
+            "fir_number": "FIR-2026/094/WB-BKP",
+            "police_station": "Barrackpore Special Crime Thana",
+            "incident_date": "2026-08-24 21:00 IST",
+            "incident_locus": "Ichhapur Defence Estate Perimeter, North 24 Parganas",
+            "case_status": "Active Trial / Non-Bailable Warrant Issued",
+            "investigating_officer": "IO-KOLKATA-8842"
+          },
+          "community_id": 4
         }
       },
       {
@@ -40,11 +82,41 @@
           "threat_score": 0.88,
           "attribute_load": 4.2,
           "age": 44,
+          "gender": "Male",
           "cctns_id": "WB-CCTNS-2026-09102",
           "bns_sections": [
-            "BNS Sec 111",
-            "BNS Sec 316 (Breach of Trust)"
-          ]
+            "BNS Sec 111 (Organized Crime)",
+            "BNS Sec 316 (Criminal Breach of Trust)",
+            "BNS Sec 318 (Cheating)",
+            "PMLA Sec 3 (Money Laundering)"
+          ],
+          "crime_details": {
+            "crime_title": "Matrix Impex Shell Banking & Hawala Conduit Laundering",
+            "crime_category": "Financial Fraud, Hawala & PMLA Offence",
+            "incident_narrative": "Channelled over \u20b94.5 Crore of syndicated extortion and narcotics proceeds through fake export-import shell accounts (Matrix Impex at HDFC Park Street) and converted fiat into Bitcoin hardware cold vaults.",
+            "modus_operandi": "Utilized multiple fake GSTIN registrations and structured split cash deposits below \u20b950,000 threshold to evade FIU detection before bulk RTGS transfers into offshore crypto conversion desks.",
+            "seized_contraband": "HDFC Account \u20b94.50 Cr freeze order, 12 counterfeit bank seal stamps, 8 forged KYC pan cards",
+            "statutory_acts": [
+              {
+                "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
+                "section": "Section 316",
+                "title": "Criminal Breach of Trust",
+                "explanation": "Misappropriation of entrusted commercial bank accounts for laundering organized crime proceeds."
+              },
+              {
+                "act": "Prevention of Money Laundering Act (PMLA) 2002",
+                "section": "Section 3 & 4",
+                "title": "Offence of Money-Laundering",
+                "explanation": "Direct involvement in the concealment, possession, acquisition, and projection of untainted property."
+              }
+            ],
+            "fir_number": "FIR-2026/102/WB-PRK",
+            "police_station": "Park Street Special Fraud Thana",
+            "incident_date": "2026-08-20 11:15 IST",
+            "incident_locus": "Park Street Financial Commercial Complex, Kolkata",
+            "case_status": "Charge Sheet Prepared / Bank Accounts Frozen"
+          },
+          "community_id": 3
         }
       },
       {
@@ -60,11 +132,34 @@
           "threat_score": 0.82,
           "attribute_load": 3.6,
           "age": 38,
+          "gender": "Male",
           "cctns_id": "WB-CCTNS-2026-04412",
           "bns_sections": [
-            "BNS Sec 111",
-            "Arms Act Sec 25"
-          ]
+            "BNS Sec 111 (Organized Crime)",
+            "Arms Act Sec 25(1B)(a)",
+            "NDPS Act Sec 21"
+          ],
+          "crime_details": {
+            "crime_title": "NH-27 Inter-State Weapon & Contraband Trunk Logistics",
+            "crime_category": "Arms Smuggling & Narcotics Logistics",
+            "incident_narrative": "Coordinated vehicular transport of hidden arms shipments from Siliguri border transit nodes down to Kolkata port container terminal and Ichhapur ordnance safehouses using modified Scorpio SUVs with concealed floor compartments.",
+            "modus_operandi": "Operated dual-vehicle convoys with scout cars 5 km ahead to monitor police checkpoints and ANPR cameras; relied on fake license plates (WB-02-AB-1234).",
+            "seized_contraband": "Modified Mahindra Scorpio with hydraulic hidden chamber, 2x 7.65mm pistols, 20 live cartridges",
+            "statutory_acts": [
+              {
+                "act": "Arms Act 1959",
+                "section": "Section 25",
+                "title": "Possession of Unlicenced Fire Arms",
+                "explanation": "Trafficking illegal manufactured arms across inter-district borders."
+              }
+            ],
+            "fir_number": "FIR-2026/088/WB-SLG",
+            "police_station": "Siliguri Junction Thana (Zero FIR transferred)",
+            "incident_date": "2026-08-21 09:15 IST",
+            "incident_locus": "Siliguri Freight Terminal & NH-27 Corridor",
+            "case_status": "Under Active Interception / Surveillance"
+          },
+          "community_id": 4
         }
       },
       {
@@ -80,11 +175,34 @@
           "threat_score": 0.76,
           "attribute_load": 3.1,
           "age": 29,
+          "gender": "Male",
           "cctns_id": "WB-CCTNS-2026-11045",
           "bns_sections": [
-            "IT Act Sec 66D",
-            "BNS Sec 318"
-          ]
+            "IT Act Sec 66D (Cheating by Personation)",
+            "BNS Sec 318 (Cheating)",
+            "BSA Sec 63"
+          ],
+          "crime_details": {
+            "crime_title": "VoIP Gateway & SIM Box Extortion Operation",
+            "crime_category": "Cyber Extortion & Telecom Gateway Fraud",
+            "incident_narrative": "Provisioned synthetic burner SIM cards and configured GSM SIM-boxes and VoIP proxy routing to mask kingpin calls to local business owners demanding \u20b925 Lakh protection money.",
+            "modus_operandi": "Activated pre-activated Assam and Bihar SIM cards using cloned Aadhaar credentials; rotated MAC/IP addresses through multi-hop VPN servers.",
+            "seized_contraband": "16-Port GSM SIM Box, 64 Pre-activated SIM Cards, 3 High-Gain Directional Antennas, Laptop with Asterisk PBX",
+            "statutory_acts": [
+              {
+                "act": "Information Technology Act 2000",
+                "section": "Section 66D",
+                "title": "Cheating by Personation using Computer Resource",
+                "explanation": "Using digital SIM boxes and synthetic IDs to deceive telecom network switches and victims."
+              }
+            ],
+            "fir_number": "FIR-2026/133/WB-CYB",
+            "police_station": "Kolkata Cyber Crime Police Station",
+            "incident_date": "2026-08-22 17:40 IST",
+            "incident_locus": "Rajarhat IT Park Area, Kolkata",
+            "case_status": "Electronic Forensics Verification in Progress"
+          },
+          "community_id": 5
         }
       },
       {
@@ -99,11 +217,34 @@
           "threat_score": 0.71,
           "attribute_load": 2.4,
           "age": 26,
+          "gender": "Male",
           "cctns_id": "WB-CCTNS-2026-15201",
           "bns_sections": [
-            "BNS Sec 109 (Attempted Murder)",
-            "Arms Act"
-          ]
+            "BNS Sec 109 (Attempt to Murder)",
+            "Arms Act Sec 27 (Use of Arms)",
+            "BNS Sec 111"
+          ],
+          "crime_details": {
+            "crime_title": "Barrackpore Industrial Extortion Shootout & Intimidation",
+            "crime_category": "Armed Violence, Attempted Murder & Extortion",
+            "incident_narrative": "Executed targeted armed intimidation and fired warning shots at factory gates in Asansol and Barrackpore to enforce Tariq Al-Hasani's monthly protection extortion racket.",
+            "modus_operandi": "Approached targets on stolen motorbikes, fired country-made firearms to terrorize local merchants, and fled via pre-mapped alley routes to Ichhapur safehouse.",
+            "seized_contraband": "One 9mm country-made pistol, 4 spent cartridge shells, Bajaj Pulsar bike without license plate",
+            "statutory_acts": [
+              {
+                "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
+                "section": "Section 109",
+                "title": "Attempt to Murder",
+                "explanation": "Open firing with lethal weapons on victims during extortion shakedowns."
+              }
+            ],
+            "fir_number": "FIR-2026/077/WB-ASN",
+            "police_station": "Asansol South Thana",
+            "incident_date": "2026-08-19 18:00 IST",
+            "incident_locus": "Asansol Industrial Depot Perimeter",
+            "case_status": "Non-Bailable Warrant Executed / Under Interrogation"
+          },
+          "community_id": 2
         }
       },
       {
@@ -118,10 +259,33 @@
           "threat_score": 0.65,
           "attribute_load": 2.1,
           "age": 33,
+          "gender": "Male",
           "cctns_id": "WB-CCTNS-2026-16982",
           "bns_sections": [
-            "BNS Sec 111"
-          ]
+            "BNS Sec 111 (Organized Crime)",
+            "Motor Vehicles Act Sec 192A"
+          ],
+          "crime_details": {
+            "crime_title": "Ichhapur Convoy Scout & Toll ANPR Evasion",
+            "crime_category": "Organized Contraband Pilot & Scout",
+            "incident_narrative": "Piloted the lead scout vehicle (Toyota Innova WB-24-K-9988) ahead of weapon transports, reporting toll booth police presence and testing highway surveillance choke points.",
+            "modus_operandi": "Drives 8-10 minutes ahead of contraband carriers, flashing headlights and transmitting WhatsApp location pins to alert following smuggler vehicles.",
+            "seized_contraband": "Toyota Innova Crysta, 4 handheld walkie-talkie sets, night-vision binoculars",
+            "statutory_acts": [
+              {
+                "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
+                "section": "Section 111",
+                "title": "Organized Crime Syndicate Aiding & Abetting",
+                "explanation": "Actively facilitating syndicate movement and evading statutory law enforcement checkpoints."
+              }
+            ],
+            "fir_number": "FIR-2026/094/WB-BKP",
+            "police_station": "Barrackpore Thana",
+            "incident_date": "2026-08-24 21:22 IST",
+            "incident_locus": "Barrackpore-Ichhapur Link Toll Plaza",
+            "case_status": "Detained at Toll Checkpoint"
+          },
+          "community_id": 2
         }
       },
       {
@@ -136,10 +300,61 @@
           "threat_score": 0.58,
           "attribute_load": 2.0,
           "age": 31,
+          "gender": "Female",
           "cctns_id": "WB-CCTNS-2026-18774",
           "bns_sections": [
-            "BNS Sec 316"
-          ]
+            "BNS Sec 316 (Criminal Breach of Trust)",
+            "BNS Sec 318 (Cheating)"
+          ],
+          "crime_details": {
+            "crime_title": "Hawala Layering & Benami Account Operation",
+            "crime_category": "Benami Financial Laundering",
+            "incident_narrative": "Listed as registered nominee director for two shell logistics firms used by Sunil Roy to park \u20b91.5 Crore illicit payments before withdrawing cash across multiple ATM locations.",
+            "modus_operandi": "Signed blank cheque books and authorized corporate net-banking transfers in exchange for 2% monthly commission on processed volumes.",
+            "seized_contraband": "Bank cheque books of 4 dummy current accounts, ATM transaction receipts totaling \u20b915 Lakh",
+            "statutory_acts": [
+              {
+                "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
+                "section": "Section 316",
+                "title": "Criminal Breach of Trust",
+                "explanation": "Dishonestly operating benami accounts to launder extortion funds."
+              }
+            ],
+            "fir_number": "FIR-2026/102/WB-PRK",
+            "police_station": "Park Street Thana",
+            "incident_date": "2026-08-22 09:30 IST",
+            "incident_locus": "Asansol Main Bazaar ATM Hub",
+            "case_status": "Summons Issued / Bank Accounts Attached"
+          },
+          "community_id": 3
+        }
+      },
+      {
+        "id": "INCIDENT_001",
+        "label": "CrimeIncident",
+        "properties": {
+          "name": "Ichhapur Arms Consignment Interception",
+          "category": "Armed Weapon Trafficking",
+          "summary": "Interception of illicit firearms convoy containing 9mm pistols and live ammo headed for Ichhapur safehouse.",
+          "seized_items": "3x 9mm pistols, 45 live rounds, Mahindra Scorpio",
+          "date": "2026-08-24T21:00:00Z",
+          "locus": "Ichhapur Defence Estate Perimeter (22.8124, 88.3752)",
+          "threat_level": "CRITICAL",
+          "community_id": 4
+        }
+      },
+      {
+        "id": "INCIDENT_002",
+        "label": "CrimeIncident",
+        "properties": {
+          "name": "Kolkata Port Hawala & Crypto Launder",
+          "category": "Financial Crime & Hawala",
+          "summary": "Illegal cash handover and crypto conversion of \u20b91.25 Crore at Dock-7 container depot.",
+          "seized_items": "\u20b94.50 Cr bank account freeze, 14.5 BTC cold wallet",
+          "date": "2026-08-23T14:10:00Z",
+          "locus": "Kolkata Dock-7 Maritime Container Yard (22.5411, 88.3217)",
+          "threat_level": "HIGH",
+          "community_id": 3
         }
       },
       {
@@ -149,7 +364,8 @@
           "number": "+919830112233",
           "subscriber": "Tariq Al-Hasani",
           "imei": "864201041122334",
-          "service_provider": "Airtel Kolkata"
+          "service_provider": "Airtel Kolkata",
+          "community_id": 5
         }
       },
       {
@@ -159,7 +375,8 @@
           "number": "+919831998877",
           "subscriber": "Sunil Roy",
           "imei": "864201049988771",
-          "service_provider": "Jio West Bengal"
+          "service_provider": "Jio West Bengal",
+          "community_id": 5
         }
       },
       {
@@ -169,7 +386,8 @@
           "number": "+919874556611",
           "subscriber": "Raju Mondal",
           "imei": "864201045566119",
-          "service_provider": "Vodafone-Idea"
+          "service_provider": "Vodafone-Idea",
+          "community_id": 5
         }
       },
       {
@@ -179,7 +397,8 @@
           "number": "+919830447722",
           "subscriber": "Imran Sheikh",
           "imei": "864201044477220",
-          "service_provider": "Airtel Kolkata"
+          "service_provider": "Airtel Kolkata",
+          "community_id": 5
         }
       },
       {
@@ -189,7 +408,8 @@
           "plate_number": "WB-02-AB-1234",
           "make_model": "Mahindra Scorpio Black",
           "vin": "MA1TA2BK8H1234567",
-          "registered_owner": "Raju Mondal"
+          "registered_owner": "Raju Mondal",
+          "community_id": 2
         }
       },
       {
@@ -199,7 +419,8 @@
           "plate_number": "WB-24-K-9988",
           "make_model": "Toyota Innova Crysta",
           "vin": "MB1TB3CK9J9988112",
-          "registered_owner": "Debabrata Paul"
+          "registered_owner": "Debabrata Paul",
+          "community_id": 2
         }
       },
       {
@@ -210,7 +431,8 @@
           "district": "North 24 Parganas",
           "lat": 22.8124,
           "lng": 88.3752,
-          "facility_type": "Logistics Cache"
+          "facility_type": "Logistics Cache",
+          "community_id": 2
         }
       },
       {
@@ -221,7 +443,8 @@
           "district": "Kolkata",
           "lat": 22.5411,
           "lng": 88.3217,
-          "facility_type": "Maritime Contraband Ingress"
+          "facility_type": "Maritime Contraband Ingress",
+          "community_id": 4
         }
       },
       {
@@ -232,7 +455,8 @@
           "district": "Darjeeling",
           "lat": 26.7271,
           "lng": 88.3953,
-          "facility_type": "Northern Ingress Point"
+          "facility_type": "Northern Ingress Point",
+          "community_id": 6
         }
       },
       {
@@ -243,7 +467,8 @@
           "district": "Paschim Bardhaman",
           "lat": 23.6889,
           "lng": 86.9661,
-          "facility_type": "Arms Stockpile"
+          "facility_type": "Arms Stockpile",
+          "community_id": 2
         }
       },
       {
@@ -253,7 +478,8 @@
           "account_number": "50100991823411",
           "bank_name": "HDFC Bank Park Street",
           "holder": "Sunil Roy / Matrix Impex",
-          "balance_flagged": 45000000
+          "balance_flagged": 45000000,
+          "community_id": 3
         }
       },
       {
@@ -262,7 +488,8 @@
         "properties": {
           "upi_id": "matrixops@okhdfcbank",
           "linked_name": "Tariq Hasan",
-          "daily_flow_avg": 2500000
+          "daily_flow_avg": 2500000,
+          "community_id": 3
         }
       },
       {
@@ -271,7 +498,8 @@
         "properties": {
           "wallet_address": "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
           "blockchain": "Bitcoin",
-          "detected_balance_btc": 14.5
+          "detected_balance_btc": 14.5,
+          "community_id": 3
         }
       },
       {
@@ -279,11 +507,503 @@
         "label": "FIR",
         "properties": {
           "fir_number": "FIR-2026/094/WB-BKP",
-          "statute": "BNS 2024",
-          "sections": "Sec 111, 318, 316",
-          "police_station": "Barrackpore Thana",
+          "crime_title": "Inter-State Organized Arms & Contraband Trafficking",
+          "statute": "Bharatiya Nyaya Sanhita (BNS) 2024 & Arms Act 1959",
+          "sections": "BNS Sec 111, 318, 316; Arms Act Sec 25",
+          "statutory_explanation": "Organized cross-border arms trafficking, fraudulent hawala shell companies, and breach of trust.",
+          "police_station": "Barrackpore Special Thana",
           "is_zero_fir": true,
-          "origin_station": "Siliguri Junction PS"
+          "origin_station": "Siliguri Junction PS",
+          "investigating_officer": "IO-KOLKATA-8842",
+          "case_status": "Charge Sheet Prepared / Court Committal",
+          "community_id": 4
+        }
+      },
+      {
+        "id": "PERSON_008",
+        "label": "Person",
+        "properties": {
+          "name": "Arjun 'Ghost' Mukherjee",
+          "aliases": [
+            "A. Mukherjee",
+            "Ghost Armorer"
+          ],
+          "role": "Firearms Courier & Safehouse Custodian",
+          "threat_score": 0.82,
+          "attribute_load": 2.5,
+          "age": 36,
+          "gender": "Male",
+          "cctns_id": "WB-CCTNS-2026-59854",
+          "bns_sections": [
+            "Bharatiya Nyaya Sanhita (BNS) 2024 Section 111",
+            "Arms Act 1959 Section 25"
+          ],
+          "crime_details": {
+            "crime_title": "Inter-State Contraband Logistics & Cache Transit",
+            "crime_category": "Armed Weapon Trafficking & Logistics",
+            "incident_narrative": "Transferred illegal ordnance consignments from Asansol border to Ichhapur safehouse.",
+            "modus_operandi": "Concealed compartment in cargo van WB-04-T-1122 with fake delivery papers.",
+            "seized_contraband": "2x 9mm country pistols, 30 rounds, \u20b912,00,000 cash",
+            "statutory_acts": [
+              {
+                "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
+                "section": "Section 111",
+                "title": "Organized Crime Syndicate Offence",
+                "explanation": "Continuous organized crime trafficking."
+              },
+              {
+                "act": "Arms Act 1959",
+                "section": "Section 25",
+                "title": "Illegal Firearms",
+                "explanation": "Transporting unlicenced lethal weapons."
+              }
+            ],
+            "fir_number": "FIR-2026/424/WB-BKP",
+            "police_station": "Barrackpore Special Thana",
+            "incident_date": "2026-08-28 19:30 IST",
+            "incident_locus": "Ichhapur Safehouse Corridor",
+            "case_status": "Under Active Investigation / Warrant Issued",
+            "investigating_officer": "IO-KOLKATA-8842"
+          },
+          "community_id": 1
+        }
+      },
+      {
+        "id": "INCIDENT_025",
+        "label": "CrimeIncident",
+        "properties": {
+          "name": "Inter-State Contraband Logistics & Cache Transit",
+          "category": "Armed Weapon Trafficking & Logistics",
+          "summary": "Transferred illegal ordnance consignments from Asansol border to Ichhapur safehouse.",
+          "seized_items": "2x 9mm country pistols, 30 rounds, \u20b912,00,000 cash",
+          "date": "2026-08-28T19:30:00Z",
+          "locus": "Ichhapur Safehouse Corridor",
+          "threat_level": "CRITICAL",
+          "community_id": 1
+        }
+      },
+      {
+        "id": "PHONE_9874990011",
+        "label": "Phone",
+        "properties": {
+          "number": "+919874990011",
+          "subscriber": "Arjun 'Ghost' Mukherjee",
+          "service_provider": "Airtel / Jio",
+          "community_id": 1
+        }
+      },
+      {
+        "id": "VEHICLE_WB04T1122",
+        "label": "Vehicle",
+        "properties": {
+          "plate_number": "WB-04-T-1122",
+          "make_model": "Transport Vehicle",
+          "registered_owner": "Arjun 'Ghost' Mukherjee",
+          "community_id": 1
+        }
+      },
+      {
+        "id": "BANK_882211",
+        "label": "BankAccount",
+        "properties": {
+          "account_number": "301044882211",
+          "bank_name": "Commercial Bank",
+          "holder": "Arjun 'Ghost' Mukherjee",
+          "balance_flagged": 2500000,
+          "community_id": 1
+        }
+      },
+      {
+        "id": "LOC_ICHHAPUR_SAFEHO",
+        "label": "Location",
+        "properties": {
+          "name": "Ichhapur Safehouse",
+          "district": "West Bengal",
+          "facility_type": "Suspect Locus",
+          "community_id": 1
+        }
+      },
+      {
+        "id": "PERSON_009",
+        "label": "Person",
+        "properties": {
+          "name": "Arjun 'Ghost' Mukherjee",
+          "aliases": [
+            "A. Mukherjee",
+            "Ghost Armorer"
+          ],
+          "role": "Firearms Courier & Safehouse Custodian",
+          "threat_score": 0.82,
+          "attribute_load": 2.5,
+          "age": 36,
+          "gender": "Male",
+          "cctns_id": "WB-CCTNS-2026-99570",
+          "bns_sections": [
+            "Bharatiya Nyaya Sanhita (BNS) 2024 Section 111",
+            "Arms Act 1959 Section 25"
+          ],
+          "crime_details": {
+            "crime_title": "Inter-State Contraband Logistics & Cache Transit",
+            "crime_category": "Armed Weapon Trafficking & Logistics",
+            "incident_narrative": "Transferred illegal ordnance consignments from Asansol border to Ichhapur safehouse.",
+            "modus_operandi": "Concealed compartment in cargo van WB-04-T-1122 with fake delivery papers.",
+            "seized_contraband": "2x 9mm country pistols, 30 rounds, \u20b912,00,000 cash",
+            "statutory_acts": [
+              {
+                "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
+                "section": "Section 111",
+                "title": "Organized Crime Syndicate Offence",
+                "explanation": "Continuous organized crime trafficking."
+              },
+              {
+                "act": "Arms Act 1959",
+                "section": "Section 25",
+                "title": "Illegal Firearms",
+                "explanation": "Transporting unlicenced lethal weapons."
+              }
+            ],
+            "fir_number": "FIR-2026/447/WB-BKP",
+            "police_station": "Barrackpore Special Thana",
+            "incident_date": "2026-08-28 19:30 IST",
+            "incident_locus": "Ichhapur Safehouse Corridor",
+            "case_status": "Under Active Investigation / Warrant Issued",
+            "investigating_officer": "IO-KOLKATA-8842"
+          },
+          "community_id": 1
+        }
+      },
+      {
+        "id": "INCIDENT_031",
+        "label": "CrimeIncident",
+        "properties": {
+          "name": "Inter-State Contraband Logistics & Cache Transit",
+          "category": "Armed Weapon Trafficking & Logistics",
+          "summary": "Transferred illegal ordnance consignments from Asansol border to Ichhapur safehouse.",
+          "seized_items": "2x 9mm country pistols, 30 rounds, \u20b912,00,000 cash",
+          "date": "2026-08-28T19:30:00Z",
+          "locus": "Ichhapur Safehouse Corridor",
+          "threat_level": "CRITICAL",
+          "community_id": 1
+        }
+      },
+      {
+        "id": "PERSON_010",
+        "label": "Person",
+        "properties": {
+          "name": "Arjun 'Ghost' Mukherjee",
+          "aliases": [
+            "A. Mukherjee",
+            "Ghost Armorer"
+          ],
+          "role": "Firearms Courier & Safehouse Custodian",
+          "threat_score": 0.82,
+          "attribute_load": 2.5,
+          "age": 36,
+          "gender": "Male",
+          "cctns_id": "WB-CCTNS-2026-64258",
+          "bns_sections": [
+            "Bharatiya Nyaya Sanhita (BNS) 2024 Section 111",
+            "Arms Act 1959 Section 25"
+          ],
+          "crime_details": {
+            "crime_title": "Inter-State Contraband Logistics & Cache Transit",
+            "crime_category": "Armed Weapon Trafficking & Logistics",
+            "incident_narrative": "Transferred illegal ordnance consignments from Asansol border to Ichhapur safehouse.",
+            "modus_operandi": "Concealed compartment in cargo van WB-04-T-1122 with fake delivery papers.",
+            "seized_contraband": "2x 9mm country pistols, 30 rounds, \u20b912,00,000 cash",
+            "statutory_acts": [
+              {
+                "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
+                "section": "Section 111",
+                "title": "Organized Crime Syndicate Offence",
+                "explanation": "Continuous organized crime trafficking."
+              },
+              {
+                "act": "Arms Act 1959",
+                "section": "Section 25",
+                "title": "Illegal Firearms",
+                "explanation": "Transporting unlicenced lethal weapons."
+              }
+            ],
+            "fir_number": "FIR-2026/958/WB-BKP",
+            "police_station": "Barrackpore Special Thana",
+            "incident_date": "2026-08-28 19:30 IST",
+            "incident_locus": "Ichhapur Safehouse Corridor",
+            "case_status": "Under Active Investigation / Warrant Issued",
+            "investigating_officer": "IO-KOLKATA-8842"
+          },
+          "community_id": 1
+        }
+      },
+      {
+        "id": "INCIDENT_033",
+        "label": "CrimeIncident",
+        "properties": {
+          "name": "Inter-State Contraband Logistics & Cache Transit",
+          "category": "Armed Weapon Trafficking & Logistics",
+          "summary": "Transferred illegal ordnance consignments from Asansol border to Ichhapur safehouse.",
+          "seized_items": "2x 9mm country pistols, 30 rounds, \u20b912,00,000 cash",
+          "date": "2026-08-28T19:30:00Z",
+          "locus": "Ichhapur Safehouse Corridor",
+          "threat_level": "CRITICAL",
+          "community_id": 1
+        }
+      },
+      {
+        "id": "PERSON_011",
+        "label": "Person",
+        "properties": {
+          "name": "Shahbaz Alam",
+          "aliases": [
+            "The bomber"
+          ],
+          "role": "Syndicate Operative",
+          "threat_score": 0.85,
+          "attribute_load": 2.5,
+          "age": 32,
+          "gender": "Male",
+          "cctns_id": "WB-CCTNS-2026-56567",
+          "bns_sections": [
+            "Bharatiya Nyaya Sanhita (BNS) 2024 Section 111",
+            "Arms Act 1959 Section 25"
+          ],
+          "crime_details": {
+            "crime_title": "Bombing",
+            "crime_category": "Organized Crime & Firearms Trafficking",
+            "incident_narrative": "He throws in bomb in public place",
+            "modus_operandi": "burner phone protocols",
+            "seized_contraband": "Grenade",
+            "statutory_acts": [
+              {
+                "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
+                "section": "Section 111",
+                "title": "Organized Crime Syndicate Offence",
+                "explanation": "Engaging in organized syndicate conspiracy, extortion, and contraband logistics."
+              },
+              {
+                "act": "Arms Act 1959",
+                "section": "Section 25",
+                "title": "Unlawful Possession & Transit of Firearms",
+                "explanation": "Inter-district trafficking and possession of prohibited unlicenced firearms."
+              }
+            ],
+            "fir_number": "12145632",
+            "police_station": "Barrackpore Special Crime Thana",
+            "incident_date": "2026-08-28 19:30 IST",
+            "incident_locus": "Ichhapur Safehouse Perimeter",
+            "case_status": "Under Active Investigation / Warrant Issued",
+            "investigating_officer": "IO-KOLKATA-8842"
+          },
+          "community_id": 0
+        }
+      },
+      {
+        "id": "INCIDENT_035",
+        "label": "CrimeIncident",
+        "properties": {
+          "name": "Bombing",
+          "category": "Organized Crime & Firearms Trafficking",
+          "summary": "He throws in bomb in public place",
+          "seized_items": "Grenade",
+          "date": "2026-08-28 19:30 IST",
+          "locus": "Ichhapur Safehouse Perimeter",
+          "threat_level": "CRITICAL",
+          "community_id": 0
+        }
+      },
+      {
+        "id": "PHONE_9912121212",
+        "label": "Phone",
+        "properties": {
+          "number": "9912121212",
+          "subscriber": "Shahbaz Dakait",
+          "service_provider": "Airtel / Jio"
+        }
+      },
+      {
+        "id": "VEHICLE_36",
+        "label": "Vehicle",
+        "properties": {
+          "plate_number": "36",
+          "make_model": "Transport Vehicle",
+          "registered_owner": "Shahbaz Dakait"
+        }
+      },
+      {
+        "id": "BANK_415454",
+        "label": "BankAccount",
+        "properties": {
+          "account_number": "1415454",
+          "bank_name": "Commercial Bank",
+          "holder": "Shahbaz Dakait",
+          "balance_flagged": 2500000
+        }
+      },
+      {
+        "id": "UPI_shahbaz_yabl",
+        "label": "BankAccount",
+        "properties": {
+          "upi_id": "shahbaz@yabl",
+          "linked_name": "Shahbaz Dakait",
+          "daily_flow_avg": 500000
+        }
+      },
+      {
+        "id": "LOC_RISHRA",
+        "label": "Location",
+        "properties": {
+          "name": "Rishra",
+          "district": "West Bengal",
+          "facility_type": "Suspect Locus"
+        }
+      },
+      {
+        "id": "LOC_KONNAGAR",
+        "label": "Location",
+        "properties": {
+          "name": "Konnagar",
+          "district": "West Bengal",
+          "facility_type": "Suspect Locus"
+        }
+      },
+      {
+        "id": "LOC_TRIVENI_MALL",
+        "label": "Location",
+        "properties": {
+          "name": "Triveni Mall",
+          "district": "West Bengal",
+          "facility_type": "Suspect Locus"
+        }
+      },
+      {
+        "id": "LOC_RITA",
+        "label": "Location",
+        "properties": {
+          "name": "Rita",
+          "district": "West Bengal",
+          "facility_type": "Suspect Locus"
+        }
+      },
+      {
+        "id": "PERSON_012",
+        "label": "Person",
+        "properties": {
+          "name": "Shahbaz Dakait",
+          "aliases": [
+            "Tahseen Abdullah"
+          ],
+          "role": "Syndicate Operative",
+          "threat_score": 0.85,
+          "attribute_load": 2.5,
+          "age": 32,
+          "gender": "Male",
+          "cctns_id": "WB-CCTNS-2026-95590",
+          "bns_sections": [
+            "Bharatiya Nyaya Sanhita (BNS) 2024 Section 111",
+            "Arms Act 1959 Section 25"
+          ],
+          "crime_details": {
+            "crime_title": "Bombing",
+            "crime_category": "Organized Crime & Firearms Trafficking",
+            "incident_narrative": "He throws in bomb in public place",
+            "modus_operandi": "burner phone protocols",
+            "seized_contraband": "Grenade",
+            "statutory_acts": [
+              {
+                "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
+                "section": "Section 111",
+                "title": "Organized Crime Syndicate Offence",
+                "explanation": "Engaging in organized syndicate conspiracy, extortion, and contraband logistics."
+              },
+              {
+                "act": "Arms Act 1959",
+                "section": "Section 25",
+                "title": "Unlawful Possession & Transit of Firearms",
+                "explanation": "Inter-district trafficking and possession of prohibited unlicenced firearms."
+              }
+            ],
+            "fir_number": "12145632",
+            "police_station": "Barrackpore Special Crime Thana",
+            "incident_date": "2026-08-28 19:30 IST",
+            "incident_locus": "Ichhapur Safehouse Perimeter",
+            "case_status": "Under Active Investigation / Warrant Issued",
+            "investigating_officer": "IO-KOLKATA-8842"
+          },
+          "community_id": 0
+        }
+      },
+      {
+        "id": "INCIDENT_045",
+        "label": "CrimeIncident",
+        "properties": {
+          "name": "Bombing",
+          "category": "Organized Crime & Firearms Trafficking",
+          "summary": "He throws in bomb in public place",
+          "seized_items": "Grenade",
+          "date": "2026-08-28 19:30 IST",
+          "locus": "Ichhapur Safehouse Perimeter",
+          "threat_level": "CRITICAL",
+          "community_id": 0
+        }
+      },
+      {
+        "id": "PERSON_013",
+        "label": "Person",
+        "properties": {
+          "name": "Shahbaz Dakait",
+          "aliases": [
+            "Tahseen Abdullah"
+          ],
+          "role": "Syndicate Operative",
+          "threat_score": 1.0,
+          "attribute_load": 2.5,
+          "age": 32,
+          "gender": "Male",
+          "cctns_id": "WB-CCTNS-2026-94675",
+          "bns_sections": [
+            "Bharatiya Nyaya Sanhita (BNS) 2024 Section 111",
+            "Arms Act 1959 Section 25"
+          ],
+          "crime_details": {
+            "crime_title": "Bombing",
+            "crime_category": "Organized Crime & Firearms Trafficking",
+            "incident_narrative": "He throws in bomb in public place",
+            "modus_operandi": "burner phone protocols",
+            "seized_contraband": "Grenade",
+            "statutory_acts": [
+              {
+                "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
+                "section": "Section 111",
+                "title": "Organized Crime Syndicate Offence",
+                "explanation": "Engaging in organized syndicate conspiracy, extortion, and contraband logistics."
+              },
+              {
+                "act": "Arms Act 1959",
+                "section": "Section 25",
+                "title": "Unlawful Possession & Transit of Firearms",
+                "explanation": "Inter-district trafficking and possession of prohibited unlicenced firearms."
+              }
+            ],
+            "fir_number": "12145632",
+            "police_station": "Barrackpore Special Crime Thana",
+            "incident_date": "2026-08-28 19:30 IST",
+            "incident_locus": "Ichhapur Safehouse Perimeter",
+            "case_status": "Under Active Investigation / Warrant Issued",
+            "investigating_officer": "IO-KOLKATA-8842"
+          }
+        }
+      },
+      {
+        "id": "INCIDENT_047",
+        "label": "CrimeIncident",
+        "properties": {
+          "name": "Bombing",
+          "category": "Organized Crime & Firearms Trafficking",
+          "summary": "He throws in bomb in public place",
+          "seized_items": "Grenade",
+          "date": "2026-08-28 19:30 IST",
+          "locus": "Ichhapur Safehouse Perimeter",
+          "threat_level": "CRITICAL"
         }
       }
     ],
@@ -542,6 +1262,570 @@
           "weight": 2.0,
           "confidence": 0.99
         }
+      },
+      {
+        "id": "EDGE_025",
+        "source": "PERSON_001",
+        "target": "INCIDENT_001",
+        "type": "COMMANDS_OPERATION",
+        "properties": {
+          "confidence": 0.98,
+          "weight": 2.5
+        }
+      },
+      {
+        "id": "EDGE_026",
+        "source": "PERSON_003",
+        "target": "INCIDENT_001",
+        "type": "PRESENT_AT",
+        "properties": {
+          "confidence": 0.96,
+          "weight": 2.2
+        }
+      },
+      {
+        "id": "EDGE_027",
+        "source": "PERSON_002",
+        "target": "INCIDENT_002",
+        "type": "ORGANIZED",
+        "properties": {
+          "confidence": 0.99,
+          "weight": 2.8
+        }
+      },
+      {
+        "id": "EDGE_028",
+        "source": "PERSON_008",
+        "target": "INCIDENT_025",
+        "type": "INVOLVED_IN",
+        "properties": {
+          "confidence": 0.99,
+          "weight": 2.2,
+          "role": "Firearms Courier & Safehouse Custodian"
+        }
+      },
+      {
+        "id": "EDGE_029",
+        "source": "PERSON_008",
+        "target": "PHONE_9874990011",
+        "type": "OWNS",
+        "properties": {
+          "confidence": 0.99
+        }
+      },
+      {
+        "id": "EDGE_030",
+        "source": "PERSON_008",
+        "target": "VEHICLE_WB04T1122",
+        "type": "OPERATES_IN",
+        "properties": {
+          "confidence": 0.95,
+          "weight": 1.8
+        }
+      },
+      {
+        "id": "EDGE_031",
+        "source": "PERSON_008",
+        "target": "BANK_882211",
+        "type": "CONTROLS",
+        "properties": {
+          "confidence": 0.98,
+          "weight": 2.5
+        }
+      },
+      {
+        "id": "EDGE_032",
+        "source": "PERSON_008",
+        "target": "LOC_ICHHAPUR_SAFEHO",
+        "type": "PRESENT_AT",
+        "properties": {
+          "confidence": 0.94,
+          "weight": 1.7,
+          "timestamp": "2026-08-28T18:00:00Z"
+        }
+      },
+      {
+        "id": "EDGE_033",
+        "source": "PERSON_008",
+        "target": "PERSON_001",
+        "type": "COLLABORATES_WITH",
+        "properties": {
+          "confidence": 0.96,
+          "weight": 2.0,
+          "intercept_count": 15
+        }
+      },
+      {
+        "id": "EDGE_034",
+        "source": "PERSON_009",
+        "target": "INCIDENT_031",
+        "type": "INVOLVED_IN",
+        "properties": {
+          "confidence": 0.99,
+          "weight": 2.2,
+          "role": "Firearms Courier & Safehouse Custodian"
+        }
+      },
+      {
+        "id": "EDGE_035",
+        "source": "PERSON_009",
+        "target": "PHONE_9874990011",
+        "type": "OWNS",
+        "properties": {
+          "confidence": 0.99
+        }
+      },
+      {
+        "id": "EDGE_036",
+        "source": "PERSON_009",
+        "target": "VEHICLE_WB04T1122",
+        "type": "OPERATES_IN",
+        "properties": {
+          "confidence": 0.95,
+          "weight": 1.8
+        }
+      },
+      {
+        "id": "EDGE_037",
+        "source": "PERSON_009",
+        "target": "BANK_882211",
+        "type": "CONTROLS",
+        "properties": {
+          "confidence": 0.98,
+          "weight": 2.5
+        }
+      },
+      {
+        "id": "EDGE_038",
+        "source": "PERSON_009",
+        "target": "LOC_ICHHAPUR_SAFEHO",
+        "type": "PRESENT_AT",
+        "properties": {
+          "confidence": 0.94,
+          "weight": 1.7,
+          "timestamp": "2026-08-28T18:00:00Z"
+        }
+      },
+      {
+        "id": "EDGE_039",
+        "source": "PERSON_009",
+        "target": "PERSON_001",
+        "type": "COLLABORATES_WITH",
+        "properties": {
+          "confidence": 0.96,
+          "weight": 2.0,
+          "intercept_count": 15
+        }
+      },
+      {
+        "id": "EDGE_040",
+        "source": "PERSON_010",
+        "target": "INCIDENT_033",
+        "type": "INVOLVED_IN",
+        "properties": {
+          "confidence": 0.99,
+          "weight": 2.2,
+          "role": "Firearms Courier & Safehouse Custodian"
+        }
+      },
+      {
+        "id": "EDGE_041",
+        "source": "PERSON_010",
+        "target": "PHONE_9874990011",
+        "type": "OWNS",
+        "properties": {
+          "confidence": 0.99
+        }
+      },
+      {
+        "id": "EDGE_042",
+        "source": "PERSON_010",
+        "target": "VEHICLE_WB04T1122",
+        "type": "OPERATES_IN",
+        "properties": {
+          "confidence": 0.95,
+          "weight": 1.8
+        }
+      },
+      {
+        "id": "EDGE_043",
+        "source": "PERSON_010",
+        "target": "BANK_882211",
+        "type": "CONTROLS",
+        "properties": {
+          "confidence": 0.98,
+          "weight": 2.5
+        }
+      },
+      {
+        "id": "EDGE_044",
+        "source": "PERSON_010",
+        "target": "LOC_ICHHAPUR_SAFEHO",
+        "type": "PRESENT_AT",
+        "properties": {
+          "confidence": 0.94,
+          "weight": 1.7,
+          "timestamp": "2026-08-28T18:00:00Z"
+        }
+      },
+      {
+        "id": "EDGE_045",
+        "source": "PERSON_010",
+        "target": "PERSON_001",
+        "type": "COLLABORATES_WITH",
+        "properties": {
+          "confidence": 0.96,
+          "weight": 2.0,
+          "intercept_count": 15
+        }
+      },
+      {
+        "id": "EDGE_046",
+        "source": "PERSON_011",
+        "target": "INCIDENT_035",
+        "type": "INVOLVED_IN",
+        "properties": {
+          "confidence": 0.99,
+          "weight": 2.2,
+          "role": "Syndicate Operative"
+        }
+      },
+      {
+        "id": "EDGE_047",
+        "source": "PERSON_011",
+        "target": "PHONE_9912121212",
+        "type": "OWNS",
+        "properties": {
+          "confidence": 0.99
+        }
+      },
+      {
+        "id": "EDGE_048",
+        "source": "PERSON_011",
+        "target": "VEHICLE_36",
+        "type": "OPERATES_IN",
+        "properties": {
+          "confidence": 0.95,
+          "weight": 1.8
+        }
+      },
+      {
+        "id": "EDGE_049",
+        "source": "PERSON_011",
+        "target": "BANK_415454",
+        "type": "CONTROLS",
+        "properties": {
+          "confidence": 0.98,
+          "weight": 2.5
+        }
+      },
+      {
+        "id": "EDGE_050",
+        "source": "PERSON_011",
+        "target": "UPI_shahbaz_yabl",
+        "type": "CONTROLS",
+        "properties": {
+          "confidence": 0.98,
+          "weight": 2.0
+        }
+      },
+      {
+        "id": "EDGE_051",
+        "source": "PERSON_011",
+        "target": "LOC_RISHRA",
+        "type": "PRESENT_AT",
+        "properties": {
+          "confidence": 0.94,
+          "weight": 1.7,
+          "timestamp": "2026-08-28T18:00:00Z"
+        }
+      },
+      {
+        "id": "EDGE_052",
+        "source": "PERSON_011",
+        "target": "LOC_KONNAGAR",
+        "type": "PRESENT_AT",
+        "properties": {
+          "confidence": 0.94,
+          "weight": 1.7,
+          "timestamp": "2026-08-28T18:00:00Z"
+        }
+      },
+      {
+        "id": "EDGE_053",
+        "source": "PERSON_011",
+        "target": "LOC_TRIVENI_MALL",
+        "type": "PRESENT_AT",
+        "properties": {
+          "confidence": 0.94,
+          "weight": 1.7,
+          "timestamp": "2026-08-28T18:00:00Z"
+        }
+      },
+      {
+        "id": "EDGE_054",
+        "source": "PERSON_011",
+        "target": "LOC_RITA",
+        "type": "PRESENT_AT",
+        "properties": {
+          "confidence": 0.94,
+          "weight": 1.7,
+          "timestamp": "2026-08-28T18:00:00Z"
+        }
+      },
+      {
+        "id": "EDGE_055",
+        "source": "PERSON_011",
+        "target": "PERSON_003",
+        "type": "COLLABORATES_WITH",
+        "properties": {
+          "confidence": 0.96,
+          "weight": 2.0,
+          "intercept_count": 15
+        }
+      },
+      {
+        "id": "EDGE_056",
+        "source": "PERSON_011",
+        "target": "PERSON_001",
+        "type": "COLLABORATES_WITH",
+        "properties": {
+          "confidence": 0.96,
+          "weight": 2.0,
+          "intercept_count": 15
+        }
+      },
+      {
+        "id": "EDGE_057",
+        "source": "PERSON_012",
+        "target": "INCIDENT_045",
+        "type": "INVOLVED_IN",
+        "properties": {
+          "confidence": 0.99,
+          "weight": 2.2,
+          "role": "Syndicate Operative"
+        }
+      },
+      {
+        "id": "EDGE_058",
+        "source": "PERSON_012",
+        "target": "PHONE_9912121212",
+        "type": "OWNS",
+        "properties": {
+          "confidence": 0.99
+        }
+      },
+      {
+        "id": "EDGE_059",
+        "source": "PERSON_012",
+        "target": "VEHICLE_36",
+        "type": "OPERATES_IN",
+        "properties": {
+          "confidence": 0.95,
+          "weight": 1.8
+        }
+      },
+      {
+        "id": "EDGE_060",
+        "source": "PERSON_012",
+        "target": "BANK_415454",
+        "type": "CONTROLS",
+        "properties": {
+          "confidence": 0.98,
+          "weight": 2.5
+        }
+      },
+      {
+        "id": "EDGE_061",
+        "source": "PERSON_012",
+        "target": "UPI_shahbaz_yabl",
+        "type": "CONTROLS",
+        "properties": {
+          "confidence": 0.98,
+          "weight": 2.0
+        }
+      },
+      {
+        "id": "EDGE_062",
+        "source": "PERSON_012",
+        "target": "LOC_RISHRA",
+        "type": "PRESENT_AT",
+        "properties": {
+          "confidence": 0.94,
+          "weight": 1.7,
+          "timestamp": "2026-08-28T18:00:00Z"
+        }
+      },
+      {
+        "id": "EDGE_063",
+        "source": "PERSON_012",
+        "target": "LOC_KONNAGAR",
+        "type": "PRESENT_AT",
+        "properties": {
+          "confidence": 0.94,
+          "weight": 1.7,
+          "timestamp": "2026-08-28T18:00:00Z"
+        }
+      },
+      {
+        "id": "EDGE_064",
+        "source": "PERSON_012",
+        "target": "LOC_TRIVENI_MALL",
+        "type": "PRESENT_AT",
+        "properties": {
+          "confidence": 0.94,
+          "weight": 1.7,
+          "timestamp": "2026-08-28T18:00:00Z"
+        }
+      },
+      {
+        "id": "EDGE_065",
+        "source": "PERSON_012",
+        "target": "LOC_RITA",
+        "type": "PRESENT_AT",
+        "properties": {
+          "confidence": 0.94,
+          "weight": 1.7,
+          "timestamp": "2026-08-28T18:00:00Z"
+        }
+      },
+      {
+        "id": "EDGE_066",
+        "source": "PERSON_012",
+        "target": "PERSON_003",
+        "type": "COLLABORATES_WITH",
+        "properties": {
+          "confidence": 0.96,
+          "weight": 2.0,
+          "intercept_count": 15
+        }
+      },
+      {
+        "id": "EDGE_067",
+        "source": "PERSON_012",
+        "target": "PERSON_001",
+        "type": "COLLABORATES_WITH",
+        "properties": {
+          "confidence": 0.96,
+          "weight": 2.0,
+          "intercept_count": 15
+        }
+      },
+      {
+        "id": "EDGE_068",
+        "source": "PERSON_013",
+        "target": "INCIDENT_047",
+        "type": "INVOLVED_IN",
+        "properties": {
+          "confidence": 0.99,
+          "weight": 2.2,
+          "role": "Syndicate Operative"
+        }
+      },
+      {
+        "id": "EDGE_069",
+        "source": "PERSON_013",
+        "target": "PHONE_9912121212",
+        "type": "OWNS",
+        "properties": {
+          "confidence": 0.99
+        }
+      },
+      {
+        "id": "EDGE_070",
+        "source": "PERSON_013",
+        "target": "VEHICLE_36",
+        "type": "OPERATES_IN",
+        "properties": {
+          "confidence": 0.95,
+          "weight": 1.8
+        }
+      },
+      {
+        "id": "EDGE_071",
+        "source": "PERSON_013",
+        "target": "BANK_415454",
+        "type": "CONTROLS",
+        "properties": {
+          "confidence": 0.98,
+          "weight": 2.5
+        }
+      },
+      {
+        "id": "EDGE_072",
+        "source": "PERSON_013",
+        "target": "UPI_shahbaz_yabl",
+        "type": "CONTROLS",
+        "properties": {
+          "confidence": 0.98,
+          "weight": 2.0
+        }
+      },
+      {
+        "id": "EDGE_073",
+        "source": "PERSON_013",
+        "target": "LOC_RISHRA",
+        "type": "PRESENT_AT",
+        "properties": {
+          "confidence": 0.94,
+          "weight": 1.7,
+          "timestamp": "2026-08-28T18:00:00Z"
+        }
+      },
+      {
+        "id": "EDGE_074",
+        "source": "PERSON_013",
+        "target": "LOC_KONNAGAR",
+        "type": "PRESENT_AT",
+        "properties": {
+          "confidence": 0.94,
+          "weight": 1.7,
+          "timestamp": "2026-08-28T18:00:00Z"
+        }
+      },
+      {
+        "id": "EDGE_075",
+        "source": "PERSON_013",
+        "target": "LOC_TRIVENI_MALL",
+        "type": "PRESENT_AT",
+        "properties": {
+          "confidence": 0.94,
+          "weight": 1.7,
+          "timestamp": "2026-08-28T18:00:00Z"
+        }
+      },
+      {
+        "id": "EDGE_076",
+        "source": "PERSON_013",
+        "target": "LOC_RITA",
+        "type": "PRESENT_AT",
+        "properties": {
+          "confidence": 0.94,
+          "weight": 1.7,
+          "timestamp": "2026-08-28T18:00:00Z"
+        }
+      },
+      {
+        "id": "EDGE_077",
+        "source": "PERSON_013",
+        "target": "PERSON_003",
+        "type": "COLLABORATES_WITH",
+        "properties": {
+          "confidence": 0.96,
+          "weight": 2.0,
+          "intercept_count": 15
+        }
+      },
+      {
+        "id": "EDGE_078",
+        "source": "PERSON_013",
+        "target": "PERSON_001",
+        "type": "COLLABORATES_WITH",
+        "properties": {
+          "confidence": 0.96,
+          "weight": 2.0,
+          "intercept_count": 15
+        }
       }
     ]
   },
@@ -648,6 +1932,117 @@
         "Tariq Al-Hasani"
       ],
       "source_db": "Legacy CCTNS West Bengal (2023)"
+    },
+    {
+      "id": "REC_NEW_PERSON_008",
+      "full_name": "Arjun 'Ghost' Mukherjee",
+      "age": 36,
+      "phones": [
+        "+919874990011"
+      ],
+      "vehicles": [
+        "WB-04-T-1122"
+      ],
+      "financial_ids": [
+        "301044882211"
+      ],
+      "known_associates": [
+        "PERSON_001"
+      ],
+      "source_db": "Barrackpore Special Thana Digital Record (2026)"
+    },
+    {
+      "id": "REC_NEW_PERSON_009",
+      "full_name": "Arjun 'Ghost' Mukherjee",
+      "age": 36,
+      "phones": [
+        "+919874990011"
+      ],
+      "vehicles": [
+        "WB-04-T-1122"
+      ],
+      "financial_ids": [
+        "301044882211"
+      ],
+      "known_associates": [
+        "PERSON_001"
+      ],
+      "source_db": "Barrackpore Special Thana Digital Record (2026)"
+    },
+    {
+      "id": "REC_NEW_PERSON_010",
+      "full_name": "Arjun 'Ghost' Mukherjee",
+      "age": 36,
+      "phones": [
+        "+919874990011"
+      ],
+      "vehicles": [
+        "WB-04-T-1122"
+      ],
+      "financial_ids": [
+        "301044882211"
+      ],
+      "known_associates": [
+        "PERSON_001"
+      ],
+      "source_db": "Barrackpore Special Thana Digital Record (2026)"
+    },
+    {
+      "id": "REC_NEW_PERSON_011",
+      "full_name": "Shahbaz Alam",
+      "age": 32,
+      "phones": [
+        "9912121212"
+      ],
+      "vehicles": [
+        "36"
+      ],
+      "financial_ids": [
+        "1415454"
+      ],
+      "known_associates": [
+        "PERSON_003",
+        "PERSON_001"
+      ],
+      "source_db": "Barrackpore Special Crime Thana Digital Record (2026)"
+    },
+    {
+      "id": "REC_NEW_PERSON_012",
+      "full_name": "Shahbaz Dakait",
+      "age": 32,
+      "phones": [
+        "9912121212"
+      ],
+      "vehicles": [
+        "36"
+      ],
+      "financial_ids": [
+        "1415454"
+      ],
+      "known_associates": [
+        "PERSON_003",
+        "PERSON_001"
+      ],
+      "source_db": "Barrackpore Special Crime Thana Digital Record (2026)"
+    },
+    {
+      "id": "REC_NEW_PERSON_013",
+      "full_name": "Shahbaz Dakait",
+      "age": 32,
+      "phones": [
+        "9912121212"
+      ],
+      "vehicles": [
+        "36"
+      ],
+      "financial_ids": [
+        "1415454"
+      ],
+      "known_associates": [
+        "PERSON_003",
+        "PERSON_001"
+      ],
+      "source_db": "Barrackpore Special Crime Thana Digital Record (2026)"
     }
   ],
   "spatio_temporal_events": [

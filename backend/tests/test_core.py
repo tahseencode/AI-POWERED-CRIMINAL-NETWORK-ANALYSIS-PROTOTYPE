@@ -96,5 +96,17 @@ class TestCriminalAnalysisCore(unittest.TestCase):
         self.assertGreater(len(res["evidence_chain"]), 0)
         self.assertIn("Verified Intelligence Brief", res["intelligence_brief"])
 
+    def test_suspect_crime_details_structure(self):
+        node = kg_store.get_node("PERSON_001")
+        self.assertIsNotNone(node)
+        self.assertIn("crime_details", node["properties"])
+        cd = node["properties"]["crime_details"]
+        self.assertIn("crime_title", cd)
+        self.assertIn("incident_narrative", cd)
+        self.assertIn("statutory_acts", cd)
+        self.assertGreater(len(cd["statutory_acts"]), 0)
+        self.assertIn("act", cd["statutory_acts"][0])
+        self.assertIn("explanation", cd["statutory_acts"][0])
+
 if __name__ == "__main__":
     unittest.main()

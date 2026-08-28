@@ -14,7 +14,9 @@ def test_endpoints():
         "/api/spatio-temporal/clusters",
         "/api/entity-resolution/resolve",
         "/api/audit/verify",
-        "/api/cctns/pillars"
+        "/api/cctns/pillars",
+        "/api/suspects",
+        "/api/crimes"
     ]
     
     print("Testing Endpoints...")
@@ -50,6 +52,47 @@ def test_endpoints():
             print(f"[SUCCESS] /api/analytics/disruption-simulate -> HTTP {resp.getcode()} (Drop: {data['disruption_effectiveness_percent']})")
     except Exception as e:
         print(f"[ERROR] /api/analytics/disruption-simulate -> {e}")
+        all_ok = False
+
+    # Test POST Add Suspect with Rich Crime Details
+    try:
+        suspect_payload = json.dumps({
+            "name": "Arjun 'Ghost' Mukherjee",
+            "aliases": ["A. Mukherjee", "Ghost Armorer"],
+            "role": "Firearms Courier & Safehouse Custodian",
+            "threat_score": 0.82,
+            "age": 36,
+            "crime_title": "Inter-State Contraband Logistics & Cache Transit",
+            "crime_category": "Armed Weapon Trafficking & Logistics",
+            "incident_narrative": "Transferred illegal ordnance consignments from Asansol border to Ichhapur safehouse.",
+            "modus_operandi": "Concealed compartment in cargo van WB-04-T-1122 with fake delivery papers.",
+            "seized_contraband": "2x 9mm country pistols, 30 rounds, ₹12,00,000 cash",
+            "statutory_acts": [
+                {
+                    "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
+                    "section": "Section 111",
+                    "title": "Organized Crime Syndicate Offence",
+                    "explanation": "Continuous organized crime trafficking."
+                },
+                {
+                    "act": "Arms Act 1959",
+                    "section": "Section 25",
+                    "title": "Illegal Firearms",
+                    "explanation": "Transporting unlicenced lethal weapons."
+                }
+            ],
+            "phone_numbers": ["+919874990011"],
+            "vehicle_plates": ["WB-04-T-1122"],
+            "bank_accounts": ["301044882211"],
+            "locations": ["Ichhapur Safehouse"],
+            "known_associates": ["PERSON_001"]
+        }).encode('utf-8')
+        req = urllib.request.Request(f"{base}/api/suspects/add", data=suspect_payload, headers={'Content-Type': 'application/json'})
+        with urllib.request.urlopen(req) as resp:
+            data = json.loads(resp.read().decode())
+            print(f"[SUCCESS] /api/suspects/add -> HTTP {resp.getcode()} (Suspect ID: {data['suspect_id']}, Nodes added: {data['nodes_added_count']})")
+    except Exception as e:
+        print(f"[ERROR] /api/suspects/add -> {e}")
         all_ok = False
 
     if all_ok:

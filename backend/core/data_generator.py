@@ -14,17 +14,336 @@ def generate_default_intelligence_cases() -> Dict[str, Any]:
     # ==========================================
     case_1_nodes = [
         # Kingpins / Command
-        {"id": "PERSON_001", "label": "Person", "properties": {"name": "Tariq 'The Ghost' Al-Hasani", "aliases": ["Tariq Hasan", "T. A. Hasani", "Kabir Bhai"], "role": "Syndicate Kingpin / Strategic Boss", "threat_score": 0.95, "attribute_load": 4.8, "age": 49, "cctns_id": "WB-CCTNS-2026-08819", "bns_sections": ["BNS Sec 111 (Organized Crime)", "BNS Sec 318 (Cheating)", "BSA Sec 63"]}},
-        {"id": "PERSON_002", "label": "Person", "properties": {"name": "Sunil 'Doctor' Roy", "aliases": ["Dr. S. K. Roy", "Sunil Kumar Roy"], "role": "Chief Hawala Broker & Money Launderer", "threat_score": 0.88, "attribute_load": 4.2, "age": 44, "cctns_id": "WB-CCTNS-2026-09102", "bns_sections": ["BNS Sec 111", "BNS Sec 316 (Breach of Trust)"]}},
+        {
+            "id": "PERSON_001",
+            "label": "Person",
+            "properties": {
+                "name": "Tariq 'The Ghost' Al-Hasani",
+                "aliases": ["Tariq Hasan", "T. A. Hasani", "Kabir Bhai"],
+                "role": "Syndicate Kingpin / Strategic Boss",
+                "threat_score": 0.95,
+                "attribute_load": 4.8,
+                "age": 49,
+                "gender": "Male",
+                "cctns_id": "WB-CCTNS-2026-08819",
+                "bns_sections": [
+                    "BNS Sec 111 (Organized Crime Syndicate)",
+                    "BNS Sec 318 (Cheating & Financial Fraud)",
+                    "Arms Act Sec 25(1AA) (Prohibited Firearms)",
+                    "BSA Sec 63 (Electronic Evidence Admissibility)"
+                ],
+                "crime_details": {
+                    "crime_title": "Operation Ichhapur Matrix: Trans-Border Contraband, Arms & Hawala Conduit",
+                    "crime_category": "Organized Crime Syndicate & Arms Smuggling",
+                    "incident_narrative": "Accused mastermind orchestrated cross-border illegal firearms transit and automated Hawala money laundering channels across Kolkata Port Trust dockyards and North 24 Parganas safehouses. Directly directed subordinate courier cells using encrypted communications to stash arms caches and launder illegal proceeds through shell entity accounts.",
+                    "modus_operandi": "Operates a multi-tier insulated syndicate. Communicates exclusively via encrypted burner SIMs, commands shell directors to layer funds into offshore Bitcoin vaults, and deploys high-speed scout convoys for physical arms movement.",
+                    "seized_contraband": "3x 9mm Country-made Semi-Automatic Pistols, 45 live rounds, ₹1.25 Crore unaccounted cash, 14.5 BTC encrypted hardware wallet",
+                    "statutory_acts": [
+                        {
+                            "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
+                            "section": "Section 111",
+                            "title": "Organized Crime Syndicate Offence",
+                            "explanation": "Engaging in continuous unlawful activity including extortion, hawala, and illegal weapon trafficking as part of an organized crime syndicate."
+                        },
+                        {
+                            "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
+                            "section": "Section 318",
+                            "title": "Cheating & Fraudulent Inducement",
+                            "explanation": "Executing fraudulent shell company transactions and deceptive hawala routing to siphon illicit wealth."
+                        },
+                        {
+                            "act": "Arms Act 1959",
+                            "section": "Section 25(1AA)",
+                            "title": "Illegal Acquisition & Transport of Prohibited Arms",
+                            "explanation": "Possession and interstate movement of prohibited firearms and unlicenced ammunition."
+                        },
+                        {
+                            "act": "Bharatiya Sakshya Adhiniyam (BSA) 2024",
+                            "section": "Section 63",
+                            "title": "Admissibility of Electronic Records",
+                            "explanation": "Cryptographically hashed CDR, IPDR, and UPI interception logs certified under digital chain of custody."
+                        }
+                    ],
+                    "fir_number": "FIR-2026/094/WB-BKP",
+                    "police_station": "Barrackpore Special Crime Thana",
+                    "incident_date": "2026-08-24 21:00 IST",
+                    "incident_locus": "Ichhapur Defence Estate Perimeter, North 24 Parganas",
+                    "case_status": "Active Trial / Non-Bailable Warrant Issued",
+                    "investigating_officer": "IO-KOLKATA-8842"
+                }
+            }
+        },
+        {
+            "id": "PERSON_002",
+            "label": "Person",
+            "properties": {
+                "name": "Sunil 'Doctor' Roy",
+                "aliases": ["Dr. S. K. Roy", "Sunil Kumar Roy"],
+                "role": "Chief Hawala Broker & Money Launderer",
+                "threat_score": 0.88,
+                "attribute_load": 4.2,
+                "age": 44,
+                "gender": "Male",
+                "cctns_id": "WB-CCTNS-2026-09102",
+                "bns_sections": [
+                    "BNS Sec 111 (Organized Crime)",
+                    "BNS Sec 316 (Criminal Breach of Trust)",
+                    "BNS Sec 318 (Cheating)",
+                    "PMLA Sec 3 (Money Laundering)"
+                ],
+                "crime_details": {
+                    "crime_title": "Matrix Impex Shell Banking & Hawala Conduit Laundering",
+                    "crime_category": "Financial Fraud, Hawala & PMLA Offence",
+                    "incident_narrative": "Channelled over ₹4.5 Crore of syndicated extortion and narcotics proceeds through fake export-import shell accounts (Matrix Impex at HDFC Park Street) and converted fiat into Bitcoin hardware cold vaults.",
+                    "modus_operandi": "Utilized multiple fake GSTIN registrations and structured split cash deposits below ₹50,000 threshold to evade FIU detection before bulk RTGS transfers into offshore crypto conversion desks.",
+                    "seized_contraband": "HDFC Account ₹4.50 Cr freeze order, 12 counterfeit bank seal stamps, 8 forged KYC pan cards",
+                    "statutory_acts": [
+                        {
+                            "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
+                            "section": "Section 316",
+                            "title": "Criminal Breach of Trust",
+                            "explanation": "Misappropriation of entrusted commercial bank accounts for laundering organized crime proceeds."
+                        },
+                        {
+                            "act": "Prevention of Money Laundering Act (PMLA) 2002",
+                            "section": "Section 3 & 4",
+                            "title": "Offence of Money-Laundering",
+                            "explanation": "Direct involvement in the concealment, possession, acquisition, and projection of untainted property."
+                        }
+                    ],
+                    "fir_number": "FIR-2026/102/WB-PRK",
+                    "police_station": "Park Street Special Fraud Thana",
+                    "incident_date": "2026-08-20 11:15 IST",
+                    "incident_locus": "Park Street Financial Commercial Complex, Kolkata",
+                    "case_status": "Charge Sheet Prepared / Bank Accounts Frozen"
+                }
+            }
+        },
         
         # Operational Lieutenants
-        {"id": "PERSON_003", "label": "Person", "properties": {"name": "Raju 'Black Cat' Mondal", "aliases": ["R. Mondal", "Raju Sardar"], "role": "Contraband Logistics Coordinator", "threat_score": 0.82, "attribute_load": 3.6, "age": 38, "cctns_id": "WB-CCTNS-2026-04412", "bns_sections": ["BNS Sec 111", "Arms Act Sec 25"]}},
-        {"id": "PERSON_004", "label": "Person", "properties": {"name": "Imran 'Proxy' Sheikh", "aliases": ["Md. Imran", "Imran Ali"], "role": "Cyber & Communication Operator", "threat_score": 0.76, "attribute_load": 3.1, "age": 29, "cctns_id": "WB-CCTNS-2026-11045", "bns_sections": ["IT Act Sec 66D", "BNS Sec 318"]}},
+        {
+            "id": "PERSON_003",
+            "label": "Person",
+            "properties": {
+                "name": "Raju 'Black Cat' Mondal",
+                "aliases": ["R. Mondal", "Raju Sardar"],
+                "role": "Contraband Logistics Coordinator",
+                "threat_score": 0.82,
+                "attribute_load": 3.6,
+                "age": 38,
+                "gender": "Male",
+                "cctns_id": "WB-CCTNS-2026-04412",
+                "bns_sections": [
+                    "BNS Sec 111 (Organized Crime)",
+                    "Arms Act Sec 25(1B)(a)",
+                    "NDPS Act Sec 21"
+                ],
+                "crime_details": {
+                    "crime_title": "NH-27 Inter-State Weapon & Contraband Trunk Logistics",
+                    "crime_category": "Arms Smuggling & Narcotics Logistics",
+                    "incident_narrative": "Coordinated vehicular transport of hidden arms shipments from Siliguri border transit nodes down to Kolkata port container terminal and Ichhapur ordnance safehouses using modified Scorpio SUVs with concealed floor compartments.",
+                    "modus_operandi": "Operated dual-vehicle convoys with scout cars 5 km ahead to monitor police checkpoints and ANPR cameras; relied on fake license plates (WB-02-AB-1234).",
+                    "seized_contraband": "Modified Mahindra Scorpio with hydraulic hidden chamber, 2x 7.65mm pistols, 20 live cartridges",
+                    "statutory_acts": [
+                        {
+                            "act": "Arms Act 1959",
+                            "section": "Section 25",
+                            "title": "Possession of Unlicenced Fire Arms",
+                            "explanation": "Trafficking illegal manufactured arms across inter-district borders."
+                        }
+                    ],
+                    "fir_number": "FIR-2026/088/WB-SLG",
+                    "police_station": "Siliguri Junction Thana (Zero FIR transferred)",
+                    "incident_date": "2026-08-21 09:15 IST",
+                    "incident_locus": "Siliguri Freight Terminal & NH-27 Corridor",
+                    "case_status": "Under Active Interception / Surveillance"
+                }
+            }
+        },
+        {
+            "id": "PERSON_004",
+            "label": "Person",
+            "properties": {
+                "name": "Imran 'Proxy' Sheikh",
+                "aliases": ["Md. Imran", "Imran Ali"],
+                "role": "Cyber & Communication Operator",
+                "threat_score": 0.76,
+                "attribute_load": 3.1,
+                "age": 29,
+                "gender": "Male",
+                "cctns_id": "WB-CCTNS-2026-11045",
+                "bns_sections": [
+                    "IT Act Sec 66D (Cheating by Personation)",
+                    "BNS Sec 318 (Cheating)",
+                    "BSA Sec 63"
+                ],
+                "crime_details": {
+                    "crime_title": "VoIP Gateway & SIM Box Extortion Operation",
+                    "crime_category": "Cyber Extortion & Telecom Gateway Fraud",
+                    "incident_narrative": "Provisioned synthetic burner SIM cards and configured GSM SIM-boxes and VoIP proxy routing to mask kingpin calls to local business owners demanding ₹25 Lakh protection money.",
+                    "modus_operandi": "Activated pre-activated Assam and Bihar SIM cards using cloned Aadhaar credentials; rotated MAC/IP addresses through multi-hop VPN servers.",
+                    "seized_contraband": "16-Port GSM SIM Box, 64 Pre-activated SIM Cards, 3 High-Gain Directional Antennas, Laptop with Asterisk PBX",
+                    "statutory_acts": [
+                        {
+                            "act": "Information Technology Act 2000",
+                            "section": "Section 66D",
+                            "title": "Cheating by Personation using Computer Resource",
+                            "explanation": "Using digital SIM boxes and synthetic IDs to deceive telecom network switches and victims."
+                        }
+                    ],
+                    "fir_number": "FIR-2026/133/WB-CYB",
+                    "police_station": "Kolkata Cyber Crime Police Station",
+                    "incident_date": "2026-08-22 17:40 IST",
+                    "incident_locus": "Rajarhat IT Park Area, Kolkata",
+                    "case_status": "Electronic Forensics Verification in Progress"
+                }
+            }
+        },
         
         # Street Operatives & Enforcers
-        {"id": "PERSON_005", "label": "Person", "properties": {"name": "Bikram 'Shooter' Das", "aliases": ["Bikky Das"], "role": "Ground Enforcer & Transport Driver", "threat_score": 0.71, "attribute_load": 2.4, "age": 26, "cctns_id": "WB-CCTNS-2026-15201", "bns_sections": ["BNS Sec 109 (Attempted Murder)", "Arms Act"]}},
-        {"id": "PERSON_006", "label": "Person", "properties": {"name": "Debabrata 'Debu' Paul", "aliases": ["D. Paul"], "role": "Smuggling Convoy Navigator", "threat_score": 0.65, "attribute_load": 2.1, "age": 33, "cctns_id": "WB-CCTNS-2026-16982", "bns_sections": ["BNS Sec 111"]}},
-        {"id": "PERSON_007", "label": "Person", "properties": {"name": "Ananya 'Fin' Sen", "aliases": ["A. Sen"], "role": "Shell Entity Director & Account Mule", "threat_score": 0.58, "attribute_load": 2.0, "age": 31, "cctns_id": "WB-CCTNS-2026-18774", "bns_sections": ["BNS Sec 316"]}},
+        {
+            "id": "PERSON_005",
+            "label": "Person",
+            "properties": {
+                "name": "Bikram 'Shooter' Das",
+                "aliases": ["Bikky Das"],
+                "role": "Ground Enforcer & Transport Driver",
+                "threat_score": 0.71,
+                "attribute_load": 2.4,
+                "age": 26,
+                "gender": "Male",
+                "cctns_id": "WB-CCTNS-2026-15201",
+                "bns_sections": [
+                    "BNS Sec 109 (Attempt to Murder)",
+                    "Arms Act Sec 27 (Use of Arms)",
+                    "BNS Sec 111"
+                ],
+                "crime_details": {
+                    "crime_title": "Barrackpore Industrial Extortion Shootout & Intimidation",
+                    "crime_category": "Armed Violence, Attempted Murder & Extortion",
+                    "incident_narrative": "Executed targeted armed intimidation and fired warning shots at factory gates in Asansol and Barrackpore to enforce Tariq Al-Hasani's monthly protection extortion racket.",
+                    "modus_operandi": "Approached targets on stolen motorbikes, fired country-made firearms to terrorize local merchants, and fled via pre-mapped alley routes to Ichhapur safehouse.",
+                    "seized_contraband": "One 9mm country-made pistol, 4 spent cartridge shells, Bajaj Pulsar bike without license plate",
+                    "statutory_acts": [
+                        {
+                            "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
+                            "section": "Section 109",
+                            "title": "Attempt to Murder",
+                            "explanation": "Open firing with lethal weapons on victims during extortion shakedowns."
+                        }
+                    ],
+                    "fir_number": "FIR-2026/077/WB-ASN",
+                    "police_station": "Asansol South Thana",
+                    "incident_date": "2026-08-19 18:00 IST",
+                    "incident_locus": "Asansol Industrial Depot Perimeter",
+                    "case_status": "Non-Bailable Warrant Executed / Under Interrogation"
+                }
+            }
+        },
+        {
+            "id": "PERSON_006",
+            "label": "Person",
+            "properties": {
+                "name": "Debabrata 'Debu' Paul",
+                "aliases": ["D. Paul"],
+                "role": "Smuggling Convoy Navigator",
+                "threat_score": 0.65,
+                "attribute_load": 2.1,
+                "age": 33,
+                "gender": "Male",
+                "cctns_id": "WB-CCTNS-2026-16982",
+                "bns_sections": [
+                    "BNS Sec 111 (Organized Crime)",
+                    "Motor Vehicles Act Sec 192A"
+                ],
+                "crime_details": {
+                    "crime_title": "Ichhapur Convoy Scout & Toll ANPR Evasion",
+                    "crime_category": "Organized Contraband Pilot & Scout",
+                    "incident_narrative": "Piloted the lead scout vehicle (Toyota Innova WB-24-K-9988) ahead of weapon transports, reporting toll booth police presence and testing highway surveillance choke points.",
+                    "modus_operandi": "Drives 8-10 minutes ahead of contraband carriers, flashing headlights and transmitting WhatsApp location pins to alert following smuggler vehicles.",
+                    "seized_contraband": "Toyota Innova Crysta, 4 handheld walkie-talkie sets, night-vision binoculars",
+                    "statutory_acts": [
+                        {
+                            "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
+                            "section": "Section 111",
+                            "title": "Organized Crime Syndicate Aiding & Abetting",
+                            "explanation": "Actively facilitating syndicate movement and evading statutory law enforcement checkpoints."
+                        }
+                    ],
+                    "fir_number": "FIR-2026/094/WB-BKP",
+                    "police_station": "Barrackpore Thana",
+                    "incident_date": "2026-08-24 21:22 IST",
+                    "incident_locus": "Barrackpore-Ichhapur Link Toll Plaza",
+                    "case_status": "Detained at Toll Checkpoint"
+                }
+            }
+        },
+        {
+            "id": "PERSON_007",
+            "label": "Person",
+            "properties": {
+                "name": "Ananya 'Fin' Sen",
+                "aliases": ["A. Sen"],
+                "role": "Shell Entity Director & Account Mule",
+                "threat_score": 0.58,
+                "attribute_load": 2.0,
+                "age": 31,
+                "gender": "Female",
+                "cctns_id": "WB-CCTNS-2026-18774",
+                "bns_sections": [
+                    "BNS Sec 316 (Criminal Breach of Trust)",
+                    "BNS Sec 318 (Cheating)"
+                ],
+                "crime_details": {
+                    "crime_title": "Hawala Layering & Benami Account Operation",
+                    "crime_category": "Benami Financial Laundering",
+                    "incident_narrative": "Listed as registered nominee director for two shell logistics firms used by Sunil Roy to park ₹1.5 Crore illicit payments before withdrawing cash across multiple ATM locations.",
+                    "modus_operandi": "Signed blank cheque books and authorized corporate net-banking transfers in exchange for 2% monthly commission on processed volumes.",
+                    "seized_contraband": "Bank cheque books of 4 dummy current accounts, ATM transaction receipts totaling ₹15 Lakh",
+                    "statutory_acts": [
+                        {
+                            "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
+                            "section": "Section 316",
+                            "title": "Criminal Breach of Trust",
+                            "explanation": "Dishonestly operating benami accounts to launder extortion funds."
+                        }
+                    ],
+                    "fir_number": "FIR-2026/102/WB-PRK",
+                    "police_station": "Park Street Thana",
+                    "incident_date": "2026-08-22 09:30 IST",
+                    "incident_locus": "Asansol Main Bazaar ATM Hub",
+                    "case_status": "Summons Issued / Bank Accounts Attached"
+                }
+            }
+        },
+
+        # Crime Incident Dedicated Nodes
+        {
+            "id": "INCIDENT_001",
+            "label": "CrimeIncident",
+            "properties": {
+                "name": "Ichhapur Arms Consignment Interception",
+                "category": "Armed Weapon Trafficking",
+                "summary": "Interception of illicit firearms convoy containing 9mm pistols and live ammo headed for Ichhapur safehouse.",
+                "seized_items": "3x 9mm pistols, 45 live rounds, Mahindra Scorpio",
+                "date": "2026-08-24T21:00:00Z",
+                "locus": "Ichhapur Defence Estate Perimeter (22.8124, 88.3752)",
+                "threat_level": "CRITICAL"
+            }
+        },
+        {
+            "id": "INCIDENT_002",
+            "label": "CrimeIncident",
+            "properties": {
+                "name": "Kolkata Port Hawala & Crypto Launder",
+                "category": "Financial Crime & Hawala",
+                "summary": "Illegal cash handover and crypto conversion of ₹1.25 Crore at Dock-7 container depot.",
+                "seized_items": "₹4.50 Cr bank account freeze, 14.5 BTC cold wallet",
+                "date": "2026-08-23T14:10:00Z",
+                "locus": "Kolkata Dock-7 Maritime Container Yard (22.5411, 88.3217)",
+                "threat_level": "HIGH"
+            }
+        },
 
         # Communication Identifiers (Phones)
         {"id": "PHONE_9830112233", "label": "Phone", "properties": {"number": "+919830112233", "subscriber": "Tariq Al-Hasani", "imei": "864201041122334", "service_provider": "Airtel Kolkata"}},
@@ -48,7 +367,22 @@ def generate_default_intelligence_cases() -> Dict[str, Any]:
         {"id": "CRYPTO_BTC_VAULT", "label": "CryptoWallet", "properties": {"wallet_address": "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh", "blockchain": "Bitcoin", "detected_balance_btc": 14.5}},
 
         # Statutory Case & FIR Nodes
-        {"id": "FIR_2026_094", "label": "FIR", "properties": {"fir_number": "FIR-2026/094/WB-BKP", "statute": "BNS 2024", "sections": "Sec 111, 318, 316", "police_station": "Barrackpore Thana", "is_zero_fir": True, "origin_station": "Siliguri Junction PS"}}
+        {
+            "id": "FIR_2026_094",
+            "label": "FIR",
+            "properties": {
+                "fir_number": "FIR-2026/094/WB-BKP",
+                "crime_title": "Inter-State Organized Arms & Contraband Trafficking",
+                "statute": "Bharatiya Nyaya Sanhita (BNS) 2024 & Arms Act 1959",
+                "sections": "BNS Sec 111, 318, 316; Arms Act Sec 25",
+                "statutory_explanation": "Organized cross-border arms trafficking, fraudulent hawala shell companies, and breach of trust.",
+                "police_station": "Barrackpore Special Thana",
+                "is_zero_fir": True,
+                "origin_station": "Siliguri Junction PS",
+                "investigating_officer": "IO-KOLKATA-8842",
+                "case_status": "Charge Sheet Prepared / Court Committal"
+            }
+        }
     ]
 
     case_1_edges = [
@@ -83,10 +417,13 @@ def generate_default_intelligence_cases() -> Dict[str, Any]:
         {"id": "EDGE_020", "source": "PERSON_003", "target": "LOC_PORT_KOLKATA", "type": "PRESENT_AT", "properties": {"timestamp": "2026-08-23T14:20:00Z", "weight": 1.7, "confidence": 0.93}},
         {"id": "EDGE_021", "source": "PERSON_005", "target": "LOC_ASANSOL", "type": "PRESENT_AT", "properties": {"timestamp": "2026-08-19T18:00:00Z", "weight": 1.5, "confidence": 0.90}},
         
-        # Co-Offending & Statutory Links
+        # Co-Offending, Statutory & Crime Incident Links
         {"id": "EDGE_022", "source": "PERSON_001", "target": "FIR_2026_094", "type": "ASSOCIATED_WITH", "properties": {"role": "Accused Kingpin", "confidence": 0.99}},
         {"id": "EDGE_023", "source": "PERSON_003", "target": "FIR_2026_094", "type": "ASSOCIATED_WITH", "properties": {"role": "Accused Enforcer", "confidence": 0.99}},
-        {"id": "EDGE_024", "source": "PERSON_005", "target": "PERSON_006", "type": "ARRESTED_WITH", "properties": {"timestamp": "2024-11-12T04:30:00Z", "location": "Barrackpore Toll", "weight": 2.0, "confidence": 0.99}}
+        {"id": "EDGE_024", "source": "PERSON_005", "target": "PERSON_006", "type": "ARRESTED_WITH", "properties": {"timestamp": "2024-11-12T04:30:00Z", "location": "Barrackpore Toll", "weight": 2.0, "confidence": 0.99}},
+        {"id": "EDGE_025", "source": "PERSON_001", "target": "INCIDENT_001", "type": "COMMANDS_OPERATION", "properties": {"confidence": 0.98, "weight": 2.5}},
+        {"id": "EDGE_026", "source": "PERSON_003", "target": "INCIDENT_001", "type": "PRESENT_AT", "properties": {"confidence": 0.96, "weight": 2.2}},
+        {"id": "EDGE_027", "source": "PERSON_002", "target": "INCIDENT_002", "type": "ORGANIZED", "properties": {"confidence": 0.99, "weight": 2.8}}
     ]
 
     # Entity Resolution Benchmark Records (Simulating Fragmented Identities across Police Stations)

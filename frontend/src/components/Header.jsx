@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, ShieldAlert, Cpu, Database, UserCheck, Lock, RefreshCw } from 'lucide-react';
+import { Shield, ShieldAlert, Cpu, Database, UserCheck, Lock, RefreshCw, UserPlus } from 'lucide-react';
 
 export default function Header({ 
   currentRole, 
@@ -7,6 +7,7 @@ export default function Header({
   systemStatus, 
   onRefresh, 
   onOpenCctnsModal,
+  onOpenAddSuspectModal,
   activeTab,
   onTabChange
 }) {
@@ -88,6 +89,24 @@ export default function Header({
 
         {/* Security, Enclave & RBAC Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {/* Add Suspect Trigger */}
+          <button 
+            onClick={onOpenAddSuspectModal}
+            className="btn-primary"
+            style={{
+              fontSize: '12px',
+              padding: '7px 14px',
+              background: 'linear-gradient(135deg, rgba(0, 229, 255, 0.2) 0%, rgba(124, 77, 255, 0.3) 100%)',
+              border: '1px solid var(--accent-cyan)',
+              color: '#fff',
+              boxShadow: '0 0 12px rgba(0, 229, 255, 0.3)'
+            }}
+            title="Ingest New Suspect & Detailed Crime Dossier"
+          >
+            <UserPlus size={15} color="var(--accent-cyan)" />
+            <span style={{ fontWeight: 700 }}>+ Add Suspect</span>
+          </button>
+
           {/* CCTNS Status Trigger */}
           <button 
             onClick={onOpenCctnsModal}
