@@ -512,6 +512,73 @@ export default function GraphExplorer({ graphData, onNodeSelect, selectedNodeId 
               </div>
             )}
 
+            {/* Evidence & Media Attachment Card (if present) */}
+            {selectedEntity.properties?.evidence_attachment && (
+              <div style={{
+                background: 'rgba(16, 185, 129, 0.08)',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                borderRadius: '8px',
+                padding: '10px 12px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '6px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--accent-emerald)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    📄 Digital Evidence Attachment
+                  </span>
+                  <span className="badge badge-emerald" style={{ fontSize: '8px' }}>
+                    BSA 2024 Sec 63
+                  </span>
+                </div>
+                <div style={{ fontSize: '11px', color: '#fff', fontWeight: 600 }}>
+                  {selectedEntity.properties.evidence_attachment.file_name}
+                </div>
+                <div style={{ fontSize: '9px', color: '#94a3b8', fontFamily: 'var(--font-mono)' }}>
+                  SHA-256: {selectedEntity.properties.evidence_attachment.sha256_hash?.slice(0, 24)}...
+                </div>
+              </div>
+            )}
+
+            {/* AI Outcome & Historical Case Forecast Card */}
+            {selectedEntity.properties?.predicted_outcome && (
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(124, 77, 255, 0.1) 0%, rgba(0, 229, 255, 0.1) 100%)',
+                border: '1px solid rgba(124, 77, 255, 0.4)',
+                borderRadius: '8px',
+                padding: '12px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '11px', color: '#d8b4fe', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    🔮 AI Case Outcome Forecast
+                  </span>
+                  <span className="badge badge-violet" style={{ fontSize: '9px' }}>
+                    {selectedEntity.properties.predicted_outcome.overall_escalation_percentage} Escalation Risk
+                  </span>
+                </div>
+
+                <div style={{ fontSize: '11px', color: '#e2e8f0', background: 'rgba(7, 9, 14, 0.6)', padding: '6px 8px', borderRadius: '4px' }}>
+                  <strong style={{ color: 'var(--accent-cyan)' }}>Precedent: </strong>
+                  {selectedEntity.properties.predicted_outcome.matched_historical_precedent?.case_title}
+                </div>
+
+                {selectedEntity.properties.predicted_outcome.forecasted_outcome_timeline?.[0] && (
+                  <div style={{ fontSize: '11px', color: '#fed7aa', background: 'rgba(245, 158, 11, 0.1)', padding: '6px 8px', borderRadius: '4px', borderLeft: '3px solid var(--accent-amber)' }}>
+                    <strong>Next Move (24-48h): </strong>
+                    {selectedEntity.properties.predicted_outcome.forecasted_outcome_timeline[0].predicted_action}
+                  </div>
+                )}
+
+                <div style={{ fontSize: '10px', color: '#94a3b8' }}>
+                  <strong>Counter-Strategy: </strong>
+                  {selectedEntity.properties.predicted_outcome.tactical_intervention_strategy?.primary_action}
+                </div>
+              </div>
+            )}
+
             {/* Properties Breakdown */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <h4 style={{ fontSize: '11px', color: 'var(--accent-cyan)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase' }}>
@@ -527,7 +594,7 @@ export default function GraphExplorer({ graphData, onNodeSelect, selectedNodeId 
                 gap: '6px'
               }}>
                 {Object.entries(selectedEntity.properties || {})
-                  .filter(([k]) => k !== 'crime_details')
+                  .filter(([k]) => !['crime_details', 'evidence_attachment', 'predicted_outcome'].includes(k))
                   .map(([key, val]) => (
                   <div key={key} style={{ display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
                     <span style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: '11px' }}>

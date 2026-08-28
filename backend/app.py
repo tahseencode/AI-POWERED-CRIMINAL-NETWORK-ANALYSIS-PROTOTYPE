@@ -1,8 +1,10 @@
 import os
 import json
+import hashlib
 from pathlib import Path
 from typing import Dict, Any, List, Optional
-from fastapi import FastAPI, HTTPException, Query, Body
+from datetime import datetime
+from fastapi import FastAPI, HTTPException, Query, Body, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
@@ -18,6 +20,7 @@ from backend.core.graph_rag import graph_rag_engine
 from backend.core.graph_analytics import analytics_engine
 from backend.core.gnn_predictive import gnn_engine
 from backend.core.spatio_temporal import strp_dbscan_clusterer
+from backend.core.outcome_forecaster import outcome_predictor
 from backend.core.data_generator import initialize_knowledge_graph, generate_default_intelligence_cases
 
 # Initialize data and knowledge graph
@@ -106,6 +109,10 @@ class AddSuspectRequest(BaseModel):
     locations: Optional[List[str]] = []
     known_associates: Optional[List[str]] = []
     associate_relation: Optional[str] = "COLLABORATES_WITH"
+
+    # Evidence Attachments & AI Predictions
+    evidence_attachment: Optional[Dict[str, Any]] = None
+    predicted_outcome: Optional[Dict[str, Any]] = None
 
     # Audit & Security Context
     officer_badge: Optional[str] = "IO-KOLKATA-8842"
@@ -274,28 +281,300 @@ def ingest_text_or_document(req: IngestionRequest):
     # 2. Domain-adapted NER extraction
     ner_result = legal_ner_engine.extract_entities(ocr_result["cleaned_text"], source_type=req.source_type)
 
-    # 3. Log ingestion
+    # 3. Build auto-filled suspect profile
+    entities = ner_result.get("entities", {})
+    bio_list = entities.get("biographic_data", [])
+    bio = bio_list[0] if bio_list else {}
+    comms = entities.get("communication_identifiers", [])
+    vehs = entities.get("vehicular_logistics", [])
+    fins = entities.get("financial_instruments", [])
+    spats = entities.get("spatial_and_geographic", [])
+    stats = entities.get("statutory_and_legal", {})
+    crime_meta = stats.get("crime_details", {})
+
+    extracted_phones = [c["value"] for c in comms if c.get("type") in ("Phone_Number", "Phone")]
+    extracted_vehicles = [v["plate_number"] for v in vehs if "plate_number" in v]
+    extracted_banks = [f["identifier"] for f in fins if f.get("type") == "Bank_Account"]
+    extracted_upis = [f["identifier"] for f in fins if f.get("type") == "UPI_ID"]
+    extracted_locs = [s["location_name"] for s in spats if "location_name" in s]
+
+    stat_sections = stats.get("statutory_sections", [])
+    structured_acts = []
+    for s in stat_sections:
+        s_str = str(s)
+        act_name = "Arms Act 1959" if "arms" in s_str.lower() else "Information Technology Act 2000" if "it" in s_str.lower() else "Bharatiya Nyaya Sanhita (BNS) 2024"
+        structured_acts.append({
+            "act": act_name,
+            "section": s_str,
+            "title": f"Statutory Offence {s_str}",
+            "explanation": f"Identified in FIR narrative and parsed under BNSS 173 protocol."
+        })
+
+    if not structured_acts:
+        structured_acts = [
+            {
+                "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
+                "section": "Section 111",
+                "title": "Organized Crime Syndicate Offence",
+                "explanation": "Engaging in organized syndicate conspiracy, contraband logistics, or economic offences."
+            }
+        ]
+
+    fir_num = stats.get("fir_number") or ocr_result.get("extracted_metadata", {}).get("fir_number") or f"FIR-2026/{abs(hash(req.raw_text[:50]))%900 + 100}/WB-BKP"
+    thana = stats.get("police_station") or ocr_result.get("extracted_metadata", {}).get("police_station") or "Barrackpore Special Crime Thana"
+
+    auto_filled_suspect = {
+        "name": bio.get("full_name") or "Extracted Suspect",
+        "aliases": bio.get("aliases", []),
+        "role": bio.get("role_inferred") or crime_meta.get("role") or "Syndicate Operative",
+        "threat_score": bio.get("threat_score") or (0.84 if any(w in req.raw_text.lower() for w in ["arms", "kingpin", "extortion", "pistol", "trafficking"]) else 0.75),
+        "age": bio.get("age") or 32,
+        "gender": bio.get("gender") or "Male",
+        "father_or_relative": bio.get("father_or_relative"),
+        "cctns_id": f"WB-CCTNS-2026-{abs(hash(req.raw_text[:40]))%90000 + 10000}",
+        "crime_title": crime_meta.get("crime_title") or f"FIR Case: {fir_num}",
+        "crime_category": crime_meta.get("crime_category") or ("Organized Crime & Firearms Trafficking" if any(w in req.raw_text.lower() for w in ["arms", "pistol", "firearm", "cartridge"]) else "Financial Fraud & Hawala"),
+        "incident_narrative": crime_meta.get("incident_narrative") or ocr_result["cleaned_text"][:500],
+        "modus_operandi": crime_meta.get("modus_operandi") or "Operates using concealed transit channels and telecommunication identifiers extracted from FIR scan.",
+        "seized_contraband": crime_meta.get("seized_contraband") or "Seized items and physical evidence documented in legal narrative.",
+        "statutory_acts": structured_acts,
+        "fir_number": fir_num,
+        "police_station": thana,
+        "incident_date": stats.get("incident_date") or ocr_result.get("extracted_metadata", {}).get("incident_date") or datetime.utcnow().strftime("%Y-%m-%d %H:%M IST"),
+        "incident_locus": stats.get("incident_locus") or (extracted_locs[0] if extracted_locs else "Barrackpore Jurisdiction Corridor"),
+        "case_status": "Under Active Investigation / Evidence Admitted",
+        "phone_numbers": extracted_phones,
+        "vehicle_plates": extracted_vehicles,
+        "bank_accounts": extracted_banks,
+        "upi_ids": extracted_upis,
+        "locations": extracted_locs
+    }
+
+    # 4. Log ingestion
     audit_logger.log_action(
         officer_badge=req.officer_badge,
         role=req.role,
         action="MULTIMODAL_INGESTION_OCR_NER",
         query_or_target=f"Source: {req.source_type} ({ocr_result['detected_language']})",
-        resource_data={"entities_count": ner_result["total_entities_extracted"]}
+        resource_data={"entities_count": ner_result["total_entities_extracted"], "suspect_identified": auto_filled_suspect["name"]}
     )
 
     return {
         "ocr_processing": ocr_result,
-        "legal_ner_extraction": ner_result
+        "legal_ner_extraction": ner_result,
+        "auto_filled_suspect": auto_filled_suspect
+    }
+
+# Media Upload & AI Document OCR / Proof Extraction
+@app.post("/api/ingest/upload-media")
+async def upload_crime_media_and_extract(
+    file: Optional[UploadFile] = File(None),
+    raw_text: Optional[str] = Form(None),
+    source_type: Optional[str] = Form("EVIDENCE_DOCUMENT"),
+    officer_badge: Optional[str] = Form("IO-KOLKATA-8842"),
+    role: Optional[str] = Form("Investigating Officer (IO)")
+):
+    """
+    Ingests uploaded FIR documents, proof photos, seizure memos (PDF, PNG, JPG, TXT).
+    Extracts text using Multilingual OCR & Gemini Multimodal Vision, extracts 6 legal ontologies,
+    hashes evidence for BSA digital custody, and predicts historical outcome trajectory.
+    """
+    filename = "intelligence_document.txt"
+    content_type = "text/plain"
+    file_size = 0
+    raw_content = ""
+
+    if file:
+        filename = file.filename
+        content_type = file.content_type or "application/octet-stream"
+        content_bytes = await file.read()
+        file_size = len(content_bytes)
+        file_hash = hashlib.sha256(content_bytes).hexdigest()
+        ocr_result = ocr_processor.extract_text_from_document(content_bytes, filename=filename)
+    elif raw_text:
+        file_size = len(raw_text.encode("utf-8"))
+        file_hash = hashlib.sha256(raw_text.encode("utf-8")).hexdigest()
+        filename = "pasted_report.txt"
+        content_type = "text/plain"
+        ocr_result = ocr_processor.extract_text_from_document(raw_text, filename=filename)
+    else:
+        raise HTTPException(status_code=400, detail="No media file or text payload provided.")
+
+    # 2. Legal NER extraction with cognitive Gemini comprehension
+    ner_result = legal_ner_engine.extract_entities(ocr_result["cleaned_text"], source_type=source_type)
+
+    # 3. Format Auto-filled Suspect & Crime Profile
+    entities = ner_result.get("entities", {})
+    bio_list = entities.get("biographic_data", [])
+    bio = bio_list[0] if bio_list else {}
+    comms = entities.get("communication_identifiers", [])
+    vehs = entities.get("vehicular_logistics", [])
+    fins = entities.get("financial_instruments", [])
+    spats = entities.get("spatial_and_geographic", [])
+    stats = entities.get("statutory_and_legal", {})
+    crime_meta = stats.get("crime_details", {})
+
+    extracted_phones = [c["value"] for c in comms if c.get("type") in ("Phone_Number", "Phone")]
+    extracted_vehicles = [v["plate_number"] for v in vehs if "plate_number" in v]
+    extracted_banks = [f["identifier"] for f in fins if f.get("type") == "Bank_Account"]
+    extracted_upis = [f["identifier"] for f in fins if f.get("type") == "UPI_ID"]
+    extracted_locs = [s["location_name"] for s in spats if "location_name" in s]
+
+    stat_sections = stats.get("statutory_sections", [])
+    structured_acts = []
+    for s in stat_sections:
+        s_str = str(s)
+        act_name = "Arms Act 1959" if "arms" in s_str.lower() else "Information Technology Act 2000" if "it" in s_str.lower() else "Bharatiya Nyaya Sanhita (BNS) 2024"
+        structured_acts.append({
+            "act": act_name,
+            "section": s_str,
+            "title": f"Statutory Offence {s_str}",
+            "explanation": f"Extracted from verified evidence scan ({filename}) and logged under BSA digital custody."
+        })
+
+    if not structured_acts:
+        structured_acts = [
+            {
+                "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
+                "section": "Section 111",
+                "title": "Organized Crime Syndicate Offence",
+                "explanation": "Engaging in organized syndicate conspiracy, extortion, and contraband logistics."
+            }
+        ]
+
+    fir_num = stats.get("fir_number") or ocr_result.get("extracted_metadata", {}).get("fir_number") or f"FIR-2026/{abs(hash(filename))%900 + 100}/WB-BKP"
+    thana = stats.get("police_station") or ocr_result.get("extracted_metadata", {}).get("police_station") or "Barrackpore Special Crime Thana"
+    
+    cleaned_txt = ocr_result.get("cleaned_text", "")
+    auto_filled_suspect = {
+        "name": bio.get("full_name") or "Suspect Identified from Media",
+        "aliases": bio.get("aliases", []),
+        "role": bio.get("role_inferred") or crime_meta.get("role") or "Syndicate Operative",
+        "threat_score": bio.get("threat_score") or (0.84 if any(w in cleaned_txt.lower() for w in ["arms", "kingpin", "extortion", "pistol", "trafficking"]) else 0.72),
+        "age": bio.get("age") or 34,
+        "gender": bio.get("gender") or "Male",
+        "father_or_relative": bio.get("father_or_relative"),
+        "cctns_id": f"WB-CCTNS-2026-{abs(hash(file_hash))%90000 + 10000}",
+        "crime_title": crime_meta.get("crime_title") or f"Syndicate Offence: {fir_num}",
+        "crime_category": crime_meta.get("crime_category") or ("Organized Crime & Firearms Trafficking" if any(w in cleaned_txt.lower() for w in ["arms", "pistol", "cartridge", "trafficking"]) else "Financial Fraud & Hawala"),
+        "incident_narrative": crime_meta.get("incident_narrative") or cleaned_txt[:450],
+        "modus_operandi": crime_meta.get("modus_operandi") or "Operates using concealed logistics channels and disposable telecommunication identifiers extracted from proof scan.",
+        "seized_contraband": crime_meta.get("seized_contraband") or "Seized contraband items, communication hardware, and forensic materials documented in proof scan.",
+        "statutory_acts": structured_acts,
+        "fir_number": fir_num,
+        "police_station": thana,
+        "incident_date": stats.get("incident_date") or ocr_result.get("extracted_metadata", {}).get("incident_date") or datetime.utcnow().strftime("%Y-%m-%d %H:%M IST"),
+        "incident_locus": stats.get("incident_locus") or (extracted_locs[0] if extracted_locs else "North 24 Parganas Corridor"),
+        "case_status": "Under Active Investigation / Evidence Admitted",
+        "phone_numbers": extracted_phones,
+        "vehicle_plates": extracted_vehicles,
+        "bank_accounts": extracted_banks,
+        "upi_ids": extracted_upis,
+        "locations": extracted_locs,
+        "evidence_attachment": {
+            "file_name": filename,
+            "content_type": content_type,
+            "file_size_bytes": file_size,
+            "sha256_hash": file_hash,
+            "bsa_digital_certificate": f"BSA-2024-CERT-{file_hash[:12].upper()}",
+            "verified_at": datetime.utcnow().isoformat() + "Z"
+        }
+    }
+
+    # 4. Run AI Historical Pattern Recognition & Predictive Forecasting
+    predictive_outcome = outcome_predictor.predict_case_outcome(auto_filled_suspect)
+    auto_filled_suspect["predicted_outcome"] = predictive_outcome
+
+    # 5. Log in cryptographic audit ledger
+    audit_logger.log_action(
+        officer_badge=officer_badge or "IO-KOLKATA-8842",
+        role=role or "Investigating Officer (IO)",
+        action="MEDIA_PROOF_UPLOAD_AND_AI_EXTRACTION",
+        query_or_target=f"File: {filename} (SHA-256: {file_hash[:10]}...)",
+        resource_data={
+            "filename": filename,
+            "file_hash": file_hash,
+            "suspect_name": auto_filled_suspect["name"],
+            "entities_extracted": ner_result.get("total_entities_extracted", 0),
+            "matched_precedent": predictive_outcome.get("matched_historical_precedent", {}).get("case_title")
+        }
+    )
+
+    return {
+        "status": "SUCCESS_EXTRACTED",
+        "file_info": auto_filled_suspect["evidence_attachment"],
+        "ocr_processing": ocr_result,
+        "legal_ner_extraction": ner_result,
+        "auto_filled_suspect": auto_filled_suspect,
+        "predictive_outcome": predictive_outcome
+    }
+
+# AI Predictive Outcome Endpoints
+@app.post("/api/predict/outcome")
+def predict_outcome_for_suspect(req: Dict[str, Any] = Body(...)):
+    """Predicts upcoming syndicate outcome & escalation trajectory for given suspect/crime profile."""
+    return outcome_predictor.predict_case_outcome(req)
+
+@app.get("/api/predict/syndicate-outcomes")
+def get_all_syndicate_predicted_outcomes():
+    """Evaluates entire active Knowledge Graph against historical case archives."""
+    suspects_predictions = []
+    for nid, node in kg_store.nodes.items():
+        if node.get("label") == "Person":
+            props = node.get("properties", {})
+            suspect_dossier = {
+                "id": nid,
+                "name": props.get("name", nid),
+                "role": props.get("role", "Operative"),
+                "threat_score": props.get("threat_score", 0.7),
+                "crime_title": props.get("crime_details", {}).get("crime_title", "Syndicate Offence"),
+                "crime_category": props.get("crime_details", {}).get("crime_category", "Organized Crime"),
+                "incident_narrative": props.get("crime_details", {}).get("incident_narrative", ""),
+                "modus_operandi": props.get("crime_details", {}).get("modus_operandi", ""),
+                "seized_contraband": props.get("crime_details", {}).get("seized_contraband", ""),
+                "bns_sections": props.get("bns_sections", [])
+            }
+            pred = outcome_predictor.predict_case_outcome(suspect_dossier)
+            suspects_predictions.append({
+                "suspect_id": nid,
+                "suspect_name": props.get("name", nid),
+                "role": props.get("role", "Operative"),
+                "threat_score": props.get("threat_score", 0.7),
+                "prediction": pred
+            })
+    
+    suspects_predictions.sort(key=lambda x: x["prediction"]["overall_escalation_probability"], reverse=True)
+    
+    return {
+        "status": "SYNDICATE_TRAJECTORY_EVALUATED",
+        "total_suspects_evaluated": len(suspects_predictions),
+        "overall_syndicate_threat": "CRITICAL_ESCALATION_WINDOW",
+        "critical_syndicate_chokepoint": "Barrackpore-Ichhapur Logistics Transit & Hawala Dissipation",
+        "top_imminent_threats": suspects_predictions[:4],
+        "all_suspects_predictions": suspects_predictions
     }
 
 # Suspect & Crime Intelligence Endpoints
 @app.get("/api/suspects")
 def get_all_suspects():
-    """Returns all suspects indexed in the Knowledge Graph with detailed crime dossiers."""
+    """Returns all suspects indexed in the Knowledge Graph with detailed crime dossiers, evidence, and outcome forecasts."""
     suspects = []
     for nid, node in kg_store.nodes.items():
         if node.get("label") == "Person":
             props = node.get("properties", {})
+            pred = props.get("predicted_outcome")
+            if not pred:
+                pred = outcome_predictor.predict_case_outcome({
+                    "name": props.get("name", nid),
+                    "role": props.get("role", "Unknown"),
+                    "threat_score": props.get("threat_score", 0.5),
+                    "crime_title": props.get("crime_details", {}).get("crime_title", ""),
+                    "crime_category": props.get("crime_details", {}).get("crime_category", ""),
+                    "incident_narrative": props.get("crime_details", {}).get("incident_narrative", ""),
+                    "modus_operandi": props.get("crime_details", {}).get("modus_operandi", ""),
+                    "bns_sections": props.get("bns_sections", [])
+                })
+            
             suspects.append({
                 "id": nid,
                 "name": props.get("name", nid),
@@ -307,6 +586,8 @@ def get_all_suspects():
                 "cctns_id": props.get("cctns_id", ""),
                 "bns_sections": props.get("bns_sections", []),
                 "crime_details": props.get("crime_details", {}),
+                "evidence_attachment": props.get("evidence_attachment"),
+                "predicted_outcome": pred,
                 "neighbors_count": len(kg_store.get_neighbors(nid))
             })
     suspects.sort(key=lambda s: s.get("threat_score", 0.5), reverse=True)
@@ -417,6 +698,23 @@ def add_new_suspect(req: AddSuspectRequest):
         "investigating_officer": req.officer_badge or "IO-KOLKATA-8842"
     }
 
+    # Compute or attach predicted outcome
+    predicted_outcome = req.predicted_outcome
+    if not predicted_outcome:
+        predicted_outcome = outcome_predictor.predict_case_outcome({
+            "name": req.name,
+            "role": req.role or "Syndicate Operative",
+            "threat_score": float(req.threat_score or 0.75),
+            "crime_title": req.crime_title,
+            "crime_category": req.crime_category,
+            "incident_narrative": req.incident_narrative,
+            "modus_operandi": req.modus_operandi,
+            "seized_contraband": req.seized_contraband,
+            "bns_sections": bns_sections_list,
+            "phone_numbers": req.phone_numbers or [],
+            "vehicle_plates": req.vehicle_plates or []
+        })
+
     cctns_id = req.cctns_id or f"WB-CCTNS-2026-{random.randint(10000, 99999)}"
     person_node = kg_store.add_node(
         node_id=suspect_id,
@@ -431,7 +729,9 @@ def add_new_suspect(req: AddSuspectRequest):
             "gender": req.gender or "Male",
             "cctns_id": cctns_id,
             "bns_sections": bns_sections_list,
-            "crime_details": crime_details
+            "crime_details": crime_details,
+            "evidence_attachment": req.evidence_attachment,
+            "predicted_outcome": predicted_outcome
         }
     )
 

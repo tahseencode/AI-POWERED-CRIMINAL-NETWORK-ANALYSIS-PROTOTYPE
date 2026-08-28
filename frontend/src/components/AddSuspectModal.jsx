@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, 
   UserPlus, 
@@ -14,10 +14,70 @@ import {
   Trash2, 
   Sparkles, 
   CheckCircle2,
-  Scale
+  Scale,
+  UploadCloud,
+  FileCheck,
+  Image as ImageIcon,
+  Clock,
+  AlertTriangle,
+  Cpu,
+  Fingerprint,
+  TrendingUp,
+  Target,
+  Zap
 } from 'lucide-react';
 
 const PRESET_TEMPLATES = [
+  {
+    label: "🚨 Erick Ekka (Arms Syndicate)",
+    data: {
+      name: "Erick Ekka",
+      aliases: ["Erick", "Chhotu"],
+      role: "Logistics Courier & Firearms Transporter",
+      threat_score: 0.82,
+      age: 31,
+      gender: "Male",
+      father_or_relative: "John Ekka",
+      cctns_id: "WB-CCTNS-2026-14288",
+      crime_title: "Illegal Firearms Possession & Inter-State Transit Syndicate",
+      crime_category: "Armed Weapon Trafficking & Syndicate Logistics",
+      incident_narrative: "Accused Erick Ekka intercepted driving Mahindra Bolero (WB-24-AX-5512) near Ichhapur Rifle Factory perimeter carrying 2 country-made 9mm semi-automatic pistols and 15 live rounds concealed under driver seat cavity.",
+      modus_operandi: "Transports contraband firearms and ammunition concealed inside specially fabricated hydraulic cavity under driver seat of carrier vehicle.",
+      seized_contraband: "2x 9mm semi-automatic country pistols, 15 live rounds ammunition, Mahindra Bolero (WB-24-AX-5512), Cash ₹4,50,000/-",
+      statutory_acts: [
+        {
+          act: "Bharatiya Nyaya Sanhita (BNS) 2024",
+          section: "Section 111",
+          title: "Organized Crime Syndicate Offence",
+          explanation: "Acting as logistics transporter and contraband courier for organized firearms syndicate."
+        },
+        {
+          act: "Arms Act 1959",
+          section: "Section 25/27",
+          title: "Trafficking and Possession of Illegal Arms",
+          explanation: "Unlawful transportation and possession of prohibited country-made semi-automatic pistols."
+        },
+        {
+          act: "Bharatiya Sakshya Adhiniyam (BSA) 2024",
+          section: "Section 63",
+          title: "Admissibility of Electronic Records & GPS Logs",
+          explanation: "Cryptographically verified mobile cell tower triangulation and electronic seizure ledger."
+        }
+      ],
+      fir_number: "FIR-142/2026",
+      police_station: "Barrackpore Special Thana",
+      incident_date: "2026-08-28 21:30 IST",
+      incident_locus: "Near Ichhapur Rifle Factory Perimeter, Barrackpore",
+      case_status: "Under Active Investigation / Evidence Admitted",
+      phone_numbers: ["+919831445566"],
+      vehicle_plates: ["WB-24-AX-5512"],
+      bank_accounts: ["309110482910"],
+      upi_ids: ["erick.ekka@icici"],
+      locations: ["Barrackpore Station Road", "Ichhapur Rifle Factory Perimeter"],
+      known_associates: ["PERSON_001"],
+      associate_relation: "OPERATES_UNDER"
+    }
+  },
   {
     label: "🔫 Arms Smuggling Operative",
     data: {
@@ -58,986 +118,1655 @@ const PRESET_TEMPLATES = [
       incident_date: "2026-08-27 22:45 IST",
       incident_locus: "NH-2 Barakar Checkpost, Paschim Bardhaman",
       case_status: "Non-Bailable Warrant Active / Vehicle Impounded",
-      phone_numbers: ["+919875114422", "+919830559900"],
-      vehicle_plates: ["WB-25-A-4431", "JH-05-BC-8899"],
-      bank_accounts: ["602011993344"],
-      upi_ids: ["vickyarms@ybl"],
-      locations: ["Asansol Border Depot", "Barakar Highway Warehouse"],
-      known_associates: ["PERSON_001", "PERSON_003"],
-      associate_relation: "COLLABORATES_WITH"
+      phone_numbers: ["+919875114422", "+919830221199"],
+      vehicle_plates: ["WB-25-A-4431"],
+      bank_accounts: ["401099283412"],
+      upi_ids: ["vickysupply@okaxis"],
+      locations: ["Asansol Safehouse Depot", "Ichhapur Buffer Yard"],
+      known_associates: ["PERSON_001"],
+      associate_relation: "OPERATES_UNDER"
     }
   },
   {
     label: "💼 Hawala Laundering Mule",
     data: {
-      label: "Hawala",
-      name: "Ramesh 'Cashier' Agarwal",
-      aliases: ["R. K. Agarwal", "Babu Ji"],
-      role: "Hawala Cash Courier & Gold Bullion Transporter",
-      threat_score: 0.74,
-      age: 47,
+      name: "Dinesh 'Munim' Agarwal",
+      aliases: ["Munimji", "D.K. Agarwal"],
+      role: "Hawala Cashier & Layering Mule",
+      threat_score: 0.76,
+      age: 46,
       gender: "Male",
-      cctns_id: "WB-CCTNS-2026-31045",
-      crime_title: "Burrabazar Gold Bullion & Angadia Hawala Channel",
+      cctns_id: "WB-CCTNS-2026-10492",
+      crime_title: "Burrabazar Angadia Hawala Network & Multi-Account Layering",
       crime_category: "Financial Fraud, Hawala & PMLA Offence",
-      incident_narrative: "Collected and disbursed unaccounted cash tranches totaling ₹2.8 Crore across Burrabazar jewelry clearing houses on behalf of Sunil Roy. Converted cash into 24-karat untraceable gold biscuits to facilitate illegal overseas remittance.",
-      modus_operandi: "Used coded token currency notes (₹10 serial matching) for cash handoffs; split physical currency into sealed tea packet bundles.",
-      seized_contraband: "₹48,50,000 unaccounted cash in sealed packets, 4 gold bars (400g), token note records ledger",
+      incident_narrative: "Operated as primary bullion-settlement cashier routing un-invoiced extortion proceeds from North 24 Parganas industrial units into 14 shell current accounts before converting them into overseas crypto tokens.",
+      modus_operandi: "Token-based cash collection via Angadia delivery agents in Burrabazar; utilizes pre-activated SIM routers to initiate multi-hop RTGS transfers under ₹5 Lakh to evade automated bank STR flags.",
+      seized_contraband: "₹48,50,000 unaccounted cash, 2 Gold Bullion Biscuits (200g), Ledger diaries with encrypted Hawala tokens, Hardware cold wallet",
       statutory_acts: [
         {
           act: "Bharatiya Nyaya Sanhita (BNS) 2024",
-          section: "Section 316",
-          title: "Criminal Breach of Trust",
-          explanation: "Misappropriating commercial trading accounts for illegal syndicate cash remittance."
+          section: "Section 316 & 318",
+          title: "Criminal Breach of Trust & Fraudulent Cheating",
+          explanation: "Concealing illicit origins of syndicate proceeds using benami financial identities."
         },
         {
           act: "Prevention of Money Laundering Act (PMLA) 2002",
-          section: "Section 3",
-          title: "Money Laundering & Concealment of Proceeds",
-          explanation: "Converting illegal extortion proceeds into gold bullion and routing through angadia networks."
+          section: "Section 3 & 4",
+          title: "Offence of Money-Laundering",
+          explanation: "Direct involvement in process and activity connected with proceeds of organized crime."
         }
       ],
-      fir_number: "FIR-2026/142/WB-BUR",
-      police_station: "Burrabazar Special Economic Offence Thana",
-      incident_date: "2026-08-26 14:15 IST",
-      incident_locus: "Cotton Street Angadia Hub, Burrabazar, Kolkata",
-      case_status: "Arrested with Cash / Remand in Progress",
-      phone_numbers: ["+919831448822"],
-      vehicle_plates: ["WB-01-AX-9912"],
-      bank_accounts: ["401022881144"],
-      upi_ids: ["ragarwal@okicici"],
-      locations: ["Burrabazar Safe Vault"],
+      fir_number: "FIR-2026/094/WB-KOL",
+      police_station: "Burrabazar Special Police Station",
+      incident_date: "2026-08-25 14:15 IST",
+      incident_locus: "Cotton Street Commercial Vault, Kolkata",
+      case_status: "Interrogation in Custody / Bank Accounts Frozen",
+      phone_numbers: ["+919831009944"],
+      vehicle_plates: ["WB-02-E-9021"],
+      bank_accounts: ["50100991823411", "91902003881245"],
+      upi_ids: ["munimops@okhdfcbank"],
+      locations: ["Burrabazar Commercial Vault", "Kolkata Port Trust Hub"],
       known_associates: ["PERSON_002"],
-      associate_relation: "OPERATES_UNDER"
+      associate_relation: "COLLABORATES_WITH"
     }
   },
   {
     label: "💻 Cyber Syndicate Operator",
     data: {
-      name: "Aman 'GhostByte' Verma",
-      aliases: ["A. Verma", "Cipher09"],
-      role: "Synthetic Identity & Deepfake Extortion Developer",
-      threat_score: 0.79,
-      age: 27,
+      name: "Siddharth 'Neo' Sen",
+      aliases: ["GhostByte", "Cyber-Sam"],
+      role: "Cyber Operator & Encrypted Comm Architect",
+      threat_score: 0.81,
+      age: 28,
       gender: "Male",
-      cctns_id: "WB-CCTNS-2026-40912",
-      crime_title: "AI Deepfake Officer Impersonation & Digital Arrest Scam",
+      cctns_id: "WB-CCTNS-2026-33901",
+      crime_title: "Darknet SIM-Box Gateway & Offshore Bitcoin Transfer Infrastructure",
       crime_category: "Cyber Extortion & Telecom Gateway Fraud",
-      incident_narrative: "Developed AI voice clones and fake video streams mimicking senior CBI/ED officers to orchestrate 'digital arrest' video extortion calls against vulnerable citizens, siphoning ₹85 Lakh into mule UPI handles within 48 hours.",
-      modus_operandi: "Hosted phishing landing pages on bulletproof Russian servers; routed incoming VoIP traffic through Kolkata SIM-boxes controlled by Imran Sheikh.",
-      seized_contraband: "2x High-end Alienware Laptops, 4 External SSDs containing voice training models, ₹18 Lakh crypto USDT",
+      incident_narrative: "Engineered unauthorized VoIP-GSM gateways and dynamic proxy routing for extortion calls targeting local businessmen while shielding Tariq Al-Hasani's mobile coordinates.",
+      modus_operandi: "Deployed 32-port GSM gateway with cloned IMSI cards; automated bot scripts to shuffle Bitcoin balances across Tornado-style mixing services.",
+      seized_contraband: "32-Port GSM SIM-Box, 184 Cloned SIM Cards, 2 High-End Server Rigs, Encrypted USB YubiKeys, 4.2 BTC wallet address",
       statutory_acts: [
         {
           act: "Information Technology Act 2000",
-          section: "Section 66D",
-          title: "Cheating by Personation using Computer Resource",
-          explanation: "Impersonating law enforcement officers via synthetic deepfake video calls."
+          section: "Section 66D & 43",
+          title: "Cheating by Personation Using Computer Resource",
+          explanation: "Setting up spoofed communication gateways to facilitate organized extortion."
         },
         {
           act: "Bharatiya Nyaya Sanhita (BNS) 2024",
-          section: "Section 318",
-          title: "Cheating & Extortion by Deceit",
-          explanation: "Fraudulently coercing victims under fear of fabricated legal arrest."
+          section: "Section 111",
+          title: "Organized Crime Syndicate Offence",
+          explanation: "Providing technical and infrastructural support to syndicate extortion operations."
         }
       ],
-      fir_number: "FIR-2026/155/WB-CYB",
-      police_station: "West Bengal State Cyber Crime Cell",
-      incident_date: "2026-08-25 18:30 IST",
-      incident_locus: "Salt Lake Sector V Tech Hub",
-      case_status: "Digital Forensics Image Created / Under Analysis",
-      phone_numbers: ["+919874005511"],
-      vehicle_plates: ["WB-06-Q-7722"],
-      bank_accounts: ["201099448833"],
-      upi_ids: ["amanbyte@okaxis"],
-      locations: ["Salt Lake Server Room"],
-      known_associates: ["PERSON_004"],
-      associate_relation: "COLLABORATES_WITH"
+      fir_number: "FIR-2026/204/WB-SLK",
+      police_station: "Bidhannagar Cyber Crime PS",
+      incident_date: "2026-08-26 18:00 IST",
+      incident_locus: "Sector V Tech Hub, Salt Lake, Kolkata",
+      case_status: "Digital Evidence Admitted under BSA Sec 63 / Remand Pending",
+      phone_numbers: ["+919874550011"],
+      vehicle_plates: ["WB-06-K-8812"],
+      bank_accounts: ["602011448833"],
+      upi_ids: ["ghostops@okicici"],
+      locations: ["Salt Lake Sector V Cyber Node"],
+      known_associates: ["PERSON_001"],
+      associate_relation: "OPERATES_UNDER"
     }
   }
 ];
 
+const SAMPLE_MEDIA_FILES = [
+  {
+    name: "FIR_142_2026_Erick_Ekka_Arms_Trafficking.pdf",
+    type: "application/pdf",
+    size: "318 KB",
+    tag: "📄 FIR Document (Erick Ekka)",
+    content: `FIRST INFORMATION REPORT (Under Section 154 Cr.P.C / Section 173 BNSS)
+1. District: North 24 Parganas, P.S.: Barrackpore Special Thana, Year: 2026, FIR No.: 142/2026, Date: 28/08/2026
+2. Acts & Sections: Section 111 BNS 2024, Arms Act 1959 Sec 25/27, BSA 2024 Sec 63
+3. (a) Occurrence of Offence: Day: Friday, Date: 28/08/2026, Time: 21:30 hrs
+4. Type of Information: Written / Intelligence Source
+5. Place of Occurrence: Near Ichhapur Rifle Factory Perimeter, Barrackpore
+6. Complainant / Informant: Sub-Inspector A. K. Banerjee
+7. Details of known / suspected / unknown accused with full particulars:
+   (1) Erick Ekka, S/O John Ekka, Resident of Barrackpore Station Road, North 24 Parganas (Age approx 31 years)
+8. Particulars of properties stolen / involved: 2 country-made 9mm semi-automatic pistols, 15 live rounds ammunition, Mahindra Bolero (WB-24-AX-5512), Cash Rs. 4,50,000/-
+9. Brief Description of Incident / Modus Operandi: On secret intelligence, raiding party intercepted Mahindra Bolero WB-24-AX-5512 driven by accused Erick Ekka. Search revealed concealed cavity under driver seat containing illegal arms. Accused Erick Ekka confessed to acting as logistics courier for illegal firearm syndicate. Phone: +919831445566, UPI: erick.ekka@icici.`
+  },
+  {
+    name: "Scanned_Zero_FIR_ArmsSmuggling.pdf",
+    type: "application/pdf",
+    size: "245 KB",
+    tag: "📄 Legal FIR Document Scan",
+    content: `FIRST INFORMATION REPORT (Zero-FIR No. WB-2026/142)
+Police Station: Barrackpore Special Crime Thana
+Date: 27/08/2026 21:30 IST
+Accused: Rajesh 'Kaalia' Pandey (Age 37, Male)
+Aliases: Kaalia Pistol, R.K. Pandey
+Phone: +919875991122 | Alt: +919830554433
+Vehicle Plate: WB-24-M-9911 (Mahindra Bolero Pickup)
+Bank Account: 402011993344 (SBI Barrackpore) | UPI: kaaliaops@oksbi
+Incident Locus: Ichhapur Defence Estate Perimeter Gate-4
+Narrative: Accused intercepted while transporting an unauthorized consignment of 8 country-made 9mm semi-automatic pistols and 90 live rounds concealed inside a false-roof compartment of carrier vehicle WB-24-M-9911. Cash sum of ₹14,50,000 recovered from vehicle cabin.
+Modus Operandi: Uses fake defense supplier entry pass to bypass state highway checkpoints during midnight transit hours.
+Statutory Code: Section 111 BNS 2024 (Organized Crime), Arms Act Sec 25(1AA) & 25(1A), BSA 2024 Sec 63.`
+  },
+  {
+    name: "Evidence_Photo_Seized_Glock_Pistols.jpg",
+    type: "image/jpeg",
+    size: "1.8 MB",
+    tag: "📸 Seized Contraband Photo Scan",
+    content: `FORENSIC SEIZURE MEMO & IMAGE EVIDENCE REPORT
+Evidence Exhibit Tag: EX-2026-WB-ARM-088
+Date of Seizure: 28/08/2026
+Suspect / Possessor: Aniket 'Rifle' Ghosh (Age 31)
+Phone: +919831889900 | Vehicle: WB-04-J-3344
+Location of Seizure: Asansol Railway Goods Shed
+Seized Materials: 6x Country-made Semi-Automatic Pistols, 60 live cartridges, ₹8,00,000 currency notes, 2 GPS trackers.
+Narrative: Photographic proof confirming illicit weapon transfer from Jharkhand border courier to local distributor.
+Statute: BNS Section 111, Arms Act Section 25, BSA Section 63 Digital Certification.`
+  },
+  {
+    name: "Hawala_Bank_STR_Transaction_Report.pdf",
+    type: "application/pdf",
+    size: "512 KB",
+    tag: "📄 Financial STR & Hawala Ledger",
+    content: `SUSPICIOUS TRANSACTION REPORT (STR / PMLA Ref: WB-FIU-2026-771)
+Reporting Entity: HDFC Bank Park Street Branch
+Subject: Farooq 'Hawala' Sheikh (Age 42)
+Aliases: Farooq Bhai, Sethji
+Account Number: 50100991823411 | UPI: farooqtransfers@okhdfcbank
+Total Turnover Flagged: ₹2,40,00,000 across 30 days
+Narrative: Multi-hop structuring where round sums of ₹49,000 were deposited simultaneously across 12 branch ATMs and transferred immediately to offshore crypto escrow wallets.
+Statute: PMLA 2002 Section 3/4, BNS Section 316, BSA Section 63.`
+  }
+];
+
 export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, existingSuspects = [], prefilledData = null }) {
-  const [activeTab, setActiveTab] = useState('biometrics'); // 'biometrics' | 'crime' | 'network'
+  const [activeTab, setActiveTab] = useState('media'); // 'media', 'identity', 'crime', 'network', 'prediction'
   const [submitting, setSubmitting] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [error, setError] = useState(null);
 
   // Form State
-  const [formData, setFormData] = useState({
-    name: '',
-    aliases: '',
-    role: 'Syndicate Operative',
-    threat_score: 0.75,
-    age: 32,
-    gender: 'Male',
-    cctns_id: '',
-    
-    // Rich Crime Profile
-    crime_title: '',
-    crime_category: 'Organized Crime & Firearms Trafficking',
-    incident_narrative: '',
-    modus_operandi: '',
-    seized_contraband: '',
-    statutory_acts: [
-      {
-        act: 'Bharatiya Nyaya Sanhita (BNS) 2024',
-        section: 'Section 111',
-        title: 'Organized Crime Syndicate Offence',
-        explanation: 'Engaging in organized syndicate conspiracy, extortion, and contraband logistics.'
-      },
-      {
-        act: 'Arms Act 1959',
-        section: 'Section 25',
-        title: 'Unlawful Possession & Transit of Firearms',
-        explanation: 'Inter-district trafficking and possession of prohibited unlicenced firearms.'
-      }
-    ],
-    fir_number: '',
-    police_station: 'Barrackpore Special Crime Thana',
-    incident_date: '2026-08-28 19:30 IST',
-    incident_locus: 'Ichhapur Safehouse Perimeter',
-    case_status: 'Under Active Investigation / Warrant Issued',
+  const [name, setName] = useState('');
+  const [aliases, setAliases] = useState('');
+  const [role, setRole] = useState('Syndicate Operative');
+  const [threatScore, setThreatScore] = useState(0.75);
+  const [age, setAge] = useState(32);
+  const [gender, setGender] = useState('Male');
+  const [cctnsId, setCctnsId] = useState('');
 
-    // Network Identifiers
-    phone_numbers: '',
-    vehicle_plates: '',
-    bank_accounts: '',
-    upi_ids: '',
-    locations: '',
-    known_associates: [],
-    associate_relation: 'COLLABORATES_WITH'
-  });
-
-  // Load prefilled data if passed
-  React.useEffect(() => {
-    if (prefilledData) {
-      applyTemplate(prefilledData);
+  // Detailed Crime Profile
+  const [crimeTitle, setCrimeTitle] = useState('');
+  const [crimeCategory, setCrimeCategory] = useState('Armed Weapon Trafficking & Syndicate Logistics');
+  const [incidentNarrative, setIncidentNarrative] = useState('');
+  const [modusOperandi, setModusOperandi] = useState('');
+  const [seizedContraband, setSeizedContraband] = useState('');
+  const [statutoryActs, setStatutoryActs] = useState([
+    {
+      act: "Bharatiya Nyaya Sanhita (BNS) 2024",
+      section: "Section 111",
+      title: "Organized Crime Syndicate Offence",
+      explanation: "Active involvement in continuous unlawful syndicate activity and extortion."
+    },
+    {
+      act: "Arms Act 1959",
+      section: "Section 25",
+      title: "Unlawful Arms Possession & Supply",
+      explanation: "Possession and transportation of unlicenced country-made firearms."
     }
-  }, [prefilledData]);
+  ]);
+  const [firNumber, setFirNumber] = useState('');
+  const [policeStation, setPoliceStation] = useState('Barrackpore Special Crime Thana');
+  const [incidentDate, setIncidentDate] = useState('');
+  const [incidentLocus, setIncidentLocus] = useState('Ichhapur Safehouse Corridor');
+  const [caseStatus, setCaseStatus] = useState('Under Active Investigation / Warrant Issued');
 
-  if (!isOpen) return null;
+  // Network & Identifiers
+  const [phoneNumbers, setPhoneNumbers] = useState('');
+  const [vehiclePlates, setVehiclePlates] = useState('');
+  const [bankAccounts, setBankAccounts] = useState('');
+  const [upiIds, setUpiIds] = useState('');
+  const [locations, setLocations] = useState('');
+  const [selectedAssociate, setSelectedAssociate] = useState('');
+  const [associateRelation, setAssociateRelation] = useState('COLLABORATES_WITH');
 
-  const applyTemplate = (templateData) => {
-    setFormData({
-      ...formData,
-      ...templateData,
-      aliases: Array.isArray(templateData.aliases) ? templateData.aliases.join(', ') : (templateData.aliases || ''),
-      phone_numbers: Array.isArray(templateData.phone_numbers) ? templateData.phone_numbers.join(', ') : (templateData.phone_numbers || ''),
-      vehicle_plates: Array.isArray(templateData.vehicle_plates) ? templateData.vehicle_plates.join(', ') : (templateData.vehicle_plates || ''),
-      bank_accounts: Array.isArray(templateData.bank_accounts) ? templateData.bank_accounts.join(', ') : (templateData.bank_accounts || ''),
-      upi_ids: Array.isArray(templateData.upi_ids) ? templateData.upi_ids.join(', ') : (templateData.upi_ids || ''),
-      locations: Array.isArray(templateData.locations) ? templateData.locations.join(', ') : (templateData.locations || ''),
-      known_associates: templateData.known_associates || []
-    });
-    setErrorMsg('');
+  // Media Upload & OCR State
+  const [uploadedFileName, setUploadedFileName] = useState('');
+  const [uploadedFileSize, setUploadedFileSize] = useState('');
+  const [uploadedFileHash, setUploadedFileHash] = useState('');
+  const [isExtractingMedia, setIsExtractingMedia] = useState(false);
+  const [mediaExtractionSuccess, setMediaExtractionSuccess] = useState(false);
+  const [evidenceAttachment, setEvidenceAttachment] = useState(null);
+
+  // AI Predictive Outcome State
+  const [predictiveOutcome, setPredictiveOutcome] = useState(null);
+  const [isPredicting, setIsPredicting] = useState(false);
+
+  // Populate from prefilledData or default preset
+  useEffect(() => {
+    if (prefilledData) {
+      populateFormData(prefilledData);
+    } else if (isOpen && !name) {
+      populateFormData(PRESET_TEMPLATES[0].data);
+    }
+  }, [prefilledData, isOpen]);
+
+  const populateFormData = (d) => {
+    if (!d) return;
+    setName(d.name || '');
+    setAliases(Array.isArray(d.aliases) ? d.aliases.join(', ') : (d.aliases || ''));
+    setRole(d.role || 'Syndicate Operative');
+    setThreatScore(d.threat_score !== undefined ? d.threat_score : 0.75);
+    setAge(d.age || 32);
+    setGender(d.gender || 'Male');
+    setCctnsId(d.cctns_id || '');
+
+    setCrimeTitle(d.crime_title || '');
+    setCrimeCategory(d.crime_category || 'Armed Weapon Trafficking & Syndicate Logistics');
+    setIncidentNarrative(d.incident_narrative || '');
+    setModusOperandi(d.modus_operandi || '');
+    setSeizedContraband(d.seized_contraband || '');
+    if (d.statutory_acts && d.statutory_acts.length > 0) {
+      setStatutoryActs(d.statutory_acts);
+    }
+    setFirNumber(d.fir_number || '');
+    setPoliceStation(d.police_station || 'Barrackpore Special Crime Thana');
+    setIncidentDate(d.incident_date || '');
+    setIncidentLocus(d.incident_locus || 'Ichhapur Safehouse Corridor');
+    setCaseStatus(d.case_status || 'Under Active Investigation / Warrant Issued');
+
+    setPhoneNumbers(Array.isArray(d.phone_numbers) ? d.phone_numbers.join(', ') : (d.phone_numbers || ''));
+    setVehiclePlates(Array.isArray(d.vehicle_plates) ? d.vehicle_plates.join(', ') : (d.vehicle_plates || ''));
+    setBankAccounts(Array.isArray(d.bank_accounts) ? d.bank_accounts.join(', ') : (d.bank_accounts || ''));
+    setUpiIds(Array.isArray(d.upi_ids) ? d.upi_ids.join(', ') : (d.upi_ids || ''));
+    setLocations(Array.isArray(d.locations) ? d.locations.join(', ') : (d.locations || ''));
+    if (d.known_associates && d.known_associates.length > 0) {
+      setSelectedAssociate(d.known_associates[0]);
+    }
+    if (d.associate_relation) {
+      setAssociateRelation(d.associate_relation);
+    }
+    if (d.evidence_attachment) {
+      setEvidenceAttachment(d.evidence_attachment);
+      setUploadedFileName(d.evidence_attachment.file_name);
+      setUploadedFileHash(d.evidence_attachment.sha256_hash);
+    }
+    if (d.predicted_outcome) {
+      setPredictiveOutcome(d.predicted_outcome);
+    } else {
+      triggerLivePrediction(d);
+    }
   };
 
+  const handleApplyPreset = (presetData) => {
+    populateFormData(presetData);
+    setMediaExtractionSuccess(false);
+  };
+
+  // Trigger live AI outcome prediction when suspect attributes change
+  const triggerLivePrediction = async (currentData = null) => {
+    const payload = currentData || {
+      name: name || "Target Suspect",
+      role: role || "Syndicate Operative",
+      threat_score: threatScore,
+      crime_title: crimeTitle,
+      crime_category: crimeCategory,
+      incident_narrative: incidentNarrative,
+      modus_operandi: modusOperandi,
+      seized_contraband: seizedContraband,
+      phone_numbers: phoneNumbers ? phoneNumbers.split(',').map(s => s.trim()) : [],
+      vehicle_plates: vehiclePlates ? vehiclePlates.split(',').map(s => s.trim()) : []
+    };
+
+    setIsPredicting(true);
+    try {
+      const resp = await fetch('/api/predict/outcome', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (resp.ok) {
+        const pred = await resp.json();
+        setPredictiveOutcome(pred);
+      }
+    } catch (err) {
+      console.error("Error generating outcome prediction:", err);
+    } finally {
+      setIsPredicting(false);
+    }
+  };
+
+  // Process sample media evidence file
+  const handleSelectSampleMedia = async (sample) => {
+    setIsExtractingMedia(true);
+    setError(null);
+    setUploadedFileName(sample.name);
+    setUploadedFileSize(sample.size);
+
+    try {
+      const resp = await fetch('/api/ingest/upload-media', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          raw_text: sample.content,
+          source_type: sample.type.includes('pdf') ? 'SCANNED_LEGAL_PDF' : 'EVIDENCE_PHOTO_SCAN',
+          officer_badge: 'IO-KOLKATA-8842',
+          role: 'Investigating Officer (IO)'
+        })
+      });
+
+      if (!resp.ok) throw new Error("Media extraction engine failed.");
+      const result = await resp.json();
+
+      if (result.auto_filled_suspect) {
+        populateFormData(result.auto_filled_suspect);
+        setEvidenceAttachment(result.file_info);
+        setUploadedFileHash(result.file_info.sha256_hash);
+        setPredictiveOutcome(result.predictive_outcome);
+        setMediaExtractionSuccess(true);
+      }
+    } catch (err) {
+      setError(err.message || "Failed to parse evidence file.");
+    } finally {
+      setIsExtractingMedia(false);
+    }
+  };
+
+  // Handle actual file upload from input
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsExtractingMedia(true);
+    setError(null);
+    setUploadedFileName(file.name);
+    setUploadedFileSize(`${(file.size / 1024).toFixed(1)} KB`);
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('source_type', file.type.includes('pdf') ? 'SCANNED_LEGAL_PDF' : 'EVIDENCE_PHOTO_SCAN');
+    formData.append('officer_badge', 'IO-KOLKATA-8842');
+    formData.append('role', 'Investigating Officer (IO)');
+
+    try {
+      const resp = await fetch('/api/ingest/upload-media', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!resp.ok) throw new Error("Server OCR extraction error.");
+      const result = await resp.json();
+
+      if (result.auto_filled_suspect) {
+        populateFormData(result.auto_filled_suspect);
+        setEvidenceAttachment(result.file_info);
+        setUploadedFileHash(result.file_info.sha256_hash);
+        setPredictiveOutcome(result.predictive_outcome);
+        setMediaExtractionSuccess(true);
+      }
+    } catch (err) {
+      setError(err.message || "Error extracting text from uploaded media.");
+    } finally {
+      setIsExtractingMedia(false);
+    }
+  };
+
+  // Statutory Acts Array Helpers
   const handleAddAct = () => {
-    setFormData({
-      ...formData,
-      statutory_acts: [
-        ...formData.statutory_acts,
-        {
-          act: 'Bharatiya Nyaya Sanhita (BNS) 2024',
-          section: 'Section 318',
-          title: 'Cheating & Financial Deception',
-          explanation: 'Fraudulent transactions and routing illicit funds through deception.'
-        }
-      ]
-    });
+    setStatutoryActs([
+      ...statutoryActs,
+      { act: "Bharatiya Nyaya Sanhita (BNS) 2024", section: "Section 318", title: "Cheating by Personation", explanation: "Inducing victims through forged electronic identity." }
+    ]);
+  };
+
+  const handleUpdateAct = (index, field, value) => {
+    const updated = [...statutoryActs];
+    updated[index][field] = value;
+    setStatutoryActs(updated);
   };
 
   const handleRemoveAct = (index) => {
-    const nextActs = formData.statutory_acts.filter((_, i) => i !== index);
-    setFormData({ ...formData, statutory_acts: nextActs });
-  };
-
-  const handleActChange = (index, field, value) => {
-    const nextActs = [...formData.statutory_acts];
-    nextActs[index] = { ...nextActs[index], [field]: value };
-    setFormData({ ...formData, statutory_acts: nextActs });
-  };
-
-  const handleAssociateToggle = (suspectId) => {
-    let next;
-    if (formData.known_associates.includes(suspectId)) {
-      next = formData.known_associates.filter(id => id !== suspectId);
-    } else {
-      next = [...formData.known_associates, suspectId];
-    }
-    setFormData({ ...formData, known_associates: next });
+    if (statutoryActs.length <= 1) return;
+    setStatutoryActs(statutoryActs.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name.trim()) {
-      setErrorMsg('Suspect full name is required.');
-      setActiveTab('biometrics');
+    if (!name.trim()) {
+      setError("Suspect Full Name is required.");
+      setActiveTab('identity');
       return;
     }
-    if (!formData.crime_title.trim()) {
-      setErrorMsg('Crime Title / Incident Name is required.');
+    if (!crimeTitle.trim()) {
+      setError("Crime Title / Incident Description is required.");
       setActiveTab('crime');
       return;
     }
 
     setSubmitting(true);
-    setErrorMsg('');
+    setError(null);
+
+    const payload = {
+      name: name.trim(),
+      aliases: aliases ? aliases.split(',').map(s => s.trim()).filter(Boolean) : [],
+      role: role.trim(),
+      threat_score: parseFloat(threatScore),
+      attribute_load: parseFloat((threatScore * 3.5).toFixed(1)),
+      age: parseInt(age, 10) || 32,
+      gender: gender,
+      cctns_id: cctnsId.trim() || undefined,
+      crime_title: crimeTitle.trim(),
+      crime_category: crimeCategory,
+      incident_narrative: incidentNarrative.trim(),
+      modus_operandi: modusOperandi.trim(),
+      seized_contraband: seizedContraband.trim(),
+      statutory_acts: statutoryActs,
+      fir_number: firNumber.trim(),
+      police_station: policeStation.trim(),
+      incident_date: incidentDate.trim(),
+      incident_locus: incidentLocus.trim(),
+      case_status: caseStatus.trim(),
+      phone_numbers: phoneNumbers ? phoneNumbers.split(',').map(s => s.trim()).filter(Boolean) : [],
+      vehicle_plates: vehiclePlates ? vehiclePlates.split(',').map(s => s.trim()).filter(Boolean) : [],
+      bank_accounts: bankAccounts ? bankAccounts.split(',').map(s => s.trim()).filter(Boolean) : [],
+      upi_ids: upiIds ? upiIds.split(',').map(s => s.trim()).filter(Boolean) : [],
+      locations: locations ? locations.split(',').map(s => s.trim()).filter(Boolean) : [],
+      known_associates: selectedAssociate ? [selectedAssociate] : [],
+      associate_relation: associateRelation,
+      evidence_attachment: evidenceAttachment || (uploadedFileName ? {
+        file_name: uploadedFileName,
+        sha256_hash: uploadedFileHash || "SHA256-PENDING",
+        bsa_digital_certificate: "BSA-2024-CERT-ADMITTED",
+        verified_at: new Date().toISOString()
+      } : null),
+      predicted_outcome: predictiveOutcome
+    };
 
     try {
-      // Parse arrays
-      const payload = {
-        name: formData.name.trim(),
-        aliases: formData.aliases ? formData.aliases.split(',').map(s => s.trim()).filter(Boolean) : [],
-        role: formData.role,
-        threat_score: parseFloat(formData.threat_score),
-        age: parseInt(formData.age, 10) || 30,
-        gender: formData.gender,
-        cctns_id: formData.cctns_id.trim() || undefined,
-        
-        // Rich Crime Profile
-        crime_title: formData.crime_title.trim(),
-        crime_category: formData.crime_category,
-        incident_narrative: formData.incident_narrative.trim(),
-        modus_operandi: formData.modus_operandi.trim(),
-        seized_contraband: formData.seized_contraband.trim(),
-        statutory_acts: formData.statutory_acts,
-        fir_number: formData.fir_number.trim(),
-        police_station: formData.police_station.trim(),
-        incident_date: formData.incident_date.trim(),
-        incident_locus: formData.incident_locus.trim(),
-        case_status: formData.case_status,
-
-        // Network Entities
-        phone_numbers: formData.phone_numbers ? formData.phone_numbers.split(',').map(s => s.trim()).filter(Boolean) : [],
-        vehicle_plates: formData.vehicle_plates ? formData.vehicle_plates.split(',').map(s => s.trim()).filter(Boolean) : [],
-        bank_accounts: formData.bank_accounts ? formData.bank_accounts.split(',').map(s => s.trim()).filter(Boolean) : [],
-        upi_ids: formData.upi_ids ? formData.upi_ids.split(',').map(s => s.trim()).filter(Boolean) : [],
-        locations: formData.locations ? formData.locations.split(',').map(s => s.trim()).filter(Boolean) : [],
-        known_associates: formData.known_associates,
-        associate_relation: formData.associate_relation,
-
-        officer_badge: 'IO-KOLKATA-8842',
-        role_designation: 'Investigating Officer (IO)'
-      };
-
       const resp = await fetch('/api/suspects/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
 
-      const resData = await resp.json();
-      if (!resp.ok || !resData.success) {
-        throw new Error(resData.detail || resData.message || 'Failed to add suspect');
+      if (!resp.ok) {
+        const errData = await resp.json();
+        throw new Error(errData.detail || "Failed to commit suspect to Knowledge Graph.");
       }
 
+      const resData = await resp.json();
       if (onSuspectAdded) {
         onSuspectAdded(resData);
       }
       onClose();
     } catch (err) {
-      console.error(err);
-      setErrorMsg(err.message || 'Error communicating with server');
+      setError(err.message || "An unexpected error occurred.");
     } finally {
       setSubmitting(false);
     }
   };
 
+  if (!isOpen) return null;
+
   return (
     <div style={{
       position: 'fixed',
       inset: 0,
-      background: 'rgba(7, 9, 14, 0.85)',
-      backdropFilter: 'blur(12px)',
+      zIndex: 1000,
+      background: 'rgba(3, 7, 18, 0.85)',
+      backdropFilter: 'blur(10px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      zIndex: 1000,
       padding: '20px'
     }}>
       <div style={{
-        background: '#0d121d',
-        border: '1px solid var(--accent-cyan)',
-        boxShadow: '0 0 30px rgba(0, 229, 255, 0.25)',
-        borderRadius: '12px',
+        background: '#0d131f',
+        border: '1px solid var(--border-glow)',
+        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.9), 0 0 40px rgba(0, 229, 255, 0.15)',
+        borderRadius: '14px',
         width: '100%',
-        maxWidth: '850px',
+        maxWidth: '960px',
         maxHeight: '92vh',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden'
       }}>
-        {/* Header */}
+        
+        {/* Modal Header */}
         <div style={{
           padding: '16px 24px',
           borderBottom: '1px solid var(--border-subtle)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          background: 'rgba(13, 18, 29, 0.95)'
+          background: 'linear-gradient(90deg, rgba(0, 229, 255, 0.08) 0%, rgba(124, 77, 255, 0.08) 100%)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{
-              width: '32px',
-              height: '32px',
+              width: '36px',
+              height: '36px',
               borderRadius: '8px',
-              background: 'linear-gradient(135deg, #00e5ff 0%, #7c4dff 100%)',
+              background: 'linear-gradient(135deg, rgba(0, 229, 255, 0.2) 0%, rgba(124, 77, 255, 0.3) 100%)',
+              border: '1px solid var(--accent-cyan)',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              color: 'var(--accent-cyan)'
             }}>
-              <UserPlus size={18} color="#07090e" />
+              <UserPlus size={20} />
             </div>
             <div>
-              <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#fff', letterSpacing: '0.5px' }}>
-                INGEST NEW SUSPECT & CRIME DOSSIER
-              </h2>
-              <p style={{ fontSize: '11px', color: 'var(--text-secondary)', fontFamily: 'var(--font-tech)' }}>
-                BNS/BNSS Statutory Framework • Comprehensive Crime Profile & Knowledge Graph Integration
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#fff', margin: 0 }}>
+                  Ingest Suspect & Evidence Media to Knowledge Graph
+                </h2>
+                <span className="badge badge-cyan" style={{ fontSize: '10px' }}>
+                  Multilingual OCR & AI Prediction
+                </span>
+              </div>
+              <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '2px 0 0' }}>
+                Upload FIRs/proof photos for automatic OCR extraction and historical case trajectory forecasting.
               </p>
             </div>
           </div>
-          <button 
+          <button
             onClick={onClose}
-            style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px' }}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+              padding: '6px',
+              borderRadius: '6px',
+              display: 'flex'
+            }}
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
         {/* Quick Intelligence Presets Bar */}
         <div style={{
           padding: '10px 24px',
-          background: 'rgba(0, 229, 255, 0.04)',
+          background: 'rgba(15, 23, 42, 0.8)',
           borderBottom: '1px solid var(--border-subtle)',
           display: 'flex',
           alignItems: 'center',
-          gap: '10px',
-          flexWrap: 'wrap'
+          gap: '12px',
+          overflowX: 'auto'
         }}>
-          <span style={{ fontSize: '11px', color: 'var(--accent-amber)', fontFamily: 'var(--font-tech)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <Sparkles size={13} /> Quick Presets:
+          <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+            <Sparkles size={13} color="var(--accent-cyan)" /> 1-Click Intelligence Presets:
           </span>
-          {PRESET_TEMPLATES.map((tmpl, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => applyTemplate(tmpl.data)}
-              className="btn-primary"
-              style={{ fontSize: '10px', padding: '4px 10px', background: 'rgba(7, 9, 14, 0.8)' }}
-            >
-              {tmpl.label}
-            </button>
-          ))}
+          <div style={{ display: 'flex', gap: '8px' }}>
+            {PRESET_TEMPLATES.map((preset, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => handleApplyPreset(preset.data)}
+                style={{
+                  padding: '4px 10px',
+                  background: 'rgba(255, 255, 255, 0.04)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: '6px',
+                  color: '#e2e8f0',
+                  fontSize: '11px',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--accent-cyan)'}
+                onMouseOut={(e) => e.currentTarget.style.borderColor = 'var(--border-subtle)'}
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Form Navigation Tabs */}
+        {/* Navigation Tabs */}
         <div style={{
           display: 'flex',
           borderBottom: '1px solid var(--border-subtle)',
-          background: 'rgba(7, 9, 14, 0.5)'
+          background: 'rgba(7, 9, 14, 0.5)',
+          padding: '0 24px'
         }}>
           <button
             type="button"
-            onClick={() => setActiveTab('biometrics')}
+            onClick={() => setActiveTab('media')}
             style={{
-              flex: 1,
-              padding: '12px',
+              padding: '12px 16px',
+              background: 'transparent',
               border: 'none',
-              borderBottom: activeTab === 'biometrics' ? '2px solid var(--accent-cyan)' : '2px solid transparent',
-              background: activeTab === 'biometrics' ? 'rgba(0, 229, 255, 0.08)' : 'transparent',
-              color: activeTab === 'biometrics' ? 'var(--accent-cyan)' : 'var(--text-secondary)',
+              borderBottom: activeTab === 'media' ? '2px solid var(--accent-cyan)' : '2px solid transparent',
+              color: activeTab === 'media' ? 'var(--accent-cyan)' : 'var(--text-muted)',
               fontSize: '12px',
-              fontWeight: 600,
-              fontFamily: 'var(--font-tech)',
+              fontWeight: activeTab === 'media' ? 600 : 400,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
               gap: '6px'
             }}
           >
-            <UserPlus size={15} /> 1. Suspect Biometrics
+            <UploadCloud size={14} />
+            <span>1. Upload Media & Proof (OCR)</span>
+            {uploadedFileName && <span className="badge badge-emerald" style={{ fontSize: '8px', padding: '1px 4px' }}>Extracted</span>}
           </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('identity')}
+            style={{
+              padding: '12px 16px',
+              background: 'transparent',
+              border: 'none',
+              borderBottom: activeTab === 'identity' ? '2px solid var(--accent-cyan)' : '2px solid transparent',
+              color: activeTab === 'identity' ? 'var(--accent-cyan)' : 'var(--text-muted)',
+              fontSize: '12px',
+              fontWeight: activeTab === 'identity' ? 600 : 400,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <Layers size={14} />
+            <span>2. Suspect Biometrics</span>
+          </button>
+
           <button
             type="button"
             onClick={() => setActiveTab('crime')}
             style={{
-              flex: 1,
-              padding: '12px',
+              padding: '12px 16px',
+              background: 'transparent',
               border: 'none',
-              borderBottom: activeTab === 'crime' ? '2px solid var(--accent-crimson)' : '2px solid transparent',
-              background: activeTab === 'crime' ? 'rgba(255, 23, 68, 0.08)' : 'transparent',
-              color: activeTab === 'crime' ? 'var(--accent-crimson)' : 'var(--text-secondary)',
+              borderBottom: activeTab === 'crime' ? '2px solid var(--accent-cyan)' : '2px solid transparent',
+              color: activeTab === 'crime' ? 'var(--accent-cyan)' : 'var(--text-muted)',
               fontSize: '12px',
-              fontWeight: 600,
-              fontFamily: 'var(--font-tech)',
+              fontWeight: activeTab === 'crime' ? 600 : 400,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
               gap: '6px'
             }}
           >
-            <Scale size={15} /> 2. Crime Details & Statutory Acts
+            <Scale size={14} />
+            <span>3. Crime Details & Statutory Acts</span>
           </button>
+
           <button
             type="button"
-            onClick={() => setActiveTab('network')}
+            onClick={() => {
+              setActiveTab('network');
+              triggerLivePrediction();
+            }}
             style={{
-              flex: 1,
-              padding: '12px',
+              padding: '12px 16px',
+              background: 'transparent',
               border: 'none',
-              borderBottom: activeTab === 'network' ? '2px solid var(--accent-violet)' : '2px solid transparent',
-              background: activeTab === 'network' ? 'rgba(124, 77, 255, 0.08)' : 'transparent',
-              color: activeTab === 'network' ? 'var(--accent-violet)' : 'var(--text-secondary)',
+              borderBottom: activeTab === 'network' ? '2px solid var(--accent-cyan)' : '2px solid transparent',
+              color: activeTab === 'network' ? 'var(--accent-cyan)' : 'var(--text-muted)',
               fontSize: '12px',
-              fontWeight: 600,
-              fontFamily: 'var(--font-tech)',
+              fontWeight: activeTab === 'network' ? 600 : 400,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
               gap: '6px'
             }}
           >
-            <Layers size={15} /> 3. Network & Evidence Identifiers
+            <Users size={14} />
+            <span>4. Network & AI Outcome Forecast</span>
+            <span className="badge badge-violet" style={{ fontSize: '8px', padding: '1px 4px' }}>🔮 Forecast</span>
           </button>
         </div>
 
-        {/* Form Body */}
-        <form onSubmit={handleSubmit} style={{ flex: 1, overflowY: 'auto', padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {errorMsg && (
-            <div style={{
-              background: 'rgba(255, 23, 68, 0.15)',
-              border: '1px solid var(--accent-crimson)',
-              color: '#ff8a80',
-              padding: '10px 14px',
-              borderRadius: '6px',
-              fontSize: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
-              <ShieldAlert size={16} />
-              <span>{errorMsg}</span>
-            </div>
-          )}
+        {/* Modal Form Content */}
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+          
+          <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px' }}>
+            {error && (
+              <div style={{
+                padding: '10px 14px',
+                background: 'rgba(239, 68, 68, 0.15)',
+                border: '1px solid var(--accent-crimson)',
+                borderRadius: '8px',
+                color: '#fca5a5',
+                fontSize: '12px',
+                marginBottom: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <ShieldAlert size={16} />
+                <span>{error}</span>
+              </div>
+            )}
 
-          {/* TAB 1: BIOMETRICS & IDENTITY */}
-          {activeTab === 'biometrics' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '14px' }}>
-                <div>
-                  <label style={{ fontSize: '11px', color: 'var(--accent-cyan)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase' }}>
-                    Full Legal Name *
-                  </label>
+            {/* ========================================================================= */}
+            {/* TAB 1: UPLOAD MEDIA & PROOF (PDF / PNG / JPG / OCR AUTO-DETECTION)         */}
+            {/* ========================================================================= */}
+            {activeTab === 'media' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                
+                {/* Drag and Drop Zone */}
+                <div style={{
+                  border: '2px dashed var(--border-glow)',
+                  borderRadius: '12px',
+                  padding: '24px',
+                  textAlign: 'center',
+                  background: 'rgba(0, 229, 255, 0.02)',
+                  position: 'relative',
+                  cursor: 'pointer'
+                }}>
                   <input
-                    type="text"
-                    required
-                    placeholder="e.g. Tariq Al-Hasani"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    style={{ width: '100%', background: '#07090e', border: '1px solid var(--border-subtle)', color: '#fff', padding: '8px 12px', borderRadius: '6px', fontSize: '13px', marginTop: '4px' }}
+                    type="file"
+                    accept=".pdf,.png,.jpg,.jpeg,.webp,.txt,.docx"
+                    onChange={handleFileUpload}
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      opacity: 0,
+                      cursor: 'pointer',
+                      zIndex: 10
+                    }}
                   />
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                    <div style={{
+                      width: '48px',
+                      height: '48px',
+                      borderRadius: '50%',
+                      background: 'rgba(0, 229, 255, 0.1)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'var(--accent-cyan)'
+                    }}>
+                      <UploadCloud size={24} />
+                    </div>
+                    <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#fff', margin: 0 }}>
+                      Drop FIR Documents, Crime Proof Photos, or Seizure Memos Here
+                    </h3>
+                    <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: 0, maxWidth: '480px' }}>
+                      Supports <strong>PDF, PNG, JPG, JPEG, WEBP, TXT</strong>. AI automatically runs Multilingual OCR (English, Hindi, Bengali), extracts legal entities, and predicts crime outcome.
+                    </p>
+                    <span className="badge badge-cyan" style={{ marginTop: '6px', fontSize: '10px' }}>
+                      Browse Local Files
+                    </span>
+                  </div>
                 </div>
 
-                <div>
-                  <label style={{ fontSize: '11px', color: 'var(--accent-cyan)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase' }}>
-                    Aliases / Nicknames (comma-separated)
-                  </label>
+                {/* Extraction Status Feedback */}
+                {isExtractingMedia && (
+                  <div style={{
+                    padding: '14px',
+                    borderRadius: '8px',
+                    background: 'rgba(124, 77, 255, 0.1)',
+                    border: '1px solid var(--accent-violet)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px'
+                  }}>
+                    <Cpu size={20} className="pulse-slow" color="var(--accent-violet)" />
+                    <div>
+                      <div style={{ fontSize: '12px', fontWeight: 600, color: '#fff' }}>
+                        Processing Multilingual OCR & Legal NER Extraction...
+                      </div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                        Parsing {uploadedFileName} ({uploadedFileSize}) • Triangulating BNS Statutory Sections & Forecast Precedent Match
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {mediaExtractionSuccess && (
+                  <div style={{
+                    padding: '14px',
+                    borderRadius: '8px',
+                    background: 'rgba(16, 185, 129, 0.12)',
+                    border: '1px solid var(--accent-emerald)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <CheckCircle2 size={20} color="var(--accent-emerald)" />
+                      <div>
+                        <div style={{ fontSize: '12px', fontWeight: 600, color: '#fff' }}>
+                          Evidence Processed • Suspect Identified: <span style={{ color: 'var(--accent-cyan)', fontWeight: 700 }}>{name || "Target Suspect"}</span>
+                        </div>
+                        <div style={{ fontSize: '11px', color: 'var(--accent-emerald)', fontFamily: 'var(--font-mono)' }}>
+                          File: {uploadedFileName} • SHA-256: {uploadedFileHash ? `${uploadedFileHash.slice(0, 16)}...` : 'VERIFIED'} • {statutoryActs?.length || 0} Statutory Acts Mapped
+                        </div>
+                      </div>
+                    </div>
+                    <span className="badge badge-emerald" style={{ fontSize: '9px' }}>
+                      BSA 2024 Sec 63 Certified
+                    </span>
+                  </div>
+                )}
+
+                {/* 1-Click Sample Media Proofs */}
+                <div style={{ background: 'rgba(7, 9, 14, 0.6)', border: '1px solid var(--border-subtle)', borderRadius: '10px', padding: '16px' }}>
+                  <h4 style={{ fontSize: '12px', color: 'var(--accent-cyan)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <FileCheck size={14} /> Quick Demonstration: Test with Pre-Loaded Police Evidence Files
+                  </h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                    {SAMPLE_MEDIA_FILES.map((sample, i) => (
+                      <div
+                        key={i}
+                        onClick={() => handleSelectSampleMedia(sample)}
+                        style={{
+                          padding: '12px',
+                          background: 'rgba(15, 23, 42, 0.6)',
+                          border: '1px solid var(--border-subtle)',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '6px',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.borderColor = 'var(--accent-cyan)';
+                          e.currentTarget.style.background = 'rgba(0, 229, 255, 0.05)';
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.borderColor = 'var(--border-subtle)';
+                          e.currentTarget.style.background = 'rgba(15, 23, 42, 0.6)';
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '10px', color: 'var(--accent-violet)', fontWeight: 600 }}>{sample.tag}</span>
+                          <span style={{ fontSize: '9px', color: 'var(--text-muted)' }}>{sample.size}</span>
+                        </div>
+                        <div style={{ fontSize: '11px', fontWeight: 600, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {sample.name}
+                        </div>
+                        <button
+                          type="button"
+                          style={{
+                            marginTop: '4px',
+                            padding: '4px',
+                            background: 'rgba(0, 229, 255, 0.15)',
+                            border: '1px solid var(--accent-cyan)',
+                            borderRadius: '4px',
+                            color: 'var(--accent-cyan)',
+                            fontSize: '10px',
+                            fontWeight: 600,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          ⚡ Auto-Extract & Predict
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+            )}
+
+            {/* ========================================================================= */}
+            {/* TAB 2: SUSPECT IDENTITY & BIOMETRICS                                      */}
+            {/* ========================================================================= */}
+            {activeTab === 'identity' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                  <div>
+                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                      Suspect Full Legal Name *
+                    </label>
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="e.g. Vikram 'Vicky' Singh"
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '9px 12px',
+                        background: 'rgba(7, 9, 14, 0.8)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: '6px',
+                        color: '#fff',
+                        fontSize: '13px'
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                      Aliases / Street Nicknames (comma separated)
+                    </label>
+                    <input
+                      type="text"
+                      value={aliases}
+                      onChange={(e) => setAliases(e.target.value)}
+                      placeholder="e.g. Vicky Shooter, Kallu, V. Singh"
+                      style={{
+                        width: '100%',
+                        padding: '9px 12px',
+                        background: 'rgba(7, 9, 14, 0.8)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: '6px',
+                        color: '#fff',
+                        fontSize: '13px'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+                  <div>
+                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                      Syndicate Role / Operational Function
+                    </label>
+                    <input
+                      type="text"
+                      value={role}
+                      onChange={(e) => setRole(e.target.value)}
+                      placeholder="e.g. Inter-State Firearms Courier"
+                      style={{
+                        width: '100%',
+                        padding: '9px 12px',
+                        background: 'rgba(7, 9, 14, 0.8)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: '6px',
+                        color: '#fff',
+                        fontSize: '13px'
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                      Age & Gender
+                    </label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input
+                        type="number"
+                        value={age}
+                        onChange={(e) => setAge(e.target.value)}
+                        placeholder="Age"
+                        style={{
+                          width: '80px',
+                          padding: '9px 12px',
+                          background: 'rgba(7, 9, 14, 0.8)',
+                          border: '1px solid var(--border-subtle)',
+                          borderRadius: '6px',
+                          color: '#fff',
+                          fontSize: '13px'
+                        }}
+                      />
+                      <select
+                        value={gender}
+                        onChange={(e) => setGender(e.target.value)}
+                        style={{
+                          flex: 1,
+                          padding: '9px 12px',
+                          background: 'rgba(7, 9, 14, 0.8)',
+                          border: '1px solid var(--border-subtle)',
+                          borderRadius: '6px',
+                          color: '#fff',
+                          fontSize: '13px'
+                        }}
+                      >
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                      CCTNS / ICJS Offender ID
+                    </label>
+                    <input
+                      type="text"
+                      value={cctnsId}
+                      onChange={(e) => setCctnsId(e.target.value)}
+                      placeholder="e.g. WB-CCTNS-2026-22910"
+                      style={{
+                        width: '100%',
+                        padding: '9px 12px',
+                        background: 'rgba(7, 9, 14, 0.8)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: '6px',
+                        color: '#fff',
+                        fontSize: '13px'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Threat Score Slider */}
+                <div style={{ background: 'rgba(7, 9, 14, 0.6)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '14px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '12px', fontWeight: 600, color: '#fff' }}>
+                      Calibrated Threat Score (CPP / TRI Risk Metric)
+                    </label>
+                    <span style={{
+                      fontSize: '13px',
+                      fontFamily: 'var(--font-mono)',
+                      fontWeight: 700,
+                      color: threatScore >= 0.8 ? 'var(--accent-crimson)' : threatScore >= 0.6 ? 'var(--accent-amber)' : 'var(--accent-cyan)'
+                    }}>
+                      {threatScore.toFixed(2)} / 1.00 ({threatScore >= 0.8 ? 'CRITICAL RISK' : threatScore >= 0.6 ? 'HIGH RISK' : 'MODERATE'})
+                    </span>
+                  </div>
                   <input
-                    type="text"
-                    placeholder="e.g. Kabir Bhai, The Ghost"
-                    value={formData.aliases}
-                    onChange={(e) => setFormData({ ...formData, aliases: e.target.value })}
-                    style={{ width: '100%', background: '#07090e', border: '1px solid var(--border-subtle)', color: '#fff', padding: '8px 12px', borderRadius: '6px', fontSize: '13px', marginTop: '4px' }}
+                    type="range"
+                    min="0.10"
+                    max="1.00"
+                    step="0.01"
+                    value={threatScore}
+                    onChange={(e) => setThreatScore(parseFloat(e.target.value))}
+                    style={{ width: '100%', accentColor: threatScore >= 0.8 ? '#f43f5e' : '#00e5ff' }}
                   />
                 </div>
               </div>
+            )}
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: '14px' }}>
-                <div>
-                  <label style={{ fontSize: '11px', color: 'var(--accent-cyan)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase' }}>
-                    Syndicate Role / Designation
-                  </label>
-                  <select
-                    value={formData.role}
-                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                    style={{ width: '100%', background: '#07090e', border: '1px solid var(--border-subtle)', color: '#fff', padding: '8px', borderRadius: '6px', fontSize: '12px', marginTop: '4px' }}
-                  >
-                    <option value="Syndicate Kingpin / Strategic Boss">Syndicate Kingpin / Strategic Boss</option>
-                    <option value="Chief Hawala Broker & Money Launderer">Chief Hawala Broker & Money Launderer</option>
-                    <option value="Contraband Logistics Coordinator">Contraband Logistics Coordinator</option>
-                    <option value="Inter-State Firearms Courier & Armorer">Inter-State Firearms Courier & Armorer</option>
-                    <option value="Cyber & Communication Operator">Cyber & Communication Operator</option>
-                    <option value="Ground Enforcer & Transport Driver">Ground Enforcer & Transport Driver</option>
-                    <option value="Smuggling Convoy Navigator">Smuggling Convoy Navigator</option>
-                    <option value="Shell Entity Director & Account Mule">Shell Entity Director & Account Mule</option>
-                    <option value="Street Operative">Street Operative</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label style={{ fontSize: '11px', color: 'var(--accent-cyan)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase' }}>
-                    Age & Gender
-                  </label>
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+            {/* ========================================================================= */}
+            {/* TAB 3: CRIME DETAILS & STATUTORY ACTS BUILDER                             */}
+            {/* ========================================================================= */}
+            {activeTab === 'crime' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}>
+                  <div>
+                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                      Crime Title / Operation Name *
+                    </label>
                     <input
-                      type="number"
-                      placeholder="Age"
-                      value={formData.age}
-                      onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                      style={{ width: '70px', background: '#07090e', border: '1px solid var(--border-subtle)', color: '#fff', padding: '8px', borderRadius: '6px', fontSize: '12px' }}
+                      type="text"
+                      value={crimeTitle}
+                      onChange={(e) => setCrimeTitle(e.target.value)}
+                      placeholder="e.g. Inter-State Munger Firearms Trunk Pipeline & Cache Supply"
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '9px 12px',
+                        background: 'rgba(7, 9, 14, 0.8)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: '6px',
+                        color: '#fff',
+                        fontSize: '13px'
+                      }}
                     />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                      Crime Category
+                    </label>
                     <select
-                      value={formData.gender}
-                      onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                      style={{ flex: 1, background: '#07090e', border: '1px solid var(--border-subtle)', color: '#fff', padding: '8px', borderRadius: '6px', fontSize: '12px' }}
+                      value={crimeCategory}
+                      onChange={(e) => setCrimeCategory(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '9px 12px',
+                        background: 'rgba(7, 9, 14, 0.8)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: '6px',
+                        color: '#fff',
+                        fontSize: '13px'
+                      }}
                     >
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Other">Other</option>
+                      <option value="Armed Weapon Trafficking & Syndicate Logistics">Armed Weapon Trafficking & Logistics</option>
+                      <option value="Financial Fraud, Hawala & PMLA Offence">Financial Fraud, Hawala & PMLA Offence</option>
+                      <option value="Cyber Extortion & Telecom Gateway Fraud">Cyber Extortion & Telecom Fraud</option>
+                      <option value="Extortion, Intimidation & Murder Conspiracy">Extortion & Murder Conspiracy</option>
+                      <option value="Cross-Border Contraband & Logistics">Cross-Border Contraband & Logistics</option>
                     </select>
                   </div>
                 </div>
 
                 <div>
-                  <label style={{ fontSize: '11px', color: 'var(--accent-cyan)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase' }}>
-                    CCTNS / ICJS ID
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Auto-generated if empty"
-                    value={formData.cctns_id}
-                    onChange={(e) => setFormData({ ...formData, cctns_id: e.target.value })}
-                    style={{ width: '100%', background: '#07090e', border: '1px solid var(--border-subtle)', color: '#fff', padding: '8px 12px', borderRadius: '6px', fontSize: '12px', marginTop: '4px' }}
-                  />
-                </div>
-              </div>
-
-              {/* Threat Score Slider */}
-              <div style={{
-                background: 'rgba(7, 9, 14, 0.6)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: '8px',
-                padding: '12px 16px',
-                marginTop: '4px'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '12px' }}>
-                  <span style={{ color: 'var(--accent-amber)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase' }}>
-                    Initial Threat Score Assignment
-                  </span>
-                  <span style={{ color: formData.threat_score >= 0.8 ? 'var(--accent-crimson)' : 'var(--accent-cyan)', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
-                    {(formData.threat_score * 100).toFixed(0)}% ({formData.threat_score >= 0.8 ? 'Tier 1 Critical Threat' : formData.threat_score >= 0.6 ? 'Tier 2 High Threat' : 'Tier 3 Moderate Threat'})
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min="0.1"
-                  max="1.0"
-                  step="0.05"
-                  value={formData.threat_score}
-                  onChange={(e) => setFormData({ ...formData, threat_score: parseFloat(e.target.value) })}
-                  style={{ width: '100%', cursor: 'pointer' }}
-                />
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('crime')}
-                  className="btn-primary"
-                  style={{ padding: '8px 16px' }}
-                >
-                  Next: Crime Details ➔
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 2: DETAILED CRIME PROFILE & STATUTORY ACTS */}
-          {activeTab === 'crime' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '14px' }}>
-                <div>
-                  <label style={{ fontSize: '11px', color: 'var(--accent-crimson)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase' }}>
-                    Crime Title / Operation Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Cross-Border Arms Trunk & Ordnance Hijack"
-                    value={formData.crime_title}
-                    onChange={(e) => setFormData({ ...formData, crime_title: e.target.value })}
-                    style={{ width: '100%', background: '#07090e', border: '1px solid rgba(255, 23, 68, 0.4)', color: '#fff', padding: '8px 12px', borderRadius: '6px', fontSize: '13px', marginTop: '4px' }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ fontSize: '11px', color: 'var(--accent-crimson)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase' }}>
-                    Incident Category
-                  </label>
-                  <select
-                    value={formData.crime_category}
-                    onChange={(e) => setFormData({ ...formData, crime_category: e.target.value })}
-                    style={{ width: '100%', background: '#07090e', border: '1px solid var(--border-subtle)', color: '#fff', padding: '8px', borderRadius: '6px', fontSize: '12px', marginTop: '4px' }}
-                  >
-                    <option value="Organized Crime Syndicate & Arms Smuggling">Organized Crime & Arms Smuggling</option>
-                    <option value="Financial Fraud, Hawala & PMLA Offence">Financial Fraud & Hawala Money Laundering</option>
-                    <option value="Armed Weapon Trafficking & Syndicate Logistics">Armed Weapon Trafficking & Logistics</option>
-                    <option value="Cyber Extortion & Telecom Gateway Fraud">Cyber Extortion & SIM Box Fraud</option>
-                    <option value="Armed Violence, Attempted Murder & Extortion">Armed Violence & Shootout</option>
-                    <option value="Narcotics & Trans-Border Smuggling">Narcotics & Trans-Border Smuggling</option>
-                    <option value="Benami Financial Laundering">Benami Financial Laundering</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Crime Narrative / Full Description */}
-              <div>
-                <label style={{ fontSize: '11px', color: 'var(--accent-crimson)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase' }}>
-                  Detailed Crime Narrative / Summary *
-                </label>
-                <textarea
-                  rows={3}
-                  required
-                  placeholder="Provide comprehensive details of the criminal incident, victims, stolen/transferred property, and evidence discovered..."
-                  value={formData.incident_narrative}
-                  onChange={(e) => setFormData({ ...formData, incident_narrative: e.target.value })}
-                  style={{ width: '100%', background: '#07090e', border: '1px solid var(--border-subtle)', color: '#fff', padding: '8px 12px', borderRadius: '6px', fontSize: '12px', marginTop: '4px', resize: 'vertical' }}
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-                <div>
-                  <label style={{ fontSize: '11px', color: 'var(--accent-amber)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase' }}>
-                    Modus Operandi (M.O.)
+                  <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                    Incident Narrative & Factual Summary (Full Case Context)
                   </label>
                   <textarea
-                    rows={2}
-                    placeholder="Specific execution methods, burner phone protocols, scout cars, cash layering..."
-                    value={formData.modus_operandi}
-                    onChange={(e) => setFormData({ ...formData, modus_operandi: e.target.value })}
-                    style={{ width: '100%', background: '#07090e', border: '1px solid var(--border-subtle)', color: '#fff', padding: '8px', borderRadius: '6px', fontSize: '12px', marginTop: '4px', resize: 'vertical' }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ fontSize: '11px', color: 'var(--accent-amber)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase' }}>
-                    Seized Weapons, Contraband & Assets
-                  </label>
-                  <textarea
-                    rows={2}
-                    placeholder="e.g. 3x 9mm pistols, ₹45,00,000 cash, 12 SIM cards, seized vehicles..."
-                    value={formData.seized_contraband}
-                    onChange={(e) => setFormData({ ...formData, seized_contraband: e.target.value })}
-                    style={{ width: '100%', background: '#07090e', border: '1px solid var(--border-subtle)', color: '#fff', padding: '8px', borderRadius: '6px', fontSize: '12px', marginTop: '4px', resize: 'vertical' }}
-                  />
-                </div>
-              </div>
-
-              {/* Statutory Acts & Sections Builder */}
-              <div style={{
-                background: 'rgba(7, 9, 14, 0.6)',
-                border: '1px solid rgba(0, 229, 255, 0.2)',
-                borderRadius: '8px',
-                padding: '14px'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <Scale size={16} color="var(--accent-cyan)" />
-                    <span style={{ fontSize: '12px', fontWeight: 700, color: '#fff', fontFamily: 'var(--font-tech)', textTransform: 'uppercase' }}>
-                      Statutory Acts & Sections Breakdown (with Legal Explanations)
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleAddAct}
-                    className="btn-primary"
-                    style={{ fontSize: '10px', padding: '4px 8px' }}
-                  >
-                    <Plus size={12} /> Add Section
-                  </button>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {formData.statutory_acts.map((actItem, idx) => (
-                    <div key={idx} style={{
-                      background: 'rgba(13, 18, 29, 0.9)',
+                    rows={3}
+                    value={incidentNarrative}
+                    onChange={(e) => setIncidentNarrative(e.target.value)}
+                    placeholder="Provide full description of suspect's unlawful actions, conspiratorial liaisons, and targets..."
+                    style={{
+                      width: '100%',
+                      padding: '9px 12px',
+                      background: 'rgba(7, 9, 14, 0.8)',
                       border: '1px solid var(--border-subtle)',
                       borderRadius: '6px',
-                      padding: '10px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '8px'
-                    }}>
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      color: '#fff',
+                      fontSize: '12px',
+                      resize: 'vertical'
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                  <div>
+                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                      Modus Operandi (M.O. / Tactical Execution)
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={modusOperandi}
+                      onChange={(e) => setModusOperandi(e.target.value)}
+                      placeholder="e.g. Uses false-bottom trucks; swaps burner SIMs every 48h..."
+                      style={{
+                        width: '100%',
+                        padding: '9px 12px',
+                        background: 'rgba(7, 9, 14, 0.8)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: '6px',
+                        color: '#fff',
+                        fontSize: '12px',
+                        resize: 'vertical'
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                      Seized Weapons, Contraband & Assets
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={seizedContraband}
+                      onChange={(e) => setSeizedContraband(e.target.value)}
+                      placeholder="e.g. 12x 9mm pistols, 120 cartridges, ₹35L cash, cold storage wallet..."
+                      style={{
+                        width: '100%',
+                        padding: '9px 12px',
+                        background: 'rgba(7, 9, 14, 0.8)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: '6px',
+                        color: '#fff',
+                        fontSize: '12px',
+                        resize: 'vertical'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Dynamic Statutory Acts Manager */}
+                <div style={{ background: 'rgba(7, 9, 14, 0.6)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '14px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <div>
+                      <span style={{ fontSize: '12px', fontWeight: 600, color: '#fff' }}>
+                        ⚖️ Statutory Acts & Legal Sections (With Law Enforcement Explanations)
+                      </span>
+                      <p style={{ fontSize: '10px', color: 'var(--text-muted)', margin: '2px 0 0' }}>
+                        Include specific section numbers along with legal justifications.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleAddAct}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        padding: '4px 10px',
+                        background: 'rgba(0, 229, 255, 0.15)',
+                        border: '1px solid var(--accent-cyan)',
+                        borderRadius: '6px',
+                        color: 'var(--accent-cyan)',
+                        fontSize: '11px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <Plus size={13} /> Add Statutory Section
+                    </button>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {statutoryActs.map((item, idx) => (
+                      <div key={idx} style={{
+                        display: 'grid',
+                        gridTemplateColumns: '180px 140px 1fr 32px',
+                        gap: '8px',
+                        alignItems: 'center',
+                        background: 'rgba(15, 23, 42, 0.7)',
+                        padding: '8px',
+                        borderRadius: '6px',
+                        border: '1px solid rgba(255, 255, 255, 0.05)'
+                      }}>
                         <select
-                          value={actItem.act}
-                          onChange={(e) => handleActChange(idx, 'act', e.target.value)}
-                          style={{ flex: 1.2, background: '#07090e', border: '1px solid var(--border-subtle)', color: '#fff', padding: '6px', borderRadius: '4px', fontSize: '11px' }}
+                          value={item.act}
+                          onChange={(e) => handleUpdateAct(idx, 'act', e.target.value)}
+                          style={{
+                            padding: '6px',
+                            background: 'rgba(7, 9, 14, 0.9)',
+                            border: '1px solid var(--border-subtle)',
+                            borderRadius: '4px',
+                            color: '#fff',
+                            fontSize: '11px'
+                          }}
                         >
-                          <option value="Bharatiya Nyaya Sanhita (BNS) 2024">Bharatiya Nyaya Sanhita (BNS) 2024</option>
+                          <option value="Bharatiya Nyaya Sanhita (BNS) 2024">BNS 2024</option>
                           <option value="Arms Act 1959">Arms Act 1959</option>
-                          <option value="Bharatiya Sakshya Adhiniyam (BSA) 2024">Bharatiya Sakshya Adhiniyam (BSA) 2024</option>
-                          <option value="Information Technology Act 2000">Information Technology Act 2000</option>
-                          <option value="Prevention of Money Laundering Act (PMLA) 2002">Prevention of Money Laundering Act (PMLA) 2002</option>
-                          <option value="Narcotic Drugs & Psychotropic Substances (NDPS) Act">NDPS Act 1985</option>
-                          <option value="Unlawful Activities Prevention Act (UAPA)">UAPA 1967</option>
+                          <option value="Information Technology Act 2000">IT Act 2000</option>
+                          <option value="Bharatiya Sakshya Adhiniyam (BSA) 2024">BSA 2024</option>
+                          <option value="Prevention of Money Laundering Act (PMLA) 2002">PMLA 2002</option>
+                          <option value="NDPS Act 1985">NDPS Act 1985</option>
                         </select>
 
                         <input
                           type="text"
-                          placeholder="Section (e.g. Sec 111)"
-                          value={actItem.section}
-                          onChange={(e) => handleActChange(idx, 'section', e.target.value)}
-                          style={{ width: '130px', background: '#07090e', border: '1px solid var(--border-subtle)', color: '#fff', padding: '6px', borderRadius: '4px', fontSize: '11px' }}
+                          value={item.section}
+                          onChange={(e) => handleUpdateAct(idx, 'section', e.target.value)}
+                          placeholder="e.g. Section 111"
+                          style={{
+                            padding: '6px 8px',
+                            background: 'rgba(7, 9, 14, 0.9)',
+                            border: '1px solid var(--border-subtle)',
+                            borderRadius: '4px',
+                            color: '#fff',
+                            fontSize: '11px'
+                          }}
                         />
 
                         <input
                           type="text"
-                          placeholder="Offence Title"
-                          value={actItem.title}
-                          onChange={(e) => handleActChange(idx, 'title', e.target.value)}
-                          style={{ flex: 1.5, background: '#07090e', border: '1px solid var(--border-subtle)', color: '#fff', padding: '6px', borderRadius: '4px', fontSize: '11px' }}
+                          value={item.explanation}
+                          onChange={(e) => handleUpdateAct(idx, 'explanation', e.target.value)}
+                          placeholder="Legal explanation / offence context..."
+                          style={{
+                            padding: '6px 8px',
+                            background: 'rgba(7, 9, 14, 0.9)',
+                            border: '1px solid var(--border-subtle)',
+                            borderRadius: '4px',
+                            color: '#fff',
+                            fontSize: '11px'
+                          }}
                         />
 
-                        {formData.statutory_acts.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveAct(idx)}
-                            style={{ background: 'transparent', border: 'none', color: 'var(--accent-crimson)', cursor: 'pointer', padding: '4px' }}
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveAct(idx)}
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: '#f87171',
+                            cursor: 'pointer',
+                            padding: '4px'
+                          }}
+                        >
+                          <Trash2 size={15} />
+                        </button>
                       </div>
-
-                      <input
-                        type="text"
-                        placeholder="Detailed Legal Explanation of why this section applies to the suspect..."
-                        value={actItem.explanation}
-                        onChange={(e) => handleActChange(idx, 'explanation', e.target.value)}
-                        style={{ width: '100%', background: '#07090e', border: '1px solid var(--border-subtle)', color: '#cbd5e1', padding: '6px', borderRadius: '4px', fontSize: '11px' }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* FIR & Jurisdiction */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
-                <div>
-                  <label style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-tech)' }}>FIR Number</label>
-                  <input
-                    type="text"
-                    placeholder="FIR-2026/XXX/WB"
-                    value={formData.fir_number}
-                    onChange={(e) => setFormData({ ...formData, fir_number: e.target.value })}
-                    style={{ width: '100%', background: '#07090e', border: '1px solid var(--border-subtle)', color: '#fff', padding: '6px 8px', borderRadius: '4px', fontSize: '11px' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-tech)' }}>Police Station</label>
-                  <input
-                    type="text"
-                    value={formData.police_station}
-                    onChange={(e) => setFormData({ ...formData, police_station: e.target.value })}
-                    style={{ width: '100%', background: '#07090e', border: '1px solid var(--border-subtle)', color: '#fff', padding: '6px 8px', borderRadius: '4px', fontSize: '11px' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-tech)' }}>Case Status</label>
-                  <select
-                    value={formData.case_status}
-                    onChange={(e) => setFormData({ ...formData, case_status: e.target.value })}
-                    style={{ width: '100%', background: '#07090e', border: '1px solid var(--border-subtle)', color: '#fff', padding: '6px 8px', borderRadius: '4px', fontSize: '11px' }}
-                  >
-                    <option value="Under Active Investigation / Warrant Issued">Under Investigation / Warrant Issued</option>
-                    <option value="Charge Sheet Prepared / Committal">Charge Sheet Prepared</option>
-                    <option value="Arrested / In Judicial Custody">Arrested / In Custody</option>
-                    <option value="Proclaimed Offender / Absconding">Proclaimed Offender / Absconding</option>
-                  </select>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('biometrics')}
-                  className="btn-primary"
-                  style={{ padding: '8px 16px', background: 'transparent' }}
-                >
-                  ⬅ Back: Biometrics
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('network')}
-                  className="btn-primary"
-                  style={{ padding: '8px 16px' }}
-                >
-                  Next: Network & Evidence ➔
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 3: NETWORK ENTITIES & EVIDENTIARY IDENTIFIERS */}
-          {activeTab === 'network' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-                <div>
-                  <label style={{ fontSize: '11px', color: 'var(--accent-cyan)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <Phone size={13} /> Phone Numbers (comma-separated)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. +919830112233, +919874556677"
-                    value={formData.phone_numbers}
-                    onChange={(e) => setFormData({ ...formData, phone_numbers: e.target.value })}
-                    style={{ width: '100%', background: '#07090e', border: '1px solid var(--border-subtle)', color: '#fff', padding: '8px 12px', borderRadius: '6px', fontSize: '12px', marginTop: '4px' }}
-                  />
+                    ))}
+                  </div>
                 </div>
 
-                <div>
-                  <label style={{ fontSize: '11px', color: 'var(--accent-amber)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <Truck size={13} /> Vehicle License Plates
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. WB-02-AB-1234, WB-24-K-9988"
-                    value={formData.vehicle_plates}
-                    onChange={(e) => setFormData({ ...formData, vehicle_plates: e.target.value })}
-                    style={{ width: '100%', background: '#07090e', border: '1px solid var(--border-subtle)', color: '#fff', padding: '8px 12px', borderRadius: '6px', fontSize: '12px', marginTop: '4px' }}
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-                <div>
-                  <label style={{ fontSize: '11px', color: 'var(--accent-violet)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <CreditCard size={13} /> Bank Accounts & UPI Handles
-                  </label>
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+                  <div>
+                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                      FIR Number
+                    </label>
                     <input
                       type="text"
-                      placeholder="Account No."
-                      value={formData.bank_accounts}
-                      onChange={(e) => setFormData({ ...formData, bank_accounts: e.target.value })}
-                      style={{ flex: 1, background: '#07090e', border: '1px solid var(--border-subtle)', color: '#fff', padding: '8px', borderRadius: '6px', fontSize: '12px' }}
+                      value={firNumber}
+                      onChange={(e) => setFirNumber(e.target.value)}
+                      placeholder="e.g. FIR-2026/118/WB-ASN"
+                      style={{
+                        width: '100%',
+                        padding: '8px 12px',
+                        background: 'rgba(7, 9, 14, 0.8)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: '6px',
+                        color: '#fff',
+                        fontSize: '12px'
+                      }}
                     />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                      Police Station / Jurisdiction
+                    </label>
                     <input
                       type="text"
-                      placeholder="UPI (e.g. ops@okhdfc)"
-                      value={formData.upi_ids}
-                      onChange={(e) => setFormData({ ...formData, upi_ids: e.target.value })}
-                      style={{ flex: 1, background: '#07090e', border: '1px solid var(--border-subtle)', color: '#fff', padding: '8px', borderRadius: '6px', fontSize: '12px' }}
+                      value={policeStation}
+                      onChange={(e) => setPoliceStation(e.target.value)}
+                      placeholder="e.g. Barrackpore Special Thana"
+                      style={{
+                        width: '100%',
+                        padding: '8px 12px',
+                        background: 'rgba(7, 9, 14, 0.8)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: '6px',
+                        color: '#fff',
+                        fontSize: '12px'
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                      Case / Warrant Status
+                    </label>
+                    <input
+                      type="text"
+                      value={caseStatus}
+                      onChange={(e) => setCaseStatus(e.target.value)}
+                      placeholder="e.g. Warrant Issued / Active Trial"
+                      style={{
+                        width: '100%',
+                        padding: '8px 12px',
+                        background: 'rgba(7, 9, 14, 0.8)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: '6px',
+                        color: '#fff',
+                        fontSize: '12px'
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ========================================================================= */}
+            {/* TAB 4: NETWORK & LIVE AI HISTORICAL OUTCOME FORECAST                      */}
+            {/* ========================================================================= */}
+            {activeTab === 'network' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                
+                {/* Physical Network Identifiers */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                  <div>
+                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px' }}>
+                      <Phone size={12} color="var(--accent-cyan)" /> Linked Phones / SIMs (comma separated)
+                    </label>
+                    <input
+                      type="text"
+                      value={phoneNumbers}
+                      onChange={(e) => setPhoneNumbers(e.target.value)}
+                      placeholder="+919875114422, +919830221199"
+                      style={{
+                        width: '100%',
+                        padding: '8px 12px',
+                        background: 'rgba(7, 9, 14, 0.8)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: '6px',
+                        color: '#fff',
+                        fontSize: '12px'
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px' }}>
+                      <Truck size={12} color="var(--accent-amber)" /> Vehicle License Plates (comma separated)
+                    </label>
+                    <input
+                      type="text"
+                      value={vehiclePlates}
+                      onChange={(e) => setVehiclePlates(e.target.value)}
+                      placeholder="WB-25-A-4431, WB-02-E-9021"
+                      style={{
+                        width: '100%',
+                        padding: '8px 12px',
+                        background: 'rgba(7, 9, 14, 0.8)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: '6px',
+                        color: '#fff',
+                        fontSize: '12px'
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px' }}>
+                      <CreditCard size={12} color="var(--accent-violet)" /> Bank Accounts & UPI Handles
+                    </label>
+                    <input
+                      type="text"
+                      value={bankAccounts}
+                      onChange={(e) => setBankAccounts(e.target.value)}
+                      placeholder="50100991823411, munimops@okhdfcbank"
+                      style={{
+                        width: '100%',
+                        padding: '8px 12px',
+                        background: 'rgba(7, 9, 14, 0.8)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: '6px',
+                        color: '#fff',
+                        fontSize: '12px'
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px' }}>
+                      <MapPin size={12} color="var(--accent-emerald)" /> Safehouses / Operating Locations
+                    </label>
+                    <input
+                      type="text"
+                      value={locations}
+                      onChange={(e) => setLocations(e.target.value)}
+                      placeholder="Ichhapur Safehouse Depot, Asansol Yard"
+                      style={{
+                        width: '100%',
+                        padding: '8px 12px',
+                        background: 'rgba(7, 9, 14, 0.8)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: '6px',
+                        color: '#fff',
+                        fontSize: '12px'
+                      }}
                     />
                   </div>
                 </div>
 
-                <div>
-                  <label style={{ fontSize: '11px', color: 'var(--accent-emerald)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <MapPin size={13} /> Safehouses / Sighting Locations
+                {/* Associate Linker */}
+                <div style={{ background: 'rgba(7, 9, 14, 0.6)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '14px' }}>
+                  <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                    <Users size={13} color="var(--accent-cyan)" /> Link to Existing Syndicate Co-Conspirator in Graph
                   </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Ichhapur Safehouse, Kolkata Port Dock-7"
-                    value={formData.locations}
-                    onChange={(e) => setFormData({ ...formData, locations: e.target.value })}
-                    style={{ width: '100%', background: '#07090e', border: '1px solid var(--border-subtle)', color: '#fff', padding: '8px 12px', borderRadius: '6px', fontSize: '12px', marginTop: '4px' }}
-                  />
-                </div>
-              </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <select
+                      value={selectedAssociate}
+                      onChange={(e) => setSelectedAssociate(e.target.value)}
+                      style={{
+                        padding: '8px 12px',
+                        background: 'rgba(15, 23, 42, 0.9)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: '6px',
+                        color: '#fff',
+                        fontSize: '12px'
+                      }}
+                    >
+                      <option value="">-- Select Existing Suspect to Link --</option>
+                      {existingSuspects.map(s => (
+                        <option key={s.id} value={s.id}>
+                          {s.name} ({s.role})
+                        </option>
+                      ))}
+                    </select>
 
-              {/* Known Syndicate Associates Linker */}
-              <div style={{
-                background: 'rgba(7, 9, 14, 0.6)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: '8px',
-                padding: '14px'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <label style={{ fontSize: '12px', fontWeight: 700, color: '#fff', fontFamily: 'var(--font-tech)', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <Users size={15} color="var(--accent-cyan)" /> Link Existing Syndicate Associates
-                  </label>
-                  <select
-                    value={formData.associate_relation}
-                    onChange={(e) => setFormData({ ...formData, associate_relation: e.target.value })}
-                    style={{ background: '#07090e', border: '1px solid var(--border-subtle)', color: 'var(--accent-cyan)', padding: '4px 8px', borderRadius: '4px', fontSize: '11px' }}
-                  >
-                    <option value="COLLABORATES_WITH">COLLABORATES_WITH</option>
-                    <option value="COMMANDS">COMMANDS (Subordinate to Target)</option>
-                    <option value="OPERATES_UNDER">OPERATES_UNDER (Reports to Target)</option>
-                  </select>
+                    <select
+                      value={associateRelation}
+                      onChange={(e) => setAssociateRelation(e.target.value)}
+                      style={{
+                        padding: '8px 12px',
+                        background: 'rgba(15, 23, 42, 0.9)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: '6px',
+                        color: '#fff',
+                        fontSize: '12px'
+                      }}
+                    >
+                      <option value="COLLABORATES_WITH">COLLABORATES_WITH (Peer Conduit)</option>
+                      <option value="COMMANDS">COMMANDS (Directs Operative)</option>
+                      <option value="OPERATES_UNDER">OPERATES_UNDER (Reports to Kingpin)</option>
+                      <option value="TRANSFERRED_FUNDS_TO">TRANSFERRED_FUNDS_TO (Hawala Flow)</option>
+                    </select>
+                  </div>
                 </div>
-                <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '10px' }}>
-                  Select network members with whom this suspect shares communication, commands, or funds transfers:
-                </p>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '8px', maxHeight: '140px', overflowY: 'auto' }}>
-                  {existingSuspects.map((s) => {
-                    const isChecked = formData.known_associates.includes(s.id);
-                    return (
-                      <div
-                        key={s.id}
-                        onClick={() => handleAssociateToggle(s.id)}
-                        style={{
-                          background: isChecked ? 'rgba(0, 229, 255, 0.15)' : 'rgba(13, 18, 29, 0.8)',
-                          border: isChecked ? '1px solid var(--accent-cyan)' : '1px solid var(--border-subtle)',
-                          borderRadius: '6px',
-                          padding: '6px 10px',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          fontSize: '11px'
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => {}}
-                          style={{ cursor: 'pointer' }}
-                        />
-                        <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          <div style={{ fontWeight: 600, color: '#fff' }}>{s.name}</div>
-                          <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{s.role}</div>
+                {/* 🔮 LIVE AI HISTORICAL PATTERN MATCH & OUTCOME FORECAST CARD */}
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(124, 77, 255, 0.08) 0%, rgba(0, 229, 255, 0.08) 100%)',
+                  border: '1px solid rgba(124, 77, 255, 0.4)',
+                  borderRadius: '10px',
+                  padding: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <TrendingUp size={16} color="var(--accent-violet)" />
+                      <span style={{ fontSize: '13px', fontWeight: 600, color: '#fff' }}>
+                        🔮 AI Historical Pattern Recognition & Case Outcome Forecast
+                      </span>
+                    </div>
+                    {predictiveOutcome && (
+                      <span className="badge badge-violet" style={{ fontSize: '10px' }}>
+                        {predictiveOutcome.matched_historical_precedent?.similarity_percentage} Pattern Match
+                      </span>
+                    )}
+                  </div>
+
+                  {predictiveOutcome ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      {/* Matched Precedent */}
+                      <div style={{
+                        background: 'rgba(7, 9, 14, 0.7)',
+                        borderRadius: '6px',
+                        padding: '10px 12px',
+                        borderLeft: '3px solid var(--accent-violet)'
+                      }}>
+                        <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '2px' }}>
+                          Matched Historical Precedent Case:
+                        </div>
+                        <div style={{ fontSize: '12px', fontWeight: 600, color: '#d8b4fe' }}>
+                          {predictiveOutcome.matched_historical_precedent?.case_title}
+                        </div>
+                        <div style={{ fontSize: '11px', color: '#cbd5e1', marginTop: '4px' }}>
+                          <strong>Historical Precedent Outcome:</strong> {predictiveOutcome.matched_historical_precedent?.actual_historical_outcome}
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('crime')}
-                  className="btn-primary"
-                  style={{ padding: '8px 16px', background: 'transparent' }}
-                >
-                  ⬅ Back: Crime Details
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="btn-primary"
-                  style={{
-                    padding: '10px 24px',
-                    background: 'linear-gradient(135deg, #00e5ff 0%, #7c4dff 100%)',
-                    color: '#07090e',
-                    fontWeight: 700,
-                    fontSize: '13px'
-                  }}
-                >
-                  {submitting ? 'INGESTING TO GRAPH...' : '🚀 COMMIT SUSPECT TO KNOWLEDGE GRAPH'}
-                </button>
+                      {/* Forecasted Progression Timeline */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                        {predictiveOutcome.forecasted_outcome_timeline?.map((step, idx) => (
+                          <div key={idx} style={{
+                            background: 'rgba(7, 9, 14, 0.6)',
+                            border: '1px solid var(--border-subtle)',
+                            borderRadius: '6px',
+                            padding: '8px 10px'
+                          }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                              <span style={{ fontSize: '10px', color: 'var(--accent-cyan)', fontWeight: 600 }}>{step.timeframe}</span>
+                              <span style={{ fontSize: '9px', color: step.threat_level === 'CRITICAL' ? 'var(--accent-crimson)' : 'var(--accent-amber)', fontWeight: 700 }}>
+                                {step.probability}
+                              </span>
+                            </div>
+                            <p style={{ fontSize: '11px', color: '#e2e8f0', margin: 0, lineHeight: 1.3 }}>
+                              {step.predicted_action}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Tactical Intervention */}
+                      <div style={{
+                        background: 'rgba(0, 229, 255, 0.06)',
+                        border: '1px solid rgba(0, 229, 255, 0.3)',
+                        borderRadius: '6px',
+                        padding: '10px 12px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <Target size={16} color="var(--accent-cyan)" />
+                          <div>
+                            <span style={{ fontSize: '11px', color: 'var(--accent-cyan)', fontWeight: 600 }}>
+                              Recommended Law Enforcement Counter-Strategy:
+                            </span>
+                            <div style={{ fontSize: '11px', color: '#fff' }}>
+                              {predictiveOutcome.tactical_intervention_strategy?.primary_action}
+                            </div>
+                          </div>
+                        </div>
+                        <span className="badge badge-cyan" style={{ fontSize: '9px', whiteSpace: 'nowrap' }}>
+                          Window: {predictiveOutcome.tactical_intervention_strategy?.critical_window_hours}h
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', textAlign: 'center', padding: '12px' }}>
+                      {isPredicting ? 'Evaluating case signatures against historical police archives...' : 'Click below to forecast syndicate trajectory.'}
+                    </div>
+                  )}
+                </div>
+
               </div>
+            )}
+
+          </div>
+
+          {/* Modal Footer Controls */}
+          <div style={{
+            padding: '16px 24px',
+            borderTop: '1px solid var(--border-subtle)',
+            background: 'rgba(7, 9, 14, 0.8)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span className="badge badge-cyan" style={{ fontSize: '10px' }}>
+                BSA 2024 Sec 63 Hash-Chaining Enabled
+              </span>
             </div>
-          )}
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                type="button"
+                onClick={onClose}
+                style={{
+                  padding: '8px 16px',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: '6px',
+                  color: 'var(--text-muted)',
+                  fontSize: '12px',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                disabled={submitting}
+                className="btn-primary"
+                style={{
+                  padding: '8px 20px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                <UserPlus size={15} />
+                <span>{submitting ? 'Ingesting to Knowledge Graph...' : 'COMMIT SUSPECT & EVIDENCE TO GRAPH'}</span>
+              </button>
+            </div>
+          </div>
+
         </form>
+
       </div>
     </div>
   );

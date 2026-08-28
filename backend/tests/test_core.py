@@ -108,5 +108,54 @@ class TestCriminalAnalysisCore(unittest.TestCase):
         self.assertIn("act", cd["statutory_acts"][0])
         self.assertIn("explanation", cd["statutory_acts"][0])
 
+    def test_erick_ekka_fir_extraction(self):
+        """Specifically verifies accurate extraction and understanding of suspect Erick Ekka."""
+        cctns_fir = (
+            "FIRST INFORMATION REPORT (Under Section 154 Cr.P.C / Section 173 BNSS)\n"
+            "1. District: North 24 Parganas, P.S.: Barrackpore Special Thana, Year: 2026, FIR No.: 142/2026, Date: 28/08/2026\n"
+            "2. Acts & Sections: Section 111 BNS 2024, Arms Act 1959 Sec 25/27, BSA 2024 Sec 63\n"
+            "3. Occurrence of Offence: Date: 28/08/2026, Time: 21:30 hrs\n"
+            "4. Place of Occurrence: Near Ichhapur Rifle Factory Perimeter, Barrackpore\n"
+            "5. Complainant: Sub-Inspector A. K. Banerjee\n"
+            "6. Details of known / suspected / unknown accused with full particulars:\n"
+            "   (1) Erick Ekka, S/O John Ekka, Resident of Barrackpore Station Road (Age 31 years)\n"
+            "7. Brief Description: Raiding party intercepted Mahindra Bolero WB-24-AX-5512 driven by accused Erick Ekka. "
+            "Search revealed concealed cavity under driver seat containing 2 country-made 9mm pistols and 15 live rounds. "
+            "Phone: +919831445566, UPI: erick.ekka@icici."
+        )
+
+        ocr_res = ocr_processor.extract_text_from_document(cctns_fir)
+        self.assertEqual(ocr_res["extracted_metadata"]["fir_number"], "142/2026")
+        
+        ner_res = legal_ner_engine.extract_entities(ocr_res["cleaned_text"])
+        biographics = ner_res["entities"]["biographic_data"]
+        
+        self.assertTrue(len(biographics) > 0, "No biographics extracted for FIR")
+        primary_suspect = biographics[0]
+        self.assertEqual(primary_suspect["full_name"], "Erick Ekka", f"Expected 'Erick Ekka', got '{primary_suspect.get('full_name')}'")
+        
+        # Verify phones, vehicles, UPIs extracted
+        phones = [c["value"] for c in ner_res["entities"]["communication_identifiers"]]
+        self.assertIn("+919831445566", phones)
+        
+        plates = [v["plate_number"] for v in ner_res["entities"]["vehicular_logistics"]]
+        self.assertIn("WB-24-AX-5512", plates)
+
+        upis = [u["identifier"] for u in ner_res["entities"]["financial_instruments"] if u.get("type") == "UPI_ID"]
+        self.assertIn("erick.ekka@icici", upis)
+
+    def test_rule_based_fallback_suspect_names(self):
+        """Tests that deterministic fallback extracts Erick Ekka even in pure regex mode."""
+        samples = [
+            "Accused: Erick Ekka, Age 31, Phone: +919831445566",
+            "FIR registered against accused Erick Ekka for firearms trafficking.",
+            "7. Details of known / suspected accused:\n(1) Erick Ekka S/o John Ekka",
+            "ACCUSED DETAILS:\nName: ERICK EKKA\nFather: Samuel Ekka"
+        ]
+        for s in samples:
+            res = legal_ner_engine._extract_rule_based(s)
+            names = [b["full_name"] for b in res["entities"]["biographic_data"]]
+            self.assertIn("Erick Ekka", names, f"Failed rule-based extraction on: {s}")
+
 if __name__ == "__main__":
     unittest.main()

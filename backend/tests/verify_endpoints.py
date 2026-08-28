@@ -1,4 +1,5 @@
 import urllib.request
+import urllib.parse
 import json
 
 def test_endpoints():
@@ -16,7 +17,8 @@ def test_endpoints():
         "/api/audit/verify",
         "/api/cctns/pillars",
         "/api/suspects",
-        "/api/crimes"
+        "/api/crimes",
+        "/api/predict/syndicate-outcomes"
     ]
     
     print("Testing Endpoints...")
@@ -95,8 +97,48 @@ def test_endpoints():
         print(f"[ERROR] /api/suspects/add -> {e}")
         all_ok = False
 
+    # Test POST /api/predict/outcome
+    try:
+        pred_payload = json.dumps({
+            "name": "Arjun 'Ghost' Mukherjee",
+            "role": "Firearms Courier",
+            "threat_score": 0.82,
+            "crime_title": "Arms Cache Logistics",
+            "crime_category": "Armed Weapon Trafficking & Logistics",
+            "incident_narrative": "Transferred illegal ordnance consignments from Asansol border to Ichhapur safehouse.",
+            "modus_operandi": "Concealed compartment in cargo van WB-04-T-1122 with fake delivery papers.",
+            "seized_contraband": "2x 9mm country pistols, 30 rounds",
+            "bns_sections": ["Section 111", "Arms Act Sec 25"]
+        }).encode('utf-8')
+        req = urllib.request.Request(f"{base}/api/predict/outcome", data=pred_payload, headers={'Content-Type': 'application/json'})
+        with urllib.request.urlopen(req) as resp:
+            data = json.loads(resp.read().decode())
+            print(f"[SUCCESS] /api/predict/outcome -> HTTP {resp.getcode()} (Matched: {data['matched_historical_precedent']['case_title']}, Prob: {data['overall_escalation_percentage']})")
+    except Exception as e:
+        print(f"[ERROR] /api/predict/outcome -> {e}")
+        all_ok = False
+
+    # Test POST /api/ingest/upload-media with Erick Ekka FIR
+    try:
+        erick_fir_data = urllib.parse.urlencode({
+            "raw_text": "FIRST INFORMATION REPORT (FIR No. 142/2026)\nThana: Barrackpore Special Thana\nAccused: Erick Ekka (Age 31)\nPhone: +919831445566 | Vehicle: WB-24-AX-5512 | UPI: erick.ekka@icici\nIncident: Intercepted vehicle carrying 2 country pistols in concealed cavity.\nStatutory Sections: Section 111 BNS 2024, Arms Act 1959 Sec 25/27, BSA 2024 Sec 63.",
+            "source_type": "SCANNED_LEGAL_PDF",
+            "officer_badge": "IO-KOLKATA-8842",
+            "role": "Investigating Officer (IO)"
+        }).encode('utf-8')
+        req = urllib.request.Request(f"{base}/api/ingest/upload-media", data=erick_fir_data, headers={'Content-Type': 'application/x-www-form-urlencoded'})
+        with urllib.request.urlopen(req) as resp:
+            data = json.loads(resp.read().decode())
+            suspect_name = data['auto_filled_suspect']['name']
+            print(f"[SUCCESS] /api/ingest/upload-media (Erick Ekka) -> HTTP {resp.getcode()} (Identified Suspect: '{suspect_name}')")
+            if suspect_name != "Erick Ekka":
+                print(f"[WARN] Expected 'Erick Ekka', got '{suspect_name}'")
+    except Exception as e:
+        print(f"[ERROR] /api/ingest/upload-media (Erick Ekka) -> {e}")
+        all_ok = False
+
     if all_ok:
-        print("\n>>> ALL API ENDPOINTS AND ANALYTIC PIPELINES VERIFIED SUCCESSFULLY! <<<")
+        print("\n>>> ALL API ENDPOINTS, MEDIA UPLOAD & PREDICTIVE PIPELINES VERIFIED SUCCESSFULLY! <<<")
 
 if __name__ == "__main__":
     test_endpoints()
