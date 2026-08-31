@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import LoginPortal from './components/LoginPortal.jsx';
 import Header from './components/Header.jsx';
+import DashboardHome from './components/DashboardHome.jsx';
 import GraphRAGConsole from './components/GraphRAGConsole.jsx';
 import KeyPlayerPanel from './components/KeyPlayerPanel.jsx';
 import GNNPredictor from './components/GNNPredictor.jsx';
@@ -11,7 +13,17 @@ import CCTNSPillarsModal from './components/CCTNSPillarsModal.jsx';
 import AddSuspectModal from './components/AddSuspectModal.jsx';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('keyplayer');
+  // Authentication State (Null = Show Login Portal)
+  const [officerUser, setOfficerUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('portal_officer_session');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [currentRole, setCurrentRole] = useState('Investigating Officer (IO)');
   const [systemStatus, setSystemStatus] = useState(null);
   const [graphData, setGraphData] = useState(null);
@@ -21,8 +33,10 @@ export default function App() {
   const [prefilledSuspectData, setPrefilledSuspectData] = useState(null);
 
   useEffect(() => {
-    fetchInitialData();
-  }, []);
+    if (officerUser) {
+      fetchInitialData();
+    }
+  }, [officerUser]);
 
   const fetchInitialData = async () => {
     try {
@@ -34,6 +48,26 @@ export default function App() {
       setGraphData(graphRes);
     } catch (err) {
       console.error("Error fetching system initial state:", err);
+    }
+  };
+
+  const handleLoginSuccess = (userData) => {
+    setOfficerUser(userData);
+    setCurrentRole(userData.role || 'Investigating Officer (IO)');
+    setActiveTab('dashboard');
+    try {
+      localStorage.setItem('portal_officer_session', JSON.stringify(userData));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleLogout = () => {
+    setOfficerUser(null);
+    try {
+      localStorage.removeItem('portal_officer_session');
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -49,6 +83,11 @@ export default function App() {
     }
   };
 
+  // If officer is not logged in, display the official Government Authentication Portal
+  if (!officerUser) {
+    return <LoginPortal onLoginSuccess={handleLoginSuccess} />;
+  }
+
   // Extract existing suspects for linking
   const existingSuspects = (graphData?.elements || [])
     .filter(el => !el.data.source && el.data.entity_type === 'Person')
@@ -59,11 +98,13 @@ export default function App() {
     }));
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-primary)' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-page)' }}>
       {/* Top Law-Enforcement Navigation Bar */}
       <Header
         currentRole={currentRole}
         onRoleChange={setCurrentRole}
+        officerUser={officerUser}
+        onLogout={handleLogout}
         systemStatus={systemStatus}
         onRefresh={handleRefresh}
         onOpenCctnsModal={() => setIsCctnsModalOpen(true)}
@@ -75,32 +116,51 @@ export default function App() {
         onTabChange={setActiveTab}
       />
 
-      {/* Main Content Area */}
+      {/* Main Content Area: Multi-Page Views */}
       <main style={{ flex: 1, position: 'relative' }}>
+        {/* Page 1: Dashboard Overview */}
+        {activeTab === 'dashboard' && (
+          <DashboardHome
+            officerUser={officerUser}
+            systemStatus={systemStatus}
+            onNavigate={(pageId) => setActiveTab(pageId)}
+            onOpenAddSuspect={() => {
+              setPrefilledSuspectData(null);
+              setIsAddSuspectOpen(true);
+            }}
+            onOpenCctnsModal={() => setIsCctnsModalOpen(true)}
+          />
+        )}
+
+        {/* Page 2: Top Suspects & Arrest Disruption */}
         {activeTab === 'keyplayer' && (
           <KeyPlayerPanel
             currentRole={currentRole}
           />
         )}
 
+        {/* Page 3: Case Q&A & Search */}
         {activeTab === 'graphrag' && (
           <GraphRAGConsole
             currentRole={currentRole}
           />
         )}
 
+        {/* Page 4: Crime Forecast & Hidden Links */}
         {activeTab === 'gnn' && (
           <GNNPredictor
             currentRole={currentRole}
           />
         )}
 
+        {/* Page 5: Crime Map & Vehicle Tracking */}
         {activeTab === 'spatiotemporal' && (
           <SpatioTemporalMap
             currentRole={currentRole}
           />
         )}
 
+        {/* Page 6: Duplicate Suspect Matcher */}
         {activeTab === 'entityres' && (
           <EntityResolutionStudio
             currentRole={currentRole}
@@ -108,6 +168,7 @@ export default function App() {
           />
         )}
 
+        {/* Page 7: Upload FIR & Documents */}
         {activeTab === 'ingest' && (
           <DataIngestionStudio
             currentRole={currentRole}
@@ -118,6 +179,7 @@ export default function App() {
           />
         )}
 
+        {/* Page 8: Court Evidence Log */}
         {activeTab === 'audit' && (
           <AuditLogViewer
             currentRole={currentRole}

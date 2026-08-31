@@ -12,12 +12,16 @@ import {
   Building2,
   RefreshCw,
   UserCheck,
-  CheckCircle2
+  CheckCircle2,
+  LogOut,
+  LayoutDashboard
 } from 'lucide-react';
 
 export default function Header({ 
   currentRole, 
   onRoleChange, 
+  officerUser,
+  onLogout,
   systemStatus, 
   onRefresh, 
   onOpenCctnsModal,
@@ -34,6 +38,7 @@ export default function Header({
   ];
 
   const tabs = [
+    { id: 'dashboard', label: '📊 Case Dashboard', icon: LayoutDashboard },
     { id: 'keyplayer', label: '🎯 Top Suspects & Arrest Plan', icon: Target },
     { id: 'graphrag', label: '🔍 Case Q&A & Search', icon: Search },
     { id: 'gnn', label: '🔮 Hidden Links & Next Moves', icon: TrendingUp },
@@ -85,20 +90,21 @@ export default function Header({
           </div>
         </div>
 
-        {/* Right: Officer Login Profile & Role Switcher */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {/* Right: Officer Login Profile, Role Switcher, & Logout Button */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{
             background: 'rgba(255, 255, 255, 0.1)',
             border: '1px solid rgba(255, 255, 255, 0.2)',
             borderRadius: '4px',
-            padding: '4px 10px',
+            padding: '3px 8px',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '6px',
             fontSize: '11px'
           }}>
-            <UserCheck size={14} color="#93c5fd" />
-            <span style={{ color: '#cbd5e1' }}>Designation:</span>
+            <UserCheck size={13} color="#93c5fd" />
+            <span style={{ color: '#93c5fd', fontWeight: 600 }}>Badge: {officerUser?.badgeId || 'IO-8842'}</span>
+            <span style={{ color: '#64748b' }}>|</span>
             <select
               value={currentRole}
               onChange={(e) => onRoleChange(e.target.value)}
@@ -110,7 +116,7 @@ export default function Header({
                 fontWeight: 600,
                 cursor: 'pointer',
                 borderRadius: '3px',
-                padding: '2px 6px',
+                padding: '2px 4px',
                 outline: 'none'
               }}
             >
@@ -135,8 +141,31 @@ export default function Header({
             gap: '4px'
           }}>
             <CheckCircle2 size={12} color="#86efac" />
-            <span>ICJS SYNC: ONLINE</span>
+            <span>ICJS: LIVE</span>
           </div>
+
+          {/* Official Logout Trigger */}
+          <button
+            type="button"
+            onClick={onLogout}
+            style={{
+              background: '#7f1d1d',
+              border: '1px solid #dc2626',
+              color: '#fee2e2',
+              borderRadius: '4px',
+              padding: '4px 10px',
+              fontSize: '11px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+            title="Logout and lock portal"
+          >
+            <LogOut size={12} />
+            <span>Logout</span>
+          </button>
         </div>
       </div>
 
@@ -175,7 +204,7 @@ export default function Header({
           </div>
           <div style={{ color: '#64748b' }}>|</div>
           <div>
-            <strong style={{ color: '#0f172a' }}>Legal Framework:</strong>{' '}
+            <strong style={{ color: '#0f172a' }}>Compliance:</strong>{' '}
             <span style={{ color: '#15803d', fontWeight: 600 }}>BNS 2024 / BSA Sec 63</span>
           </div>
         </div>
