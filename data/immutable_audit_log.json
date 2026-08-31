@@ -1138,5 +1138,29 @@
     "prev_entry_hash": "ea87913059d7f1aaa74e9f52b176ce281c1185883c5681b566397c76ec5a5351",
     "entry_hash": "0c8d08ff62d202b43b179a186a9b45cbeb015a3f60bbb658f48f54e2a4e6220b",
     "hmac_sig": "f476205045d4faf3fe04ecf138f0354da849f1f1ac4d8c47bc1ec59b93b48044"
+  },
+  {
+    "log_index": 95,
+    "timestamp": "2026-08-31T17:25:43.813019+00:00Z",
+    "officer_badge": "IO-KOLKATA-8842",
+    "role": "Investigating Officer (IO)",
+    "action": "GRAPHRAG_INTELLIGENCE_INTERROGATION",
+    "query_or_target": "Show me financial transfers connected to hawala",
+    "resource_hash": "d173fe99ccd753fae63b03438946fb0e2d3fb27a74babb1c55252093be3110c1",
+    "prev_entry_hash": "0c8d08ff62d202b43b179a186a9b45cbeb015a3f60bbb658f48f54e2a4e6220b",
+    "entry_hash": "109c2e1e597c2e76a5a589ad8b3cbf0561e01e204213283785edcd3e720b2432",
+    "hmac_sig": "0674692138ac0acc890e9ff2a74422d1e9b54c8cbe38ae34a4fafff4bda0c5fd"
+  },
+  {
+    "log_index": 96,
+    "timestamp": "2026-08-31T17:25:54.631588+00:00Z",
+    "officer_badge": "TEST-IO-999",
+    "role": "Investigating Officer (IO)",
+    "action": "TEST_ACTION",
+    "query_or_target": "Unit test verification",
+    "resource_hash": "e8a09e7c9dbb47c4293edec3a284129a91e7d8ed367bde3bcbb2e94054169882",
+    "prev_entry_hash": "109c2e1e597c2e76a5a589ad8b3cbf0561e01e204213283785edcd3e720b2432",
+    "entry_hash": "931a15922f786e62437c2188cbc872a9c666924dfb20b51f441a6b7dd096e7b9",
+    "hmac_sig": "ddf92d0d83be78146bfd7e5708a4053551bff2da7445358f61af2e4694aa2364"
   }
 ]

@@ -12,7 +12,7 @@ By integrating cognitive **Google Gemini 3.6 Flash Legal LLMs**, **Tesseract OCR
 ```
 +--------------------------------------------------------------------------------------------------+
 |                                    LAW ENFORCEMENT USER INTERFACE                                |
-|  [Graph Explorer]  [Data Ingestion Studio]  [Entity Resolution]  [Spatio-Temporal]  [GraphRAG]   |
+|  [Key Players & Disruption]  [GraphRAG Interrogation]  [GNN Predictor]  [GIS Map]  [ER Studio]   |
 +--------------------------------------------------------------------------------------------------+
                                                  │
                                                  ▼
@@ -24,10 +24,10 @@ By integrating cognitive **Google Gemini 3.6 Flash Legal LLMs**, **Tesseract OCR
                                                  │
                                                  ▼
 +--------------------------------------------------------------------------------------------------+
-|                                INTELLIGENCE & ANALYTICS PLATFORM                                 |
-|   • Property Knowledge Graph (Cytoscape CoSE)   • Fellegi-Sunter Probabilistic Entity Resolver   |
-|   • GraphRAG Cypher Query Engine                • Borgatti Key Player Disruption (KPP-1 / KPP-2) |
-|   • PyTorch Geometric GNN Link Forecaster       • STRP-DBSCAN Convoy & Hotspot Tracker           |
+|                        HEADLESS BACKEND KNOWLEDGE GRAPH & ANALYTICS ENGINE                       |
+|   • Property Knowledge Graph Store (NetworkX / Neo4j) • Fellegi-Sunter Probabilistic Resolver    |
+|   • GraphRAG Deterministic Cypher Engine              • Borgatti Key Player Disruption (KPP-1/2) |
+|   • PyTorch Geometric (GAT/GraphSAGE) Link Predictor  • STRP-DBSCAN Convoy & Hotspot Tracker     |
 |   • AI Outcome Forecaster & Historical Precedent Matcher                                         |
 +--------------------------------------------------------------------------------------------------+
 ```
@@ -71,9 +71,10 @@ By integrating cognitive **Google Gemini 3.6 Flash Legal LLMs**, **Tesseract OCR
 - **Multi-Pass Blocking**: Eliminates $O(N^2)$ bottlenecks using surname phonetic blocks, age ranges, and phone/UPI hashes.
 - **Graph-Assisted Deduplication**: Merges multi-identity syndicate actors across aliases with a full BSA-compliant audit log.
 
-### 4. Interactive Property Knowledge Graph & GraphRAG
+### 4. Headless Backend Property Knowledge Graph Engine & GraphRAG
+- **Backend Analytics Foundation**: Full Property Graph stored and queried purely on the backend to compute deep network metrics, community structures, critical paths, and link predictions without rendering a raw visual graph canvas on the UI.
 - **Graph Topology**: Nodes (`Person`, `Phone`, `Vehicle`, `Location`, `BankAccount`, `CryptoWallet`, `CrimeIncident`, `FIR`) and Typed Relationships (`OPERATES_UNDER`, `CALLED`, `TRANSFERRED_FUNDS_TO`, `PRESENT_AT`, `OWNS_VEHICLE`, `ASSOCIATED_WITH`).
-- **GraphRAG Dynamic Interrogation**: Converts natural language investigative questions (e.g., *"Show me all Hawala transfers connected to Ichhapur safehouse"*) into deterministic Cypher traversals without generative hallucinations.
+- **GraphRAG Dynamic Interrogation**: Converts natural language investigative questions (e.g., *"Show me all Hawala transfers connected to Ichhapur safehouse"*) into deterministic Cypher traversals and court-admissible evidence chains without LLM hallucinations.
 
 ### 5. Advanced Graph Analytics & Surgical Network Disruption
 - **Energy Disruptive Centrality**: Physics-inspired gravity model combining node threat attributes and relational weights.

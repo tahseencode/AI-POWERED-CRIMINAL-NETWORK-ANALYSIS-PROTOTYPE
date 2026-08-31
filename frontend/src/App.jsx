@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header.jsx';
-import GraphExplorer from './components/GraphExplorer.jsx';
 import GraphRAGConsole from './components/GraphRAGConsole.jsx';
 import KeyPlayerPanel from './components/KeyPlayerPanel.jsx';
 import GNNPredictor from './components/GNNPredictor.jsx';
@@ -12,7 +11,7 @@ import CCTNSPillarsModal from './components/CCTNSPillarsModal.jsx';
 import AddSuspectModal from './components/AddSuspectModal.jsx';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('graph');
+  const [activeTab, setActiveTab] = useState('keyplayer');
   const [currentRole, setCurrentRole] = useState('Investigating Officer (IO)');
   const [systemStatus, setSystemStatus] = useState(null);
   const [graphData, setGraphData] = useState(null);
@@ -46,7 +45,7 @@ export default function App() {
     fetchInitialData();
     if (resData && resData.suspect_id) {
       setSelectedNodeId(resData.suspect_id);
-      setActiveTab('graph');
+      setActiveTab('keyplayer');
     }
   };
 
@@ -78,22 +77,14 @@ export default function App() {
 
       {/* Main Content Area */}
       <main style={{ flex: 1, position: 'relative' }}>
-        {activeTab === 'graph' && (
-          <GraphExplorer
-            graphData={graphData}
-            onNodeSelect={setSelectedNodeId}
-            selectedNodeId={selectedNodeId}
+        {activeTab === 'keyplayer' && (
+          <KeyPlayerPanel
+            currentRole={currentRole}
           />
         )}
 
         {activeTab === 'graphrag' && (
           <GraphRAGConsole
-            currentRole={currentRole}
-          />
-        )}
-
-        {activeTab === 'keyplayer' && (
-          <KeyPlayerPanel
             currentRole={currentRole}
           />
         )}

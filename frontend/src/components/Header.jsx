@@ -20,9 +20,8 @@ export default function Header({
   ];
 
   const tabs = [
-    { id: 'graph', label: 'Knowledge Graph', icon: 'Network' },
-    { id: 'graphrag', label: 'GraphRAG Interrogation', icon: 'MessageSquare' },
     { id: 'keyplayer', label: 'Key Players & Disruption', icon: 'Target' },
+    { id: 'graphrag', label: 'GraphRAG Interrogation', icon: 'MessageSquare' },
     { id: 'gnn', label: 'GNN Link Predictor', icon: 'Cpu' },
     { id: 'spatiotemporal', label: 'Spatio-Temporal & GIS', icon: 'MapPin' },
     { id: 'entityres', label: 'Entity Resolution (ER)', icon: 'Layers' },
