@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
-import { Send, Terminal, ShieldCheck, Database, Link as LinkIcon, Cpu, AlertCircle, FileCheck } from 'lucide-react';
+import { Send, Search, ShieldCheck, Database, Link as LinkIcon, AlertCircle, FileCheck, CheckCircle2 } from 'lucide-react';
 
 export default function GraphRAGConsole({ currentRole }) {
-  const [prompt, setPrompt] = useState('Show me all financial intermediaries and Hawala transfers connected to Tariq Al-Hasani under BNS');
+  const [prompt, setPrompt] = useState('Show all financial intermediaries and Hawala transfers connected to Tariq Al-Hasani under BNS');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
 
   const samplePrompts = [
-    "Show me all financial intermediaries and Hawala transfers connected to Tariq Al-Hasani under BNS",
+    "Show all financial intermediaries and Hawala transfers connected to Tariq Al-Hasani under BNS",
     "Identify safehouse locations and vehicle convoys active around Ichhapur Defence Estate",
-    "Trace communication links and CDR frequency between Sunil Roy and Raju Mondal",
+    "Trace communication links and CDR call frequency between Sunil Roy and Raju Mondal",
     "List all statutory FIR charges and Zero-FIR transfers registered in Kolkata/Siliguri corridor",
-    "Detect command structure and kingpin nodes with threat score exceeding 85%"
+    "Who are the top gang leaders and kingpin suspects with threat score exceeding 85%?"
   ];
 
   const handleExecuteQuery = async (queryText = prompt) => {
@@ -37,18 +37,18 @@ export default function GraphRAGConsole({ currentRole }) {
   };
 
   return (
-    <div style={{ padding: '16px 24px', display: 'grid', gridTemplateColumns: '420px 1fr', gap: '20px', height: 'calc(100vh - 128px)' }}>
-      {/* Left Column: Natural Language Input & Preset Templates */}
+    <div style={{ padding: '16px 24px', display: 'grid', gridTemplateColumns: '400px 1fr', gap: '20px', height: 'calc(100vh - 128px)' }}>
+      {/* Left Column: Natural Language Input & Suggested Case Questions */}
       <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-            <Terminal size={18} color="var(--accent-cyan)" />
-            <h2 style={{ fontSize: '15px', fontFamily: 'var(--font-tech)', color: '#fff', textTransform: 'uppercase' }}>
-              GraphRAG Natural Language Interrogation
+            <Search size={18} color="var(--accent-cyan)" />
+            <h2 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+              Ask Questions About the Case & Gang
             </h2>
           </div>
           <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-            Translates investigative queries into deterministic Cypher traversals without LLM hallucinations.
+            Ask anything in plain language. The system searches all verified case files, call records, and FIRs to provide accurate, court-ready facts.
           </p>
         </div>
 
@@ -58,35 +58,35 @@ export default function GraphRAGConsole({ currentRole }) {
             rows={4}
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Type your natural language investigative question..."
+            placeholder="Type your question about any suspect, vehicle, phone number, or crime..."
             style={{
               width: '100%',
-              background: 'rgba(7, 9, 14, 0.75)',
+              background: '#ffffff',
               border: '1px solid var(--border-subtle)',
               borderRadius: '8px',
               padding: '12px',
-              color: '#fff',
+              color: 'var(--text-primary)',
               fontSize: '13px',
-              fontFamily: 'var(--font-sans)',
               resize: 'none',
-              outline: 'none'
+              outline: 'none',
+              boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)'
             }}
           />
           <button
             onClick={() => handleExecuteQuery(prompt)}
             disabled={loading}
             className="btn-primary"
-            style={{ justifyContent: 'center', padding: '10px' }}
+            style={{ justifyContent: 'center', padding: '10px', fontSize: '13px', fontWeight: 600 }}
           >
             <Send size={15} />
-            <span>{loading ? 'Traversing Knowledge Graph...' : 'Execute Deterministic Query'}</span>
+            <span>{loading ? 'Searching Verified Case Records...' : 'Search Case Intelligence'}</span>
           </button>
         </div>
 
-        {/* Preset Investigatory Questions */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
-          <span style={{ fontSize: '11px', color: 'var(--accent-cyan)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase' }}>
-            Suggested Investigative Queries:
+        {/* Suggested Investigatory Questions */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
+          <span style={{ fontSize: '11px', color: 'var(--accent-cyan)', textTransform: 'uppercase', fontWeight: 700 }}>
+            Common Investigative Questions:
           </span>
           {samplePrompts.map((p, idx) => (
             <button
@@ -96,23 +96,23 @@ export default function GraphRAGConsole({ currentRole }) {
                 handleExecuteQuery(p);
               }}
               style={{
-                background: 'rgba(19, 27, 42, 0.5)',
-                border: '1px solid rgba(0, 229, 255, 0.1)',
+                background: '#f8fafc',
+                border: '1px solid var(--border-subtle)',
                 borderRadius: '6px',
                 padding: '8px 10px',
                 textAlign: 'left',
-                color: 'var(--text-secondary)',
+                color: 'var(--text-primary)',
                 fontSize: '12px',
                 cursor: 'pointer',
                 transition: 'all 0.15s ease'
               }}
               onMouseEnter={(e) => {
-                e.target.style.borderColor = 'var(--accent-cyan)';
-                e.target.style.color = '#fff';
+                e.currentTarget.style.borderColor = 'var(--accent-cyan)';
+                e.currentTarget.style.background = '#e0f2fe';
               }}
               onMouseLeave={(e) => {
-                e.target.style.borderColor = 'rgba(0, 229, 255, 0.1)';
-                e.target.style.color = 'var(--text-secondary)';
+                e.currentTarget.style.borderColor = 'var(--border-subtle)';
+                e.currentTarget.style.background = '#f8fafc';
               }}
             >
               "{p}"
@@ -121,58 +121,40 @@ export default function GraphRAGConsole({ currentRole }) {
         </div>
       </div>
 
-      {/* Right Column: Deterministic Traversal Results & Evidence Chain */}
+      {/* Right Column: Case Findings & Evidence Chain */}
       <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto' }}>
         {result ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* Header Telemetry */}
+            {/* Header Status */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <span className="badge badge-emerald">
                   <ShieldCheck size={12} />
-                  {result.court_admissibility_status}
+                  {result.court_admissibility_status || 'Court Admissible (BSA Sec 63)'}
                 </span>
                 <span className="badge badge-cyan">
                   <Database size={12} />
-                  {result.matched_nodes_count} Entities • {result.matched_edges_count} Edges
+                  {result.matched_nodes_count} Suspects/Locations • {result.matched_edges_count} Connections Found
                 </span>
               </div>
               <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
-                Audit Hash: <code style={{ color: 'var(--accent-cyan)' }}>{result.audit_hash?.substring(0, 16)}...</code>
+                Evidence Hash: <code style={{ color: 'var(--accent-cyan)' }}>{result.audit_hash?.substring(0, 16)}...</code>
               </div>
             </div>
 
-            {/* Synthesized Cypher Query */}
+            {/* Investigator Brief */}
             <div>
-              <h3 style={{ fontSize: '12px', color: 'var(--accent-amber)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase', marginBottom: '6px' }}>
-                Generated Deterministic Cypher Traversal
+              <h3 style={{ fontSize: '13px', color: 'var(--accent-cyan)', textTransform: 'uppercase', marginBottom: '6px', fontWeight: 700 }}>
+                Investigator Brief & Findings (Verified Facts)
               </h3>
               <div style={{
-                background: '#07090e',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: '8px',
-                padding: '10px 14px',
-                fontFamily: 'var(--font-mono)',
-                fontSize: '12px',
-                color: '#38bdf8'
-              }}>
-                {result.synthesized_cypher}
-              </div>
-            </div>
-
-            {/* Intelligence Brief */}
-            <div>
-              <h3 style={{ fontSize: '12px', color: 'var(--accent-cyan)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase', marginBottom: '6px' }}>
-                Verified Evidence Narrative (Zero-Hallucination)
-              </h3>
-              <div style={{
-                background: 'rgba(19, 27, 42, 0.7)',
+                background: '#f8fafc',
                 border: '1px solid var(--border-subtle)',
                 borderRadius: '8px',
                 padding: '16px',
                 fontSize: '13px',
                 lineHeight: '1.6',
-                color: '#f0f4fc',
+                color: 'var(--text-primary)',
                 whiteSpace: 'pre-line'
               }}>
                 {result.intelligence_brief}
@@ -181,28 +163,28 @@ export default function GraphRAGConsole({ currentRole }) {
 
             {/* Evidence Chain Table */}
             <div>
-              <h3 style={{ fontSize: '12px', color: 'var(--accent-violet)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase', marginBottom: '8px' }}>
-                Cryptographic Evidence Chain (BSA Sec 63 Hash Admissibility)
+              <h3 style={{ fontSize: '13px', color: 'var(--accent-violet)', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 700 }}>
+                Chain of Evidence & Records (Admissible in Court under BSA 2024)
               </h3>
               <div style={{ overflowX: 'auto', border: '1px solid var(--border-subtle)', borderRadius: '8px' }}>
                 <table className="intel-table">
                   <thead>
                     <tr>
-                      <th>Source Entity</th>
-                      <th>Relationship</th>
-                      <th>Target Entity</th>
-                      <th>Timestamp / Details</th>
-                      <th>BSA Digital Hash</th>
+                      <th>Person / Entity</th>
+                      <th>Connection / Act</th>
+                      <th>Linked Person / Target</th>
+                      <th>Date / Transaction Amount</th>
+                      <th>Digital Stamp</th>
                     </tr>
                   </thead>
                   <tbody>
                     {result.evidence_chain?.map((ev, idx) => (
                       <tr key={idx}>
-                        <td style={{ fontWeight: 600, color: '#fff' }}>{ev.source_entity}</td>
+                        <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{ev.source_entity}</td>
                         <td>
                           <span className="badge badge-violet">{ev.relationship}</span>
                         </td>
-                        <td style={{ fontWeight: 600, color: '#fff' }}>{ev.target_entity}</td>
+                        <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{ev.target_entity}</td>
                         <td style={{ fontSize: '11px', fontFamily: 'var(--font-mono)' }}>
                           {ev.timestamp}
                           {ev.evidence_properties?.amount ? ` • ₹${ev.evidence_properties.amount.toLocaleString()}` : ''}
@@ -219,12 +201,12 @@ export default function GraphRAGConsole({ currentRole }) {
           </div>
         ) : (
           <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
-            <FileCheck size={48} style={{ margin: '0 auto 16px', opacity: 0.4 }} />
-            <h3 style={{ fontSize: '16px', color: '#fff', marginBottom: '6px' }}>
-              Law-Enforcement Dynamic Interrogation Ready
+            <FileCheck size={48} style={{ margin: '0 auto 16px', opacity: 0.4, color: 'var(--accent-cyan)' }} />
+            <h3 style={{ fontSize: '16px', color: 'var(--text-primary)', marginBottom: '6px', fontWeight: 700 }}>
+              Ready to Search Case Records
             </h3>
-            <p style={{ fontSize: '13px', maxWidth: '440px', margin: '0 auto' }}>
-              Enter an investigative inquiry or click any suggested template to execute deterministic Cypher traversal across the verified knowledge graph.
+            <p style={{ fontSize: '13px', maxWidth: '440px', margin: '0 auto', color: 'var(--text-secondary)' }}>
+              Type any question or click one of the suggested questions on the left to pull verified police findings.
             </p>
           </div>
         )}

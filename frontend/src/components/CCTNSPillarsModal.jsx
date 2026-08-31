@@ -51,7 +51,7 @@ export default function CCTNSPillarsModal({ isOpen, onClose, pillarsData }) {
     <div style={{
       position: 'fixed',
       inset: 0,
-      background: 'rgba(7, 9, 14, 0.85)',
+      background: 'rgba(15, 23, 42, 0.6)',
       backdropFilter: 'blur(12px)',
       display: 'flex',
       alignItems: 'center',
@@ -59,12 +59,12 @@ export default function CCTNSPillarsModal({ isOpen, onClose, pillarsData }) {
       zIndex: 1000,
       padding: '20px'
     }}>
-      <div className="glass-panel" style={{ width: '100%', maxWidth: '780px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px', border: '1px solid var(--accent-cyan)' }}>
+      <div className="glass-panel" style={{ width: '100%', maxWidth: '780px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px', border: '1px solid var(--accent-cyan)', background: '#ffffff', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Database size={22} color="var(--accent-cyan)" />
             <div>
-              <h2 style={{ fontSize: '16px', fontFamily: 'var(--font-tech)', color: '#fff', textTransform: 'uppercase' }}>
+              <h2 style={{ fontSize: '16px', fontFamily: 'var(--font-tech)', color: 'var(--text-primary)', textTransform: 'uppercase' }}>
                 Inter-Operable Criminal Justice System (ICJS) & CCTNS
               </h2>
               <p style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
@@ -74,7 +74,7 @@ export default function CCTNSPillarsModal({ isOpen, onClose, pillarsData }) {
           </div>
           <button
             onClick={onClose}
-            style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer' }}
+            style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
           >
             <X size={20} />
           </button>
@@ -86,7 +86,7 @@ export default function CCTNSPillarsModal({ isOpen, onClose, pillarsData }) {
             <div
               key={p.id}
               style={{
-                background: 'rgba(7, 9, 14, 0.65)',
+                background: '#f8fafc',
                 border: '1px solid var(--border-subtle)',
                 borderRadius: '8px',
                 padding: '12px 16px',

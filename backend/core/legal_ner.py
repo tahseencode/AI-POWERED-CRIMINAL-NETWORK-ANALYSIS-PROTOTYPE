@@ -397,7 +397,7 @@ LEGAL DOCUMENT TO ANALYZE:
         financial = []
         upis = set(self.upi_pattern.findall(text))
         for u in upis:
-            if "@" in u and "." not in u.split("@")[0]:
+            if "@" in u:
                 financial.append({"type": "UPI_ID", "identifier": u, "confidence": 0.97})
 
         bank_accs = set(self.bank_acc_pattern.findall(text))

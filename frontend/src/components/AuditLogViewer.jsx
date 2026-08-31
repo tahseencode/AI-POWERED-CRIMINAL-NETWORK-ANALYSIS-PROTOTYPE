@@ -48,8 +48,8 @@ export default function AuditLogViewer({ currentRole }) {
             width: '44px',
             height: '44px',
             borderRadius: '10px',
-            background: 'rgba(0, 230, 118, 0.15)',
-            border: '1px solid rgba(0, 230, 118, 0.4)',
+            background: '#dcfce7',
+            border: '1px solid #86efac',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center'
@@ -58,41 +58,41 @@ export default function AuditLogViewer({ currentRole }) {
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <h2 style={{ fontSize: '16px', fontFamily: 'var(--font-tech)', color: '#fff', textTransform: 'uppercase' }}>
-                Cryptographic Evidence Custody & Anti-Burking Audit Trail
+              <h2 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+                Official Case Audit Trail & Tamper-Proof Evidence Log
               </h2>
               <span className="badge badge-emerald">BSA Sec 63 Certified</span>
             </div>
-            <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-              SHA-256 Hash Chaining • Prevents police burking & unauthorized intelligence surveillance • Court-admissible evidence log.
+            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
+              Records every search, suspect addition, and report generation to ensure tamper-proof electronic evidence in court under Bharatiya Sakshya Adhiniyam (BSA 2024).
             </p>
           </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{
-            background: 'rgba(7, 9, 14, 0.8)',
+            background: '#f8fafc',
             border: '1px solid var(--border-subtle)',
             borderRadius: '8px',
             padding: '8px 14px',
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            fontSize: '11px',
-            fontFamily: 'var(--font-mono)'
+            fontSize: '11px'
           }}>
             <Hash size={14} color="var(--accent-cyan)" />
-            <span>Latest Block Hash: <strong style={{ color: 'var(--accent-cyan)' }}>{integrityStatus?.latest_hash?.substring(0, 14)}...</strong></span>
+            <span style={{ color: 'var(--text-secondary)' }}>Latest Digital Stamp: <strong style={{ color: 'var(--accent-cyan)', fontFamily: 'var(--font-mono)' }}>{integrityStatus?.latest_hash?.substring(0, 14)}...</strong></span>
           </div>
 
           <button
+            type="button"
             onClick={handleReVerify}
             disabled={verifying}
             className="btn-primary"
-            style={{ padding: '8px 14px', fontSize: '12px' }}
+            style={{ padding: '8px 16px', fontSize: '12px', fontWeight: 600 }}
           >
             <ShieldCheck size={14} />
-            <span>{verifying ? 'Validating Hash Chain...' : 'Verify Cryptographic Integrity'}</span>
+            <span>{verifying ? 'Validating Evidence Stamps...' : 'Verify Evidence Integrity'}</span>
           </button>
         </div>
       </div>
@@ -100,10 +100,10 @@ export default function AuditLogViewer({ currentRole }) {
       {/* Audit Log Table */}
       <div className="glass-panel" style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-          <h3 style={{ fontSize: '13px', color: 'var(--accent-cyan)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase' }}>
-            Chained Immutable Action Ledger ({logs.length} Blocks Recorded)
+          <h3 style={{ fontSize: '13px', color: 'var(--accent-cyan)', textTransform: 'uppercase', fontWeight: 700, margin: 0 }}>
+            Official Action & Search Ledger ({logs.length} Actions Logged)
           </h3>
-          <button onClick={fetchLogsAndIntegrity} className="btn-primary" style={{ padding: '4px 8px' }}>
+          <button type="button" onClick={fetchLogsAndIntegrity} className="btn-primary" style={{ padding: '4px 8px' }}>
             <RefreshCw size={12} />
           </button>
         </div>
@@ -112,13 +112,13 @@ export default function AuditLogViewer({ currentRole }) {
           <table className="intel-table">
             <thead>
               <tr>
-                <th>Index</th>
-                <th>Timestamp (UTC)</th>
+                <th>Entry #</th>
+                <th>Date & Time</th>
                 <th>Officer Badge</th>
-                <th>Role</th>
-                <th>Action Type</th>
-                <th>Query / Target</th>
-                <th>Entry Hash (SHA-256)</th>
+                <th>Officer Role</th>
+                <th>Action Taken</th>
+                <th>Query / Target Suspect</th>
+                <th>Tamper-Proof Stamp</th>
               </tr>
             </thead>
             <tbody>
@@ -130,7 +130,7 @@ export default function AuditLogViewer({ currentRole }) {
                   <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px' }}>
                     {log.timestamp}
                   </td>
-                  <td style={{ fontWeight: 600, color: '#fff' }}>
+                  <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
                     {log.officer_badge}
                   </td>
                   <td>
@@ -138,13 +138,13 @@ export default function AuditLogViewer({ currentRole }) {
                       {log.role}
                     </span>
                   </td>
-                  <td style={{ color: 'var(--accent-amber)', fontFamily: 'var(--font-mono)', fontSize: '11px' }}>
+                  <td style={{ color: 'var(--accent-amber)', fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 600 }}>
                     {log.action}
                   </td>
                   <td style={{ color: 'var(--text-primary)', maxWidth: '280px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {log.query_or_target}
                   </td>
-                  <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent-emerald)' }}>
+                  <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent-emerald)', fontWeight: 600 }}>
                     {log.entry_hash?.substring(0, 16)}...
                   </td>
                 </tr>

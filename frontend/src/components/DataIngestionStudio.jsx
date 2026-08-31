@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, UploadCloud, Cpu, CheckCircle2, Shield, Languages, FileCheck, UserPlus, Sparkles } from 'lucide-react';
+import { FileText, UploadCloud, CheckCircle2, Languages, FileCheck, UserPlus, Sparkles } from 'lucide-react';
 
 export default function DataIngestionStudio({ currentRole, onOpenAddSuspectWithData }) {
   const sampleFIRErickEkka = `FIRST INFORMATION REPORT (Under Section 154 Cr.P.C / Section 173 BNSS)
@@ -121,44 +121,44 @@ Statutory Code: Section 111 BNS 2024, IT Act Sec 66D, BSA Sec 63.`;
   };
 
   return (
-    <div style={{ padding: '16px 24px', display: 'grid', gridTemplateColumns: '440px 1fr', gap: '20px', height: 'calc(100vh - 128px)' }}>
-      {/* Left Column: Multilingual Ingestion Studio */}
+    <div style={{ padding: '16px 24px', display: 'grid', gridTemplateColumns: '420px 1fr', gap: '20px', height: 'calc(100vh - 128px)' }}>
+      {/* Left Column: Multilingual Document Scanner */}
       <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px', overflowY: 'auto' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
             <FileText size={20} color="var(--accent-cyan)" />
-            <h2 style={{ fontSize: '15px', fontFamily: 'var(--font-tech)', color: '#fff', textTransform: 'uppercase' }}>
-              Multimodal Ingestion & Legal NER
+            <h2 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+              Upload FIR & Police Document Scanner
             </h2>
           </div>
           <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-            Multilingual OCR (En/Hi/Bn) & Maitreyi-Y1 Legal LLM parsing BNS/BNSS/BSA schemas.
+            Paste or upload scanned FIRs, call logs, or diaries in English, Hindi, or Bengali to automatically extract key crime facts.
           </p>
         </div>
 
-        {/* Ingestion Source Selectors */}
+        {/* Source Selectors */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
           <div>
-            <label style={{ fontSize: '11px', color: 'var(--accent-cyan)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase' }}>Source Type</label>
+            <label style={{ fontSize: '11px', color: 'var(--text-primary)', fontWeight: 600 }}>Document Type</label>
             <select
               value={sourceType}
               onChange={(e) => setSourceType(e.target.value)}
-              style={{ width: '100%', background: '#07090e', border: '1px solid var(--border-subtle)', color: '#fff', padding: '6px', borderRadius: '6px', fontSize: '12px', marginTop: '4px' }}
+              style={{ width: '100%', background: '#ffffff', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', padding: '6px', borderRadius: '6px', fontSize: '12px', marginTop: '4px' }}
             >
-              <option value="FIR_NARRATIVE">FIR / e-FIR / Zero-FIR</option>
-              <option value="CDR_IPDR">CDR / IPDR Log Dump</option>
-              <option value="BANK_STR">Financial Hawala Log</option>
-              <option value="OSINT_REPORT">Surveillance / OSINT</option>
+              <option value="FIR_NARRATIVE">FIR / Zero-FIR Report</option>
+              <option value="CDR_IPDR">Phone Call Records (CDR)</option>
+              <option value="BANK_STR">Bank / Hawala Log</option>
+              <option value="OSINT_REPORT">Intelligence Report</option>
             </select>
           </div>
 
           <div>
-            <label style={{ fontSize: '11px', color: 'var(--accent-amber)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase' }}>Sample Script</label>
+            <label style={{ fontSize: '11px', color: 'var(--text-primary)', fontWeight: 600 }}>Load Sample FIR</label>
             <div style={{ display: 'flex', gap: '4px', marginTop: '4px', flexWrap: 'wrap' }}>
-              <button onClick={() => { setRawText(sampleFIRErickEkka); setLanguage('en'); }} className="btn-primary" style={{ padding: '5px 8px', fontSize: '11px', background: 'rgba(0, 229, 255, 0.15)', borderColor: 'var(--accent-cyan)' }}>Erick Ekka FIR</button>
-              <button onClick={() => { setRawText(sampleEnglish); setLanguage('en'); }} className="btn-primary" style={{ padding: '5px 8px', fontSize: '11px' }}>En</button>
-              <button onClick={() => { setRawText(sampleHindi); setLanguage('hi'); }} className="btn-primary" style={{ padding: '5px 8px', fontSize: '11px' }}>हिन्दी</button>
-              <button onClick={() => { setRawText(sampleBengali); setLanguage('bn'); }} className="btn-primary" style={{ padding: '5px 8px', fontSize: '11px' }}>বাংলা</button>
+              <button type="button" onClick={() => { setRawText(sampleFIRErickEkka); setLanguage('en'); }} className="btn-primary" style={{ padding: '5px 8px', fontSize: '11px' }}>Erick FIR</button>
+              <button type="button" onClick={() => { setRawText(sampleEnglish); setLanguage('en'); }} className="btn-primary" style={{ padding: '5px 8px', fontSize: '11px', background: '#f8fafc', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>English</button>
+              <button type="button" onClick={() => { setRawText(sampleHindi); setLanguage('hi'); }} className="btn-primary" style={{ padding: '5px 8px', fontSize: '11px', background: '#f8fafc', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>हिन्दी</button>
+              <button type="button" onClick={() => { setRawText(sampleBengali); setLanguage('bn'); }} className="btn-primary" style={{ padding: '5px 8px', fontSize: '11px', background: '#f8fafc', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}>বাংলা</button>
             </div>
           </div>
         </div>
@@ -168,34 +168,35 @@ Statutory Code: Section 111 BNS 2024, IT Act Sec 66D, BSA Sec 63.`;
           rows={10}
           value={rawText}
           onChange={(e) => setRawText(e.target.value)}
-          placeholder="Paste legacy FIR scan text, charge-sheet, or diary entry in English, Hindi, or Bengali..."
+          placeholder="Paste FIR text, charge-sheet, or seized document details in English, Hindi, or Bengali..."
           style={{
             width: '100%',
-            background: 'rgba(7, 9, 14, 0.75)',
+            background: '#ffffff',
             border: '1px solid var(--border-subtle)',
             borderRadius: '8px',
             padding: '12px',
-            color: '#fff',
+            color: 'var(--text-primary)',
             fontSize: '12px',
-            fontFamily: 'var(--font-mono)',
             resize: 'none',
             outline: 'none',
-            flex: 1
+            flex: 1,
+            boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)'
           }}
         />
 
         <button
+          type="button"
           onClick={handleIngest}
           disabled={loading}
           className="btn-primary"
-          style={{ justifyContent: 'center', padding: '10px' }}
+          style={{ justifyContent: 'center', padding: '10px', fontSize: '13px', fontWeight: 600 }}
         >
           <UploadCloud size={16} />
-          <span>{loading ? 'Processing Multilingual OCR & NER...' : 'Ingest & Extract Legal Entities'}</span>
+          <span>{loading ? 'Scanning & Extracting Information...' : 'Scan & Extract Case Details'}</span>
         </button>
       </div>
 
-      {/* Right Column: Extracted Legal Ontologies */}
+      {/* Right Column: Extracted Information Cards */}
       <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto' }}>
         {extractionResult ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -203,120 +204,113 @@ Statutory Code: Section 111 BNS 2024, IT Act Sec 66D, BSA Sec 63.`;
               <div style={{ display: 'flex', gap: '8px' }}>
                 <span className="badge badge-cyan">
                   <Languages size={12} />
-                  {extractionResult.ocr_processing?.detected_language}
+                  Language: {extractionResult.ocr_processing?.detected_language || 'English'}
                 </span>
                 <span className="badge badge-emerald">
                   <CheckCircle2 size={12} />
-                  {extractionResult.legal_ner_extraction?.total_entities_extracted} Entities Extracted
+                  {extractionResult.legal_ner_extraction?.total_entities_extracted} Details Extracted
                 </span>
               </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button
-                  type="button"
-                  onClick={handleTransferToGraph}
-                  className="btn-primary"
-                  style={{
-                    fontSize: '11px',
-                    padding: '5px 12px',
-                    background: 'linear-gradient(135deg, rgba(0, 229, 255, 0.25) 0%, rgba(124, 77, 255, 0.35) 100%)',
-                    border: '1px solid var(--accent-cyan)'
-                  }}
-                  title="Open Add Suspect Modal with extracted details"
-                >
-                  <UserPlus size={13} color="var(--accent-cyan)" />
-                  <span>+ Ingest Extracted Suspect to Graph</span>
-                </button>
-                <span className="badge badge-violet" style={{ fontSize: '9px' }}>
-                  Maitreyi-Y1 BNS LoRA
-                </span>
-              </div>
+              <button
+                type="button"
+                onClick={handleTransferToGraph}
+                className="btn-primary"
+                style={{
+                  fontSize: '11px',
+                  padding: '6px 14px',
+                  fontWeight: 700
+                }}
+              >
+                <UserPlus size={13} />
+                <span>+ Add Extracted Suspect to Case</span>
+              </button>
             </div>
 
             {/* 6 Core Categories Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
-              {/* Biographic Data */}
-              <div style={{ background: 'rgba(7, 9, 14, 0.6)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '12px' }}>
-                <h4 style={{ fontSize: '11px', color: 'var(--accent-crimson)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase', marginBottom: '6px' }}>
-                  1. Biographic Data
+              {/* Suspect Names & Aliases */}
+              <div style={{ background: '#f8fafc', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '12px' }}>
+                <h4 style={{ fontSize: '11px', color: 'var(--accent-crimson)', textTransform: 'uppercase', marginBottom: '6px', fontWeight: 700 }}>
+                  1. Suspect Names & Aliases
                 </h4>
                 {extractionResult.legal_ner_extraction?.entities?.biographic_data?.map((b, i) => (
-                  <div key={i} style={{ fontSize: '12px', color: '#fff', marginBottom: '4px' }}>
+                  <div key={i} style={{ fontSize: '12px', color: 'var(--text-primary)', marginBottom: '4px' }}>
                     <strong>{b.full_name}</strong> {b.age ? `(Age: ${b.age})` : ''}
-                    {b.aliases?.length > 0 && <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Aliases: {b.aliases.join(', ')}</div>}
+                    {b.aliases?.length > 0 && <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Aliases: {b.aliases.join(', ')}</div>}
                   </div>
                 ))}
               </div>
 
-              {/* Communication Identifiers */}
-              <div style={{ background: 'rgba(7, 9, 14, 0.6)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '12px' }}>
-                <h4 style={{ fontSize: '11px', color: 'var(--accent-cyan)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase', marginBottom: '6px' }}>
-                  2. Communication Identifiers
+              {/* Phone Numbers & SIMs */}
+              <div style={{ background: '#f8fafc', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '12px' }}>
+                <h4 style={{ fontSize: '11px', color: 'var(--accent-cyan)', textTransform: 'uppercase', marginBottom: '6px', fontWeight: 700 }}>
+                  2. Phone Numbers & SIMs
                 </h4>
                 {extractionResult.legal_ner_extraction?.entities?.communication_identifiers?.map((c, i) => (
-                  <div key={i} style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--accent-cyan)', marginBottom: '3px' }}>
+                  <div key={i} style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--accent-cyan)', marginBottom: '3px', fontWeight: 600 }}>
                     {c.type}: {c.value}
                   </div>
                 ))}
               </div>
 
               {/* Spatial & Geographic */}
-              <div style={{ background: 'rgba(7, 9, 14, 0.6)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '12px' }}>
-                <h4 style={{ fontSize: '11px', color: 'var(--accent-emerald)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase', marginBottom: '6px' }}>
-                  3. Spatial & Geographic
+              <div style={{ background: '#f8fafc', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '12px' }}>
+                <h4 style={{ fontSize: '11px', color: 'var(--accent-emerald)', textTransform: 'uppercase', marginBottom: '6px', fontWeight: 700 }}>
+                  3. Crime Locations & Safehouses
                 </h4>
                 {extractionResult.legal_ner_extraction?.entities?.spatial_and_geographic?.map((s, i) => (
-                  <div key={i} style={{ fontSize: '12px', color: '#fff', marginBottom: '4px' }}>
+                  <div key={i} style={{ fontSize: '12px', color: 'var(--text-primary)', marginBottom: '4px' }}>
                     {s.location_name} ({s.district})
                   </div>
                 ))}
               </div>
 
               {/* Financial Instruments */}
-              <div style={{ background: 'rgba(7, 9, 14, 0.6)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '12px' }}>
-                <h4 style={{ fontSize: '11px', color: 'var(--accent-violet)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase', marginBottom: '6px' }}>
-                  4. Financial Instruments
+              <div style={{ background: '#f8fafc', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '12px' }}>
+                <h4 style={{ fontSize: '11px', color: 'var(--accent-violet)', textTransform: 'uppercase', marginBottom: '6px', fontWeight: 700 }}>
+                  4. Bank Accounts & Hawala Wallets
                 </h4>
                 {extractionResult.legal_ner_extraction?.entities?.financial_instruments?.map((f, i) => (
-                  <div key={i} style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: '#d8b4fe', marginBottom: '3px' }}>
+                  <div key={i} style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: '#6d28d9', marginBottom: '3px', fontWeight: 600 }}>
                     {f.type}: {f.identifier}
                   </div>
                 ))}
               </div>
 
               {/* Vehicular Logistics */}
-              <div style={{ background: 'rgba(7, 9, 14, 0.6)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '12px' }}>
-                <h4 style={{ fontSize: '11px', color: 'var(--accent-amber)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase', marginBottom: '6px' }}>
-                  5. Vehicular Logistics
+              <div style={{ background: '#f8fafc', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '12px' }}>
+                <h4 style={{ fontSize: '11px', color: 'var(--accent-amber)', textTransform: 'uppercase', marginBottom: '6px', fontWeight: 700 }}>
+                  5. Vehicles & License Plates
                 </h4>
                 {extractionResult.legal_ner_extraction?.entities?.vehicular_logistics?.map((v, i) => (
-                  <div key={i} style={{ fontSize: '12px', fontFamily: 'var(--font-mono)', color: 'var(--accent-amber)', marginBottom: '3px' }}>
+                  <div key={i} style={{ fontSize: '12px', fontFamily: 'var(--font-mono)', color: '#b45309', marginBottom: '3px', fontWeight: 600 }}>
                     Plate: {v.plate_number}
                   </div>
                 ))}
               </div>
 
               {/* Statutory & Legal Codes */}
-              <div style={{ background: 'rgba(7, 9, 14, 0.6)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '12px' }}>
-                <h4 style={{ fontSize: '11px', color: '#f43f5e', fontFamily: 'var(--font-tech)', textTransform: 'uppercase', marginBottom: '6px' }}>
-                  6. Statutory & Legal
+              <div style={{ background: '#f8fafc', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '12px' }}>
+                <h4 style={{ fontSize: '11px', color: '#b91c1c', textTransform: 'uppercase', marginBottom: '6px', fontWeight: 700 }}>
+                  6. Applicable Legal Sections (BNS)
                 </h4>
-                <div style={{ fontSize: '12px', color: '#fff' }}>
+                <div style={{ fontSize: '12px', color: 'var(--text-primary)', fontWeight: 600 }}>
                   Sections: {extractionResult.legal_ner_extraction?.entities?.statutory_and_legal?.statutory_sections?.join(', ') || 'BNS Sec 111'}
                 </div>
                 {extractionResult.legal_ner_extraction?.entities?.statutory_and_legal?.zero_fir_status && (
-                  <span className="badge badge-amber" style={{ marginTop: '6px', fontSize: '9px' }}>Zero-FIR Detected</span>
+                  <span className="badge badge-amber" style={{ marginTop: '6px', fontSize: '9px' }}>Zero-FIR Recorded</span>
                 )}
               </div>
             </div>
           </div>
         ) : (
           <div style={{ textAlign: 'center', padding: '60px', color: 'var(--text-muted)' }}>
-            <FileCheck size={44} style={{ margin: '0 auto 12px', opacity: 0.4 }} />
-            <h3 style={{ fontSize: '15px', color: '#fff', marginBottom: '6px' }}>
-              Multilingual Legal Extraction Engine
+            <FileCheck size={44} style={{ margin: '0 auto 12px', opacity: 0.4, color: 'var(--accent-cyan)' }} />
+            <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>
+              Ready to Scan Police Documents
             </h3>
-            <p style={{ fontSize: '12px' }}>
-              Input any Indian law enforcement text or document scan on the left to extract the 6 core intelligence ontologies.
+            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', maxWidth: '400px', margin: '0 auto' }}>
+              Paste any FIR text, charge-sheet, or seized document on the left and click Scan to extract names, phones, vehicles, and sections.
             </p>
           </div>
         )}

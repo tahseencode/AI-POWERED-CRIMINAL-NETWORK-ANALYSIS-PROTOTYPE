@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Cpu, AlertTriangle, TrendingUp, Sparkles, Shield, Eye, Network, Target, Clock, Zap, FileCheck, Layers } from 'lucide-react';
+import { AlertTriangle, TrendingUp, Sparkles, Target, Clock, FileCheck, Users, Link as LinkIcon } from 'lucide-react';
 
 export default function GNNPredictor({ currentRole }) {
   const [activeSubTab, setActiveSubTab] = useState('outcome'); // 'outcome' or 'gnn'
@@ -32,16 +32,16 @@ export default function GNNPredictor({ currentRole }) {
       
       {/* Top Toggle Bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '8px' }}>
           <button
+            type="button"
             onClick={() => setActiveSubTab('outcome')}
-            className={activeSubTab === 'outcome' ? 'btn-primary' : ''}
             style={{
-              padding: '8px 16px',
-              borderRadius: '6px',
-              border: '1px solid var(--border-glow)',
-              background: activeSubTab === 'outcome' ? 'linear-gradient(135deg, rgba(124, 77, 255, 0.3) 0%, rgba(0, 229, 255, 0.3) 100%)' : 'rgba(15, 23, 42, 0.6)',
-              color: activeSubTab === 'outcome' ? '#fff' : 'var(--text-muted)',
+              padding: '6px 14px',
+              borderRadius: '4px',
+              border: activeSubTab === 'outcome' ? '1px solid #1e40af' : '1px solid #cbd5e1',
+              background: activeSubTab === 'outcome' ? '#1e40af' : '#ffffff',
+              color: activeSubTab === 'outcome' ? '#ffffff' : '#1e293b',
               fontSize: '12px',
               fontWeight: 600,
               cursor: 'pointer',
@@ -50,20 +50,19 @@ export default function GNNPredictor({ currentRole }) {
               gap: '6px'
             }}
           >
-            <TrendingUp size={15} color="var(--accent-violet)" />
-            <span>🔮 Historical Pattern & Syndicate Outcome Forecaster</span>
-            <span className="badge badge-violet" style={{ fontSize: '9px' }}>AI Predictive</span>
+            <TrendingUp size={14} color={activeSubTab === 'outcome' ? '#ffffff' : '#1e40af'} />
+            <span>Upcoming Crime Move Forecast</span>
           </button>
 
           <button
+            type="button"
             onClick={() => setActiveSubTab('gnn')}
-            className={activeSubTab === 'gnn' ? 'btn-primary' : ''}
             style={{
-              padding: '8px 16px',
-              borderRadius: '6px',
-              border: '1px solid var(--border-subtle)',
-              background: activeSubTab === 'gnn' ? 'linear-gradient(135deg, rgba(0, 229, 255, 0.3) 0%, rgba(16, 185, 129, 0.3) 100%)' : 'rgba(15, 23, 42, 0.6)',
-              color: activeSubTab === 'gnn' ? '#fff' : 'var(--text-muted)',
+              padding: '6px 14px',
+              borderRadius: '4px',
+              border: activeSubTab === 'gnn' ? '1px solid #1e40af' : '1px solid #cbd5e1',
+              background: activeSubTab === 'gnn' ? '#1e40af' : '#ffffff',
+              color: activeSubTab === 'gnn' ? '#ffffff' : '#1e293b',
               fontSize: '12px',
               fontWeight: 600,
               cursor: 'pointer',
@@ -72,55 +71,55 @@ export default function GNNPredictor({ currentRole }) {
               gap: '6px'
             }}
           >
-            <Cpu size={15} color="var(--accent-cyan)" />
-            <span>🕸️ PyG Graph Attention (GAT) Link Predictor</span>
+            <Users size={14} color={activeSubTab === 'gnn' ? '#ffffff' : '#1e40af'} />
+            <span>Suspected Hidden Gang Links</span>
           </button>
         </div>
 
         <button
+          type="button"
           onClick={fetchData}
-          className="btn-primary"
-          style={{ padding: '6px 12px', fontSize: '11px' }}
+          className="btn-secondary"
+          style={{ padding: '6px 12px', fontSize: '12px', fontWeight: 600 }}
         >
           <Sparkles size={13} />
-          <span>Re-Run AI Inference</span>
+          <span>Refresh Data</span>
         </button>
       </div>
 
       {/* ========================================================================= */}
-      {/* VIEW 1: AI HISTORICAL PATTERN RECOGNITION & OUTCOME FORECASTER            */}
+      {/* VIEW 1: UPCOMING ACTIONS & PRECEDENT FORECAST                              */}
       {/* ========================================================================= */}
       {activeSubTab === 'outcome' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: '20px' }}>
           
-          {/* Left Column: Key Suspects Outcome Trajectories */}
+          {/* Left Column: Suspect Escalation Trajectories */}
           <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Target size={18} color="var(--accent-violet)" />
-                <h3 style={{ fontSize: '14px', fontFamily: 'var(--font-tech)', color: '#fff', textTransform: 'uppercase', margin: 0 }}>
-                  Active Suspect Escalation Forecaster
+                <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+                  Suspect Next Moves & Escalation Forecast
                 </h3>
               </div>
               <span className="badge badge-crimson">
-                {syndicateOutcomes?.overall_syndicate_threat || 'CRITICAL_WINDOW'}
+                High Risk Window
               </span>
             </div>
             <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
-              AI neuro-symbolic engine matching current suspect modus operandi against archived Indian Police cases (2021-2025) to predict upcoming moves.
+              Matches active suspect behavior against historical police case patterns (2021–2025) to anticipate what the gang will do next.
             </p>
 
             {loading ? (
               <div style={{ textAlign: 'center', padding: '40px 10px', color: 'var(--text-muted)' }}>
-                <Cpu size={32} className="pulse-live" style={{ margin: '0 auto 12px', color: 'var(--accent-violet)' }} />
-                <p>Matching historical syndicate patterns & generating forecasts...</p>
+                <p>Analyzing historical patterns & generating forecast...</p>
               </div>
             ) : syndicateOutcomes?.all_suspects_predictions?.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', overflowY: 'auto' }}>
                 {syndicateOutcomes.all_suspects_predictions.map((item, idx) => (
                   <div key={idx} style={{
-                    background: 'rgba(7, 9, 14, 0.75)',
-                    border: '1px solid rgba(124, 77, 255, 0.3)',
+                    background: '#f8fafc',
+                    border: '1px solid var(--border-subtle)',
                     borderRadius: '8px',
                     padding: '14px',
                     display: 'flex',
@@ -129,10 +128,10 @@ export default function GNNPredictor({ currentRole }) {
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
-                        <span style={{ fontSize: '13px', fontWeight: 600, color: '#fff' }}>
+                        <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>
                           {item.suspect_name}
                         </span>
-                        <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginLeft: '8px' }}>
+                        <span style={{ fontSize: '11px', color: 'var(--text-secondary)', marginLeft: '8px', fontWeight: 500 }}>
                           ({item.role})
                         </span>
                       </div>
@@ -143,31 +142,31 @@ export default function GNNPredictor({ currentRole }) {
 
                     {/* Matched Precedent Box */}
                     <div style={{
-                      background: 'rgba(15, 23, 42, 0.6)',
+                      background: '#ede9fe',
                       borderRadius: '6px',
                       padding: '8px 10px',
                       borderLeft: '3px solid var(--accent-violet)'
                     }}>
-                      <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
-                        Matched Historical Precedent ({item.prediction?.matched_historical_precedent?.similarity_percentage} match):
+                      <div style={{ fontSize: '10px', color: '#6d28d9', fontWeight: 700 }}>
+                        Similar Past Case Pattern ({item.prediction?.matched_historical_precedent?.similarity_percentage} Match):
                       </div>
-                      <div style={{ fontSize: '11px', fontWeight: 600, color: '#d8b4fe', marginTop: '2px' }}>
+                      <div style={{ fontSize: '12px', fontWeight: 700, color: '#4c1d95', marginTop: '2px' }}>
                         {item.prediction?.matched_historical_precedent?.case_title}
                       </div>
-                      <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>
-                        <strong>Historical Precedent Outcome:</strong> {item.prediction?.matched_historical_precedent?.actual_historical_outcome}
+                      <div style={{ fontSize: '11px', color: '#5b21b6', marginTop: '3px' }}>
+                        <strong>Past Case Outcome:</strong> {item.prediction?.matched_historical_precedent?.actual_historical_outcome}
                       </div>
                     </div>
 
                     {/* Forecasted Progression Timeline */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                      <span style={{ fontSize: '10px', color: 'var(--accent-cyan)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase' }}>
-                        Forecasted Escalation Sequence
+                      <span style={{ fontSize: '11px', color: 'var(--accent-cyan)', textTransform: 'uppercase', fontWeight: 700 }}>
+                        Predicted Next Steps:
                       </span>
                       {item.prediction?.forecasted_outcome_timeline?.map((step, sIdx) => (
                         <div key={sIdx} style={{
-                          background: 'rgba(7, 9, 14, 0.5)',
-                          border: '1px solid rgba(255, 255, 255, 0.05)',
+                          background: '#ffffff',
+                          border: '1px solid var(--border-subtle)',
                           borderRadius: '4px',
                           padding: '6px 8px',
                           display: 'flex',
@@ -177,8 +176,8 @@ export default function GNNPredictor({ currentRole }) {
                         }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <Clock size={12} color="var(--accent-cyan)" />
-                            <span style={{ fontSize: '10px', color: 'var(--accent-cyan)', fontWeight: 600 }}>{step.timeframe}:</span>
-                            <span style={{ fontSize: '10px', color: '#e2e8f0' }}>{step.predicted_action}</span>
+                            <span style={{ fontSize: '11px', color: 'var(--accent-cyan)', fontWeight: 700 }}>{step.timeframe}:</span>
+                            <span style={{ fontSize: '11px', color: 'var(--text-primary)' }}>{step.predicted_action}</span>
                           </div>
                           <span style={{ fontSize: '9px', color: step.threat_level === 'CRITICAL' ? 'var(--accent-crimson)' : 'var(--accent-amber)', fontWeight: 700 }}>
                             {step.probability}
@@ -189,16 +188,16 @@ export default function GNNPredictor({ currentRole }) {
 
                     {/* Tactical Intervention */}
                     <div style={{
-                      background: 'rgba(0, 229, 255, 0.06)',
+                      background: '#f0f9ff',
                       borderRadius: '6px',
                       padding: '8px 10px',
-                      border: '1px solid rgba(0, 229, 255, 0.2)',
+                      border: '1px solid #bae6fd',
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center'
                     }}>
-                      <div style={{ fontSize: '11px', color: '#e0f2fe' }}>
-                        <strong style={{ color: 'var(--accent-cyan)' }}>Tactical Countermeasure: </strong>
+                      <div style={{ fontSize: '11px', color: '#0369a1' }}>
+                        <strong style={{ color: 'var(--accent-cyan)' }}>Recommended Police Action: </strong>
                         {item.prediction?.tactical_intervention_strategy?.primary_action}
                       </div>
                       <span className="badge badge-cyan" style={{ fontSize: '9px', whiteSpace: 'nowrap' }}>
@@ -221,60 +220,60 @@ export default function GNNPredictor({ currentRole }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <FileCheck size={18} color="var(--accent-cyan)" />
-                <h3 style={{ fontSize: '14px', fontFamily: 'var(--font-tech)', color: '#fff', textTransform: 'uppercase', margin: 0 }}>
-                  Historical Precedent Case Dataset (Ground Truth)
+                <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+                  Police Archives Case Library (Reference Cases)
                 </h3>
               </div>
-              <span className="badge badge-cyan">CCTNS / ICJS Archive</span>
+              <span className="badge badge-cyan">CCTNS Verified</span>
             </div>
             <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
-              Validated historical law enforcement case records used by the AI engine to recognize syndicate patterns and outcome trajectories.
+              Past cases and known modus operandi used by the system to recognize gang patterns.
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto' }}>
               
-              <div style={{ background: 'rgba(7, 9, 14, 0.65)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '14px' }}>
+              <div style={{ background: '#f8fafc', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '14px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--accent-cyan)' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--accent-cyan)' }}>
                     Operation Ordnance Guard: Barrackpore-Ichhapur (2024)
                   </span>
-                  <span className="badge badge-amber" style={{ fontSize: '9px' }}>Arms Syndicate</span>
+                  <span className="badge badge-amber" style={{ fontSize: '9px' }}>Illegal Arms</span>
                 </div>
-                <p style={{ fontSize: '11px', color: '#cbd5e1', margin: '0 0 8px', lineHeight: 1.4 }}>
-                  <strong>Modus Operandi:</strong> Interstate arms shipments via NH highway corridors using modified hydraulic false-bottom trucks. Safehouse distribution within 72h followed by armed intimidation.
+                <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '0 0 8px', lineHeight: 1.4 }}>
+                  <strong>How Crime was Executed:</strong> Inter-state arms transport via highway using false-bottom trucks. Safehouse distribution within 72h followed by extortion.
                 </p>
-                <div style={{ fontSize: '11px', color: 'var(--accent-emerald)', background: 'rgba(16, 185, 129, 0.08)', padding: '6px 8px', borderRadius: '4px' }}>
-                  <strong>Historical Result:</strong> Lead courier intercepted on Day 5 at Barrackpore Toll using ANPR roadblock before convoy split.
+                <div style={{ fontSize: '11px', color: '#047857', background: '#dcfce7', padding: '6px 8px', borderRadius: '4px', border: '1px solid #bbf7d0' }}>
+                  <strong>Police Action Result:</strong> Main courier intercepted at Barrackpore Toll using ANPR camera alert before vehicles could split up.
                 </div>
               </div>
 
-              <div style={{ background: 'rgba(7, 9, 14, 0.65)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '14px' }}>
+              <div style={{ background: '#f8fafc', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '14px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--accent-violet)' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--accent-violet)' }}>
                     Operation Golden Anchor: Kolkata Port Hawala (2024)
                   </span>
-                  <span className="badge badge-violet" style={{ fontSize: '9px' }}>Hawala / PMLA</span>
+                  <span className="badge badge-violet" style={{ fontSize: '9px' }}>Hawala Cash</span>
                 </div>
-                <p style={{ fontSize: '11px', color: '#cbd5e1', margin: '0 0 8px', lineHeight: 1.4 }}>
-                  <strong>Modus Operandi:</strong> Burrabazar Angadia cash collection layered across 4 shell accounts and converted to Bitcoin within 96 hours before bank freeze.
+                <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '0 0 8px', lineHeight: 1.4 }}>
+                  <strong>How Crime was Executed:</strong> Cash collected via Angadia couriers, layered across 4 bank accounts, and converted to cryptocurrency within 96 hours.
                 </p>
-                <div style={{ fontSize: '11px', color: 'var(--accent-emerald)', background: 'rgba(16, 185, 129, 0.08)', padding: '6px 8px', borderRadius: '4px' }}>
-                  <strong>Historical Result:</strong> PMLA Sec 5 provisional attachment within 24 hours froze ₹1.8 Cr before cold wallet offshore transfer.
+                <div style={{ fontSize: '11px', color: '#047857', background: '#dcfce7', padding: '6px 8px', borderRadius: '4px', border: '1px solid #bbf7d0' }}>
+                  <strong>Police Action Result:</strong> Bank accounts frozen within 24 hours under PMLA Sec 5, recovering ₹1.8 Crore before transfer.
                 </div>
               </div>
 
-              <div style={{ background: 'rgba(7, 9, 14, 0.65)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '14px' }}>
+              <div style={{ background: '#f8fafc', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '14px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: 600, color: '#f43f5e' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--accent-crimson)' }}>
                     Operation GhostSwitch: Salt Lake SIM-Box Extortion (2025)
                   </span>
                   <span className="badge badge-crimson" style={{ fontSize: '9px' }}>Cyber Extortion</span>
                 </div>
-                <p style={{ fontSize: '11px', color: '#cbd5e1', margin: '0 0 8px', lineHeight: 1.4 }}>
-                  <strong>Modus Operandi:</strong> 32-port GSM gateway rotating 64 IMSI numbers to execute spoofed video call extortions before RF cell tower triangulation.
+                <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '0 0 8px', lineHeight: 1.4 }}>
+                  <strong>How Crime was Executed:</strong> Rotating 64 fake SIM cards to make spoofed extortion calls before telecom tower triangulation.
                 </p>
-                <div style={{ fontSize: '11px', color: 'var(--accent-emerald)', background: 'rgba(16, 185, 129, 0.08)', padding: '6px 8px', borderRadius: '4px' }}>
-                  <strong>Historical Result:</strong> Real-time CDR cell-ID correlation with telecom service provider raided gateway node within 48h.
+                <div style={{ fontSize: '11px', color: '#047857', background: '#dcfce7', padding: '6px 8px', borderRadius: '4px', border: '1px solid #bbf7d0' }}>
+                  <strong>Police Action Result:</strong> Tower CDR triangulation matched location and special team raided gateway setup within 48h.
                 </div>
               </div>
 
@@ -285,7 +284,7 @@ export default function GNNPredictor({ currentRole }) {
       )}
 
       {/* ========================================================================= */}
-      {/* VIEW 2: PYG GAT LINK PREDICTOR & MISSING INTELLIGENCE LEADS              */}
+      {/* VIEW 2: HIDDEN CONNECTIONS & UNMONITORED LEADS                            */}
       {/* ========================================================================= */}
       {activeSubTab === 'gnn' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
@@ -295,90 +294,25 @@ export default function GNNPredictor({ currentRole }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <AlertTriangle size={20} color="var(--accent-amber)" />
-                <h2 style={{ fontSize: '15px', fontFamily: 'var(--font-tech)', color: '#fff', textTransform: 'uppercase', margin: 0 }}>
-                  Missing Intelligence Leads (Unobserved Links)
+                <h2 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+                  Suspected Hidden Gang Links (Surveillance Leads)
                 </h2>
               </div>
-              <span className="badge badge-amber">PyG GAT Inference</span>
+              <span className="badge badge-amber">High Probability</span>
             </div>
             <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
-              High-probability (&gt;70%) unobserved structural edges computed via Graph Attention message-passing. Indicates intelligence collection gaps requiring targeted surveillance.
+              Suspects who have strong indirect connections (shared contacts, burner phone calls, co-travel) but no direct FIR recorded yet.
             </p>
 
             {loading ? (
               <div style={{ textAlign: 'center', padding: '40px 10px', color: 'var(--text-muted)' }}>
-                <Cpu size={32} className="pulse-live" style={{ margin: '0 auto 12px', color: 'var(--accent-cyan)' }} />
-                <p>Running Graph Neural Network Message-Passing...</p>
+                <p>Analyzing hidden gang connections...</p>
               </div>
             ) : gnnData?.missing_intelligence_leads?.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto' }}>
                 {gnnData.missing_intelligence_leads.map((lead, idx) => (
                   <div key={idx} style={{
-                    background: 'rgba(7, 9, 14, 0.65)',
-                    border: '1px solid rgba(255, 179, 0, 0.25)',
-                    borderRadius: '8px',
-                    padding: '14px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '8px'
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span style={{ fontSize: '13px', fontWeight: 600, color: '#fff' }}>
-                          {lead.source_name}
-                        </span>
-                        <span style={{ color: 'var(--accent-amber)', fontSize: '11px' }}>⟷</span>
-                        <span style={{ fontSize: '13px', fontWeight: 600, color: '#fff' }}>
-                          {lead.target_name}
-                        </span>
-                      </div>
-                      <span className="badge badge-amber" style={{ fontSize: '10px' }}>
-                        {Math.round(lead.link_probability * 100)}% Probability
-                      </span>
-                    </div>
-
-                    <div style={{ fontSize: '11px', color: 'var(--accent-cyan)', fontFamily: 'var(--font-mono)' }}>
-                      Inferred Link: {lead.predicted_relationship}
-                    </div>
-
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', background: 'rgba(255, 179, 0, 0.08)', padding: '6px 8px', borderRadius: '4px' }}>
-                      <strong>Investigative Recommendation:</strong> {lead.surveillance_recommendation}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>
-                No critical unobserved links detected in current subgraph.
-              </div>
-            )}
-          </div>
-
-          {/* Future Associations Forecast */}
-          <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <TrendingUp size={20} color="var(--accent-cyan)" />
-                <h2 style={{ fontSize: '15px', fontFamily: 'var(--font-tech)', color: '#fff', textTransform: 'uppercase', margin: 0 }}>
-                  Future Illicit Associations Forecast
-                </h2>
-              </div>
-              <span className="badge badge-cyan">Temporal Expansion</span>
-            </div>
-            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
-              Forecasts emergent co-offending links and illicit partnerships before they physically manifest based on NCSM structural embeddings.
-            </p>
-
-            {loading ? (
-              <div style={{ textAlign: 'center', padding: '40px 10px', color: 'var(--text-muted)' }}>
-                <Cpu size={32} className="pulse-live" style={{ margin: '0 auto 12px', color: 'var(--accent-cyan)' }} />
-                <p>Computing node cosine embeddings...</p>
-              </div>
-            ) : gnnData?.future_associations_forecast?.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto' }}>
-                {gnnData.future_associations_forecast.map((forecast, idx) => (
-                  <div key={idx} style={{
-                    background: 'rgba(7, 9, 14, 0.65)',
+                    background: '#f8fafc',
                     border: '1px solid var(--border-subtle)',
                     borderRadius: '8px',
                     padding: '14px',
@@ -388,11 +322,74 @@ export default function GNNPredictor({ currentRole }) {
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span style={{ fontSize: '13px', fontWeight: 600, color: '#fff' }}>
+                        <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                          {lead.source_name}
+                        </span>
+                        <span style={{ color: 'var(--accent-amber)', fontSize: '11px' }}>⟷</span>
+                        <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                          {lead.target_name}
+                        </span>
+                      </div>
+                      <span className="badge badge-amber" style={{ fontSize: '10px' }}>
+                        {Math.round(lead.link_probability * 100)}% Match
+                      </span>
+                    </div>
+
+                    <div style={{ fontSize: '11px', color: 'var(--accent-cyan)', fontWeight: 600 }}>
+                      Suspected Connection: {lead.predicted_relationship}
+                    </div>
+
+                    <div style={{ fontSize: '11px', color: '#78350f', background: '#fef3c7', padding: '6px 8px', borderRadius: '4px', border: '1px solid #fde68a' }}>
+                      <strong>Surveillance Tip:</strong> {lead.surveillance_recommendation}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>
+                No critical unobserved links detected in current data.
+              </div>
+            )}
+          </div>
+
+          {/* Future Associations Forecast */}
+          <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <TrendingUp size={20} color="var(--accent-cyan)" />
+                <h2 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+                  Likely Future Criminal Partnerships
+                </h2>
+              </div>
+              <span className="badge badge-cyan">Future Risk</span>
+            </div>
+            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
+              Forecasts which suspects are likely to team up or form new operations based on their roles and geographic overlap.
+            </p>
+
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '40px 10px', color: 'var(--text-muted)' }}>
+                <p>Calculating partnership risks...</p>
+              </div>
+            ) : gnnData?.future_associations_forecast?.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto' }}>
+                {gnnData.future_associations_forecast.map((forecast, idx) => (
+                  <div key={idx} style={{
+                    background: '#f8fafc',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: '8px',
+                    padding: '14px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '8px'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>
                           {forecast.entity_a}
                         </span>
                         <span style={{ color: 'var(--accent-cyan)', fontSize: '11px' }}>➔</span>
-                        <span style={{ fontSize: '13px', fontWeight: 600, color: '#fff' }}>
+                        <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>
                           {forecast.entity_b}
                         </span>
                       </div>
@@ -409,7 +406,7 @@ export default function GNNPredictor({ currentRole }) {
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>
-                No emergent illicit associations forecasted.
+                No new criminal partnerships forecasted.
               </div>
             )}
           </div>

@@ -142,6 +142,29 @@ export default function App() {
         isOpen={isCctnsModalOpen}
         onClose={() => setIsCctnsModalOpen(false)}
       />
+
+      {/* Official Government Footer */}
+      <footer style={{
+        background: '#0f2942',
+        color: '#cbd5e1',
+        borderTop: '3px solid #ff9933',
+        padding: '10px 24px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '10px',
+        fontSize: '11px'
+      }}>
+        <div>
+          <strong style={{ color: '#ffffff' }}>Government of India • Ministry of Home Affairs (MHA)</strong>
+          <span style={{ margin: '0 8px', color: '#64748b' }}>|</span>
+          <span>Inter-Operable Criminal Justice System (ICJS) & CCTNS Integrated</span>
+        </div>
+        <div style={{ color: '#94a3b8' }}>
+          <span>Restricted Law Enforcement Portal • Admissible under Section 63 BSA 2024</span>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -614,7 +614,7 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
       position: 'fixed',
       inset: 0,
       zIndex: 1000,
-      background: 'rgba(3, 7, 18, 0.85)',
+      background: 'rgba(15, 23, 42, 0.6)',
       backdropFilter: 'blur(10px)',
       display: 'flex',
       alignItems: 'center',
@@ -622,9 +622,9 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
       padding: '20px'
     }}>
       <div style={{
-        background: '#0d131f',
-        border: '1px solid var(--border-glow)',
-        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.9), 0 0 40px rgba(0, 229, 255, 0.15)',
+        background: '#ffffff',
+        border: '1px solid var(--border-subtle)',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
         borderRadius: '14px',
         width: '100%',
         maxWidth: '960px',
@@ -641,15 +641,15 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          background: 'linear-gradient(90deg, rgba(0, 229, 255, 0.08) 0%, rgba(124, 77, 255, 0.08) 100%)'
+          background: '#f8fafc'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{
               width: '36px',
               height: '36px',
               borderRadius: '8px',
-              background: 'linear-gradient(135deg, rgba(0, 229, 255, 0.2) 0%, rgba(124, 77, 255, 0.3) 100%)',
-              border: '1px solid var(--accent-cyan)',
+              background: '#e0f2fe',
+              border: '1px solid #bae6fd',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -659,14 +659,14 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#fff', margin: 0 }}>
+                <h2 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
                   Ingest Suspect & Evidence Media to Knowledge Graph
                 </h2>
                 <span className="badge badge-cyan" style={{ fontSize: '10px' }}>
                   Multilingual OCR & AI Prediction
                 </span>
               </div>
-              <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '2px 0 0' }}>
+              <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
                 Upload FIRs/proof photos for automatic OCR extraction and historical case trajectory forecasting.
               </p>
             </div>
@@ -690,14 +690,14 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
         {/* Quick Intelligence Presets Bar */}
         <div style={{
           padding: '10px 24px',
-          background: 'rgba(15, 23, 42, 0.8)',
+          background: '#f1f5f9',
           borderBottom: '1px solid var(--border-subtle)',
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
           overflowX: 'auto'
         }}>
-          <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+          <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
             <Sparkles size={13} color="var(--accent-cyan)" /> 1-Click Intelligence Presets:
           </span>
           <div style={{ display: 'flex', gap: '8px' }}>
@@ -708,17 +708,25 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                 onClick={() => handleApplyPreset(preset.data)}
                 style={{
                   padding: '4px 10px',
-                  background: 'rgba(255, 255, 255, 0.04)',
+                  background: '#ffffff',
                   border: '1px solid var(--border-subtle)',
                   borderRadius: '6px',
-                  color: '#e2e8f0',
+                  color: 'var(--text-primary)',
                   fontSize: '11px',
+                  fontWeight: 500,
                   cursor: 'pointer',
                   whiteSpace: 'nowrap',
-                  transition: 'all 0.2s ease'
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
                 }}
-                onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--accent-cyan)'}
-                onMouseOut={(e) => e.currentTarget.style.borderColor = 'var(--border-subtle)'}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--accent-cyan)';
+                  e.currentTarget.style.color = 'var(--accent-cyan)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--border-subtle)';
+                  e.currentTarget.style.color = 'var(--text-primary)';
+                }}
               >
                 {preset.label}
               </button>
@@ -730,7 +738,7 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
         <div style={{
           display: 'flex',
           borderBottom: '1px solid var(--border-subtle)',
-          background: 'rgba(7, 9, 14, 0.5)',
+          background: '#ffffff',
           padding: '0 24px'
         }}>
           <button
@@ -741,9 +749,9 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
               background: 'transparent',
               border: 'none',
               borderBottom: activeTab === 'media' ? '2px solid var(--accent-cyan)' : '2px solid transparent',
-              color: activeTab === 'media' ? 'var(--accent-cyan)' : 'var(--text-muted)',
+              color: activeTab === 'media' ? 'var(--accent-cyan)' : 'var(--text-secondary)',
               fontSize: '12px',
-              fontWeight: activeTab === 'media' ? 600 : 400,
+              fontWeight: activeTab === 'media' ? 700 : 500,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -751,7 +759,7 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
             }}
           >
             <UploadCloud size={14} />
-            <span>1. Upload Media & Proof (OCR)</span>
+            <span>1. Upload FIR / Proof File</span>
             {uploadedFileName && <span className="badge badge-emerald" style={{ fontSize: '8px', padding: '1px 4px' }}>Extracted</span>}
           </button>
 
@@ -763,9 +771,9 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
               background: 'transparent',
               border: 'none',
               borderBottom: activeTab === 'identity' ? '2px solid var(--accent-cyan)' : '2px solid transparent',
-              color: activeTab === 'identity' ? 'var(--accent-cyan)' : 'var(--text-muted)',
+              color: activeTab === 'identity' ? 'var(--accent-cyan)' : 'var(--text-secondary)',
               fontSize: '12px',
-              fontWeight: activeTab === 'identity' ? 600 : 400,
+              fontWeight: activeTab === 'identity' ? 700 : 500,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -773,7 +781,7 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
             }}
           >
             <Layers size={14} />
-            <span>2. Suspect Biometrics</span>
+            <span>2. Suspect Details & Aliases</span>
           </button>
 
           <button
@@ -784,9 +792,9 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
               background: 'transparent',
               border: 'none',
               borderBottom: activeTab === 'crime' ? '2px solid var(--accent-cyan)' : '2px solid transparent',
-              color: activeTab === 'crime' ? 'var(--accent-cyan)' : 'var(--text-muted)',
+              color: activeTab === 'crime' ? 'var(--accent-cyan)' : 'var(--text-secondary)',
               fontSize: '12px',
-              fontWeight: activeTab === 'crime' ? 600 : 400,
+              fontWeight: activeTab === 'crime' ? 700 : 500,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -794,7 +802,7 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
             }}
           >
             <Scale size={14} />
-            <span>3. Crime Details & Statutory Acts</span>
+            <span>3. Crime Details & Law Sections</span>
           </button>
 
           <button
@@ -808,9 +816,9 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
               background: 'transparent',
               border: 'none',
               borderBottom: activeTab === 'network' ? '2px solid var(--accent-cyan)' : '2px solid transparent',
-              color: activeTab === 'network' ? 'var(--accent-cyan)' : 'var(--text-muted)',
+              color: activeTab === 'network' ? 'var(--accent-cyan)' : 'var(--text-secondary)',
               fontSize: '12px',
-              fontWeight: activeTab === 'network' ? 600 : 400,
+              fontWeight: activeTab === 'network' ? 700 : 500,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -818,7 +826,7 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
             }}
           >
             <Users size={14} />
-            <span>4. Network & AI Outcome Forecast</span>
+            <span>4. Gang Links & Next Moves</span>
             <span className="badge badge-violet" style={{ fontSize: '8px', padding: '1px 4px' }}>🔮 Forecast</span>
           </button>
         </div>
@@ -830,10 +838,10 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
             {error && (
               <div style={{
                 padding: '10px 14px',
-                background: 'rgba(239, 68, 68, 0.15)',
-                border: '1px solid var(--accent-crimson)',
+                background: '#fee2e2',
+                border: '1px solid #fca5a5',
                 borderRadius: '8px',
-                color: '#fca5a5',
+                color: '#b91c1c',
                 fontSize: '12px',
                 marginBottom: '16px',
                 display: 'flex',
@@ -853,11 +861,11 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                 
                 {/* Drag and Drop Zone */}
                 <div style={{
-                  border: '2px dashed var(--border-glow)',
+                  border: '2px dashed #93c5fd',
                   borderRadius: '12px',
                   padding: '24px',
                   textAlign: 'center',
-                  background: 'rgba(0, 229, 255, 0.02)',
+                  background: '#f0f9ff',
                   position: 'relative',
                   cursor: 'pointer'
                 }}>
@@ -878,7 +886,7 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                       width: '48px',
                       height: '48px',
                       borderRadius: '50%',
-                      background: 'rgba(0, 229, 255, 0.1)',
+                      background: '#e0f2fe',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -886,10 +894,10 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                     }}>
                       <UploadCloud size={24} />
                     </div>
-                    <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#fff', margin: 0 }}>
+                    <h3 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
                       Drop FIR Documents, Crime Proof Photos, or Seizure Memos Here
                     </h3>
-                    <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: 0, maxWidth: '480px' }}>
+                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0, maxWidth: '480px' }}>
                       Supports <strong>PDF, PNG, JPG, JPEG, WEBP, TXT</strong>. AI automatically runs Multilingual OCR (English, Hindi, Bengali), extracts legal entities, and predicts crime outcome.
                     </p>
                     <span className="badge badge-cyan" style={{ marginTop: '6px', fontSize: '10px' }}>
@@ -903,18 +911,18 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                   <div style={{
                     padding: '14px',
                     borderRadius: '8px',
-                    background: 'rgba(124, 77, 255, 0.1)',
-                    border: '1px solid var(--accent-violet)',
+                    background: '#ede9fe',
+                    border: '1px solid #c4b5fd',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '12px'
                   }}>
                     <Cpu size={20} className="pulse-slow" color="var(--accent-violet)" />
                     <div>
-                      <div style={{ fontSize: '12px', fontWeight: 600, color: '#fff' }}>
+                      <div style={{ fontSize: '12px', fontWeight: 600, color: '#4c1d95' }}>
                         Processing Multilingual OCR & Legal NER Extraction...
                       </div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                      <div style={{ fontSize: '11px', color: '#6d28d9' }}>
                         Parsing {uploadedFileName} ({uploadedFileSize}) • Triangulating BNS Statutory Sections & Forecast Precedent Match
                       </div>
                     </div>
@@ -925,8 +933,8 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                   <div style={{
                     padding: '14px',
                     borderRadius: '8px',
-                    background: 'rgba(16, 185, 129, 0.12)',
-                    border: '1px solid var(--accent-emerald)',
+                    background: '#dcfce7',
+                    border: '1px solid #86efac',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center'
@@ -934,10 +942,10 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <CheckCircle2 size={20} color="var(--accent-emerald)" />
                       <div>
-                        <div style={{ fontSize: '12px', fontWeight: 600, color: '#fff' }}>
+                        <div style={{ fontSize: '12px', fontWeight: 600, color: '#15803d' }}>
                           Evidence Processed • Suspect Identified: <span style={{ color: 'var(--accent-cyan)', fontWeight: 700 }}>{name || "Target Suspect"}</span>
                         </div>
-                        <div style={{ fontSize: '11px', color: 'var(--accent-emerald)', fontFamily: 'var(--font-mono)' }}>
+                        <div style={{ fontSize: '11px', color: '#166534', fontFamily: 'var(--font-mono)' }}>
                           File: {uploadedFileName} • SHA-256: {uploadedFileHash ? `${uploadedFileHash.slice(0, 16)}...` : 'VERIFIED'} • {statutoryActs?.length || 0} Statutory Acts Mapped
                         </div>
                       </div>
@@ -949,8 +957,8 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                 )}
 
                 {/* 1-Click Sample Media Proofs */}
-                <div style={{ background: 'rgba(7, 9, 14, 0.6)', border: '1px solid var(--border-subtle)', borderRadius: '10px', padding: '16px' }}>
-                  <h4 style={{ fontSize: '12px', color: 'var(--accent-cyan)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div style={{ background: '#f8fafc', border: '1px solid var(--border-subtle)', borderRadius: '10px', padding: '16px' }}>
+                  <h4 style={{ fontSize: '12px', color: 'var(--accent-cyan)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700 }}>
                     <FileCheck size={14} /> Quick Demonstration: Test with Pre-Loaded Police Evidence Files
                   </h4>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
@@ -960,29 +968,30 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                         onClick={() => handleSelectSampleMedia(sample)}
                         style={{
                           padding: '12px',
-                          background: 'rgba(15, 23, 42, 0.6)',
+                          background: '#ffffff',
                           border: '1px solid var(--border-subtle)',
                           borderRadius: '8px',
                           cursor: 'pointer',
                           display: 'flex',
                           flexDirection: 'column',
                           gap: '6px',
-                          transition: 'all 0.2s ease'
+                          transition: 'all 0.2s ease',
+                          boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
                         }}
                         onMouseOver={(e) => {
                           e.currentTarget.style.borderColor = 'var(--accent-cyan)';
-                          e.currentTarget.style.background = 'rgba(0, 229, 255, 0.05)';
+                          e.currentTarget.style.background = '#e0f2fe';
                         }}
                         onMouseOut={(e) => {
                           e.currentTarget.style.borderColor = 'var(--border-subtle)';
-                          e.currentTarget.style.background = 'rgba(15, 23, 42, 0.6)';
+                          e.currentTarget.style.background = '#ffffff';
                         }}
                       >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <span style={{ fontSize: '10px', color: 'var(--accent-violet)', fontWeight: 600 }}>{sample.tag}</span>
                           <span style={{ fontSize: '9px', color: 'var(--text-muted)' }}>{sample.size}</span>
                         </div>
-                        <div style={{ fontSize: '11px', fontWeight: 600, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {sample.name}
                         </div>
                         <button
@@ -990,10 +999,10 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                           style={{
                             marginTop: '4px',
                             padding: '4px',
-                            background: 'rgba(0, 229, 255, 0.15)',
-                            border: '1px solid var(--accent-cyan)',
+                            background: '#e0f2fe',
+                            border: '1px solid #bae6fd',
                             borderRadius: '4px',
-                            color: 'var(--accent-cyan)',
+                            color: '#0369a1',
                             fontSize: '10px',
                             fontWeight: 600,
                             cursor: 'pointer'
@@ -1016,7 +1025,7 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
                   <div>
-                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600, display: 'block', marginBottom: '6px' }}>
                       Suspect Full Legal Name *
                     </label>
                     <input
@@ -1028,17 +1037,17 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                       style={{
                         width: '100%',
                         padding: '9px 12px',
-                        background: 'rgba(7, 9, 14, 0.8)',
+                        background: '#ffffff',
                         border: '1px solid var(--border-subtle)',
                         borderRadius: '6px',
-                        color: '#fff',
+                        color: 'var(--text-primary)',
                         fontSize: '13px'
                       }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600, display: 'block', marginBottom: '6px' }}>
                       Aliases / Street Nicknames (comma separated)
                     </label>
                     <input
@@ -1049,10 +1058,10 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                       style={{
                         width: '100%',
                         padding: '9px 12px',
-                        background: 'rgba(7, 9, 14, 0.8)',
+                        background: '#ffffff',
                         border: '1px solid var(--border-subtle)',
                         borderRadius: '6px',
-                        color: '#fff',
+                        color: 'var(--text-primary)',
                         fontSize: '13px'
                       }}
                     />
@@ -1061,7 +1070,7 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
                   <div>
-                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600, display: 'block', marginBottom: '6px' }}>
                       Syndicate Role / Operational Function
                     </label>
                     <input
@@ -1072,17 +1081,17 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                       style={{
                         width: '100%',
                         padding: '9px 12px',
-                        background: 'rgba(7, 9, 14, 0.8)',
+                        background: '#ffffff',
                         border: '1px solid var(--border-subtle)',
                         borderRadius: '6px',
-                        color: '#fff',
+                        color: 'var(--text-primary)',
                         fontSize: '13px'
                       }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600, display: 'block', marginBottom: '6px' }}>
                       Age & Gender
                     </label>
                     <div style={{ display: 'flex', gap: '8px' }}>
@@ -1094,10 +1103,10 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                         style={{
                           width: '80px',
                           padding: '9px 12px',
-                          background: 'rgba(7, 9, 14, 0.8)',
+                          background: '#ffffff',
                           border: '1px solid var(--border-subtle)',
                           borderRadius: '6px',
-                          color: '#fff',
+                          color: 'var(--text-primary)',
                           fontSize: '13px'
                         }}
                       />
@@ -1107,10 +1116,10 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                         style={{
                           flex: 1,
                           padding: '9px 12px',
-                          background: 'rgba(7, 9, 14, 0.8)',
+                          background: '#ffffff',
                           border: '1px solid var(--border-subtle)',
                           borderRadius: '6px',
-                          color: '#fff',
+                          color: 'var(--text-primary)',
                           fontSize: '13px'
                         }}
                       >
@@ -1122,7 +1131,7 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600, display: 'block', marginBottom: '6px' }}>
                       CCTNS / ICJS Offender ID
                     </label>
                     <input
@@ -1133,10 +1142,10 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                       style={{
                         width: '100%',
                         padding: '9px 12px',
-                        background: 'rgba(7, 9, 14, 0.8)',
+                        background: '#ffffff',
                         border: '1px solid var(--border-subtle)',
                         borderRadius: '6px',
-                        color: '#fff',
+                        color: 'var(--text-primary)',
                         fontSize: '13px'
                       }}
                     />
@@ -1144,9 +1153,9 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                 </div>
 
                 {/* Threat Score Slider */}
-                <div style={{ background: 'rgba(7, 9, 14, 0.6)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '14px' }}>
+                <div style={{ background: '#f8fafc', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '14px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <label style={{ fontSize: '12px', fontWeight: 600, color: '#fff' }}>
+                    <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>
                       Calibrated Threat Score (CPP / TRI Risk Metric)
                     </label>
                     <span style={{
@@ -1165,7 +1174,7 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                     step="0.01"
                     value={threatScore}
                     onChange={(e) => setThreatScore(parseFloat(e.target.value))}
-                    style={{ width: '100%', accentColor: threatScore >= 0.8 ? '#f43f5e' : '#00e5ff' }}
+                    style={{ width: '100%', accentColor: threatScore >= 0.8 ? '#dc2626' : '#0284c7' }}
                   />
                 </div>
               </div>
@@ -1178,7 +1187,7 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}>
                   <div>
-                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600, display: 'block', marginBottom: '6px' }}>
                       Crime Title / Operation Name *
                     </label>
                     <input
@@ -1190,17 +1199,17 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                       style={{
                         width: '100%',
                         padding: '9px 12px',
-                        background: 'rgba(7, 9, 14, 0.8)',
+                        background: '#ffffff',
                         border: '1px solid var(--border-subtle)',
                         borderRadius: '6px',
-                        color: '#fff',
+                        color: 'var(--text-primary)',
                         fontSize: '13px'
                       }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600, display: 'block', marginBottom: '6px' }}>
                       Crime Category
                     </label>
                     <select
@@ -1209,10 +1218,10 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                       style={{
                         width: '100%',
                         padding: '9px 12px',
-                        background: 'rgba(7, 9, 14, 0.8)',
+                        background: '#ffffff',
                         border: '1px solid var(--border-subtle)',
                         borderRadius: '6px',
-                        color: '#fff',
+                        color: 'var(--text-primary)',
                         fontSize: '13px'
                       }}
                     >
@@ -1226,7 +1235,7 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                 </div>
 
                 <div>
-                  <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                  <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600, display: 'block', marginBottom: '6px' }}>
                     Incident Narrative & Factual Summary (Full Case Context)
                   </label>
                   <textarea
@@ -1237,10 +1246,10 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                     style={{
                       width: '100%',
                       padding: '9px 12px',
-                      background: 'rgba(7, 9, 14, 0.8)',
+                      background: '#ffffff',
                       border: '1px solid var(--border-subtle)',
                       borderRadius: '6px',
-                      color: '#fff',
+                      color: 'var(--text-primary)',
                       fontSize: '12px',
                       resize: 'vertical'
                     }}
@@ -1249,7 +1258,7 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
                   <div>
-                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600, display: 'block', marginBottom: '6px' }}>
                       Modus Operandi (M.O. / Tactical Execution)
                     </label>
                     <textarea
@@ -1260,10 +1269,10 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                       style={{
                         width: '100%',
                         padding: '9px 12px',
-                        background: 'rgba(7, 9, 14, 0.8)',
+                        background: '#ffffff',
                         border: '1px solid var(--border-subtle)',
                         borderRadius: '6px',
-                        color: '#fff',
+                        color: 'var(--text-primary)',
                         fontSize: '12px',
                         resize: 'vertical'
                       }}
@@ -1271,7 +1280,7 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600, display: 'block', marginBottom: '6px' }}>
                       Seized Weapons, Contraband & Assets
                     </label>
                     <textarea
@@ -1282,10 +1291,10 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                       style={{
                         width: '100%',
                         padding: '9px 12px',
-                        background: 'rgba(7, 9, 14, 0.8)',
+                        background: '#ffffff',
                         border: '1px solid var(--border-subtle)',
                         borderRadius: '6px',
-                        color: '#fff',
+                        color: 'var(--text-primary)',
                         fontSize: '12px',
                         resize: 'vertical'
                       }}
@@ -1294,13 +1303,13 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                 </div>
 
                 {/* Dynamic Statutory Acts Manager */}
-                <div style={{ background: 'rgba(7, 9, 14, 0.6)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '14px' }}>
+                <div style={{ background: '#f8fafc', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '14px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                     <div>
-                      <span style={{ fontSize: '12px', fontWeight: 600, color: '#fff' }}>
+                      <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)' }}>
                         ⚖️ Statutory Acts & Legal Sections (With Law Enforcement Explanations)
                       </span>
-                      <p style={{ fontSize: '10px', color: 'var(--text-muted)', margin: '2px 0 0' }}>
+                      <p style={{ fontSize: '10px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
                         Include specific section numbers along with legal justifications.
                       </p>
                     </div>
@@ -1312,11 +1321,12 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                         alignItems: 'center',
                         gap: '4px',
                         padding: '4px 10px',
-                        background: 'rgba(0, 229, 255, 0.15)',
-                        border: '1px solid var(--accent-cyan)',
+                        background: '#e0f2fe',
+                        border: '1px solid #bae6fd',
                         borderRadius: '6px',
-                        color: 'var(--accent-cyan)',
+                        color: '#0369a1',
                         fontSize: '11px',
+                        fontWeight: 600,
                         cursor: 'pointer'
                       }}
                     >
@@ -1331,20 +1341,20 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                         gridTemplateColumns: '180px 140px 1fr 32px',
                         gap: '8px',
                         alignItems: 'center',
-                        background: 'rgba(15, 23, 42, 0.7)',
+                        background: '#ffffff',
                         padding: '8px',
                         borderRadius: '6px',
-                        border: '1px solid rgba(255, 255, 255, 0.05)'
+                        border: '1px solid var(--border-subtle)'
                       }}>
                         <select
                           value={item.act}
                           onChange={(e) => handleUpdateAct(idx, 'act', e.target.value)}
                           style={{
                             padding: '6px',
-                            background: 'rgba(7, 9, 14, 0.9)',
+                            background: '#f8fafc',
                             border: '1px solid var(--border-subtle)',
                             borderRadius: '4px',
-                            color: '#fff',
+                            color: 'var(--text-primary)',
                             fontSize: '11px'
                           }}
                         >
@@ -1363,10 +1373,10 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                           placeholder="e.g. Section 111"
                           style={{
                             padding: '6px 8px',
-                            background: 'rgba(7, 9, 14, 0.9)',
+                            background: '#f8fafc',
                             border: '1px solid var(--border-subtle)',
                             borderRadius: '4px',
-                            color: '#fff',
+                            color: 'var(--text-primary)',
                             fontSize: '11px'
                           }}
                         />
@@ -1378,10 +1388,10 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                           placeholder="Legal explanation / offence context..."
                           style={{
                             padding: '6px 8px',
-                            background: 'rgba(7, 9, 14, 0.9)',
+                            background: '#f8fafc',
                             border: '1px solid var(--border-subtle)',
                             borderRadius: '4px',
-                            color: '#fff',
+                            color: 'var(--text-primary)',
                             fontSize: '11px'
                           }}
                         />
@@ -1392,7 +1402,7 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                           style={{
                             background: 'transparent',
                             border: 'none',
-                            color: '#f87171',
+                            color: '#ef4444',
                             cursor: 'pointer',
                             padding: '4px'
                           }}
@@ -1406,7 +1416,7 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
                   <div>
-                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600, display: 'block', marginBottom: '6px' }}>
                       FIR Number
                     </label>
                     <input
@@ -1417,17 +1427,17 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                       style={{
                         width: '100%',
                         padding: '8px 12px',
-                        background: 'rgba(7, 9, 14, 0.8)',
+                        background: '#ffffff',
                         border: '1px solid var(--border-subtle)',
                         borderRadius: '6px',
-                        color: '#fff',
+                        color: 'var(--text-primary)',
                         fontSize: '12px'
                       }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600, display: 'block', marginBottom: '6px' }}>
                       Police Station / Jurisdiction
                     </label>
                     <input
@@ -1438,17 +1448,17 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                       style={{
                         width: '100%',
                         padding: '8px 12px',
-                        background: 'rgba(7, 9, 14, 0.8)',
+                        background: '#ffffff',
                         border: '1px solid var(--border-subtle)',
                         borderRadius: '6px',
-                        color: '#fff',
+                        color: 'var(--text-primary)',
                         fontSize: '12px'
                       }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600, display: 'block', marginBottom: '6px' }}>
                       Case / Warrant Status
                     </label>
                     <input
@@ -1459,10 +1469,10 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                       style={{
                         width: '100%',
                         padding: '8px 12px',
-                        background: 'rgba(7, 9, 14, 0.8)',
+                        background: '#ffffff',
                         border: '1px solid var(--border-subtle)',
                         borderRadius: '6px',
-                        color: '#fff',
+                        color: 'var(--text-primary)',
                         fontSize: '12px'
                       }}
                     />
@@ -1480,7 +1490,7 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                 {/* Physical Network Identifiers */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
                   <div>
-                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px' }}>
                       <Phone size={12} color="var(--accent-cyan)" /> Linked Phones / SIMs (comma separated)
                     </label>
                     <input
@@ -1491,17 +1501,17 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                       style={{
                         width: '100%',
                         padding: '8px 12px',
-                        background: 'rgba(7, 9, 14, 0.8)',
+                        background: '#ffffff',
                         border: '1px solid var(--border-subtle)',
                         borderRadius: '6px',
-                        color: '#fff',
+                        color: 'var(--text-primary)',
                         fontSize: '12px'
                       }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px' }}>
                       <Truck size={12} color="var(--accent-amber)" /> Vehicle License Plates (comma separated)
                     </label>
                     <input
@@ -1512,17 +1522,17 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                       style={{
                         width: '100%',
                         padding: '8px 12px',
-                        background: 'rgba(7, 9, 14, 0.8)',
+                        background: '#ffffff',
                         border: '1px solid var(--border-subtle)',
                         borderRadius: '6px',
-                        color: '#fff',
+                        color: 'var(--text-primary)',
                         fontSize: '12px'
                       }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px' }}>
                       <CreditCard size={12} color="var(--accent-violet)" /> Bank Accounts & UPI Handles
                     </label>
                     <input
@@ -1533,17 +1543,17 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                       style={{
                         width: '100%',
                         padding: '8px 12px',
-                        background: 'rgba(7, 9, 14, 0.8)',
+                        background: '#ffffff',
                         border: '1px solid var(--border-subtle)',
                         borderRadius: '6px',
-                        color: '#fff',
+                        color: 'var(--text-primary)',
                         fontSize: '12px'
                       }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px' }}>
                       <MapPin size={12} color="var(--accent-emerald)" /> Safehouses / Operating Locations
                     </label>
                     <input
@@ -1554,10 +1564,10 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                       style={{
                         width: '100%',
                         padding: '8px 12px',
-                        background: 'rgba(7, 9, 14, 0.8)',
+                        background: '#ffffff',
                         border: '1px solid var(--border-subtle)',
                         borderRadius: '6px',
-                        color: '#fff',
+                        color: 'var(--text-primary)',
                         fontSize: '12px'
                       }}
                     />
@@ -1565,8 +1575,8 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                 </div>
 
                 {/* Associate Linker */}
-                <div style={{ background: 'rgba(7, 9, 14, 0.6)', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '14px' }}>
-                  <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                <div style={{ background: '#f8fafc', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '14px' }}>
+                  <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                     <Users size={13} color="var(--accent-cyan)" /> Link to Existing Syndicate Co-Conspirator in Graph
                   </label>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
@@ -1575,10 +1585,10 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                       onChange={(e) => setSelectedAssociate(e.target.value)}
                       style={{
                         padding: '8px 12px',
-                        background: 'rgba(15, 23, 42, 0.9)',
+                        background: '#ffffff',
                         border: '1px solid var(--border-subtle)',
                         borderRadius: '6px',
-                        color: '#fff',
+                        color: 'var(--text-primary)',
                         fontSize: '12px'
                       }}
                     >
@@ -1595,10 +1605,10 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                       onChange={(e) => setAssociateRelation(e.target.value)}
                       style={{
                         padding: '8px 12px',
-                        background: 'rgba(15, 23, 42, 0.9)',
+                        background: '#ffffff',
                         border: '1px solid var(--border-subtle)',
                         borderRadius: '6px',
-                        color: '#fff',
+                        color: 'var(--text-primary)',
                         fontSize: '12px'
                       }}
                     >
@@ -1612,8 +1622,8 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
 
                 {/* 🔮 LIVE AI HISTORICAL PATTERN MATCH & OUTCOME FORECAST CARD */}
                 <div style={{
-                  background: 'linear-gradient(135deg, rgba(124, 77, 255, 0.08) 0%, rgba(0, 229, 255, 0.08) 100%)',
-                  border: '1px solid rgba(124, 77, 255, 0.4)',
+                  background: '#ede9fe',
+                  border: '1px solid #c4b5fd',
                   borderRadius: '10px',
                   padding: '16px',
                   display: 'flex',
@@ -1623,7 +1633,7 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <TrendingUp size={16} color="var(--accent-violet)" />
-                      <span style={{ fontSize: '13px', fontWeight: 600, color: '#fff' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 700, color: '#4c1d95' }}>
                         🔮 AI Historical Pattern Recognition & Case Outcome Forecast
                       </span>
                     </div>
@@ -1638,18 +1648,19 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                       {/* Matched Precedent */}
                       <div style={{
-                        background: 'rgba(7, 9, 14, 0.7)',
+                        background: '#ffffff',
                         borderRadius: '6px',
                         padding: '10px 12px',
-                        borderLeft: '3px solid var(--accent-violet)'
+                        borderLeft: '3px solid var(--accent-violet)',
+                        border: '1px solid #ddd6fe'
                       }}>
-                        <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '2px' }}>
+                        <div style={{ fontSize: '11px', color: '#6d28d9', fontWeight: 600, marginBottom: '2px' }}>
                           Matched Historical Precedent Case:
                         </div>
-                        <div style={{ fontSize: '12px', fontWeight: 600, color: '#d8b4fe' }}>
+                        <div style={{ fontSize: '12px', fontWeight: 700, color: '#4c1d95' }}>
                           {predictiveOutcome.matched_historical_precedent?.case_title}
                         </div>
-                        <div style={{ fontSize: '11px', color: '#cbd5e1', marginTop: '4px' }}>
+                        <div style={{ fontSize: '11px', color: '#5b21b6', marginTop: '4px' }}>
                           <strong>Historical Precedent Outcome:</strong> {predictiveOutcome.matched_historical_precedent?.actual_historical_outcome}
                         </div>
                       </div>
@@ -1658,18 +1669,18 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
                         {predictiveOutcome.forecasted_outcome_timeline?.map((step, idx) => (
                           <div key={idx} style={{
-                            background: 'rgba(7, 9, 14, 0.6)',
-                            border: '1px solid var(--border-subtle)',
+                            background: '#ffffff',
+                            border: '1px solid #ddd6fe',
                             borderRadius: '6px',
                             padding: '8px 10px'
                           }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                              <span style={{ fontSize: '10px', color: 'var(--accent-cyan)', fontWeight: 600 }}>{step.timeframe}</span>
+                              <span style={{ fontSize: '10px', color: 'var(--accent-cyan)', fontWeight: 700 }}>{step.timeframe}</span>
                               <span style={{ fontSize: '9px', color: step.threat_level === 'CRITICAL' ? 'var(--accent-crimson)' : 'var(--accent-amber)', fontWeight: 700 }}>
                                 {step.probability}
                               </span>
                             </div>
-                            <p style={{ fontSize: '11px', color: '#e2e8f0', margin: 0, lineHeight: 1.3 }}>
+                            <p style={{ fontSize: '11px', color: 'var(--text-primary)', margin: 0, lineHeight: 1.3 }}>
                               {step.predicted_action}
                             </p>
                           </div>
@@ -1678,8 +1689,8 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
 
                       {/* Tactical Intervention */}
                       <div style={{
-                        background: 'rgba(0, 229, 255, 0.06)',
-                        border: '1px solid rgba(0, 229, 255, 0.3)',
+                        background: '#ffffff',
+                        border: '1px solid #bae6fd',
                         borderRadius: '6px',
                         padding: '10px 12px',
                         display: 'flex',
@@ -1689,10 +1700,10 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <Target size={16} color="var(--accent-cyan)" />
                           <div>
-                            <span style={{ fontSize: '11px', color: 'var(--accent-cyan)', fontWeight: 600 }}>
+                            <span style={{ fontSize: '11px', color: '#0369a1', fontWeight: 700 }}>
                               Recommended Law Enforcement Counter-Strategy:
                             </span>
-                            <div style={{ fontSize: '11px', color: '#fff' }}>
+                            <div style={{ fontSize: '11px', color: 'var(--text-primary)' }}>
                               {predictiveOutcome.tactical_intervention_strategy?.primary_action}
                             </div>
                           </div>
@@ -1703,7 +1714,7 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                       </div>
                     </div>
                   ) : (
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', textAlign: 'center', padding: '12px' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)', textAlign: 'center', padding: '12px' }}>
                       {isPredicting ? 'Evaluating case signatures against historical police archives...' : 'Click below to forecast syndicate trajectory.'}
                     </div>
                   )}
@@ -1718,7 +1729,7 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
           <div style={{
             padding: '16px 24px',
             borderTop: '1px solid var(--border-subtle)',
-            background: 'rgba(7, 9, 14, 0.8)',
+            background: '#f8fafc',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center'
@@ -1735,11 +1746,12 @@ export default function AddSuspectModal({ isOpen, onClose, onSuspectAdded, exist
                 onClick={onClose}
                 style={{
                   padding: '8px 16px',
-                  background: 'rgba(255, 255, 255, 0.05)',
+                  background: '#ffffff',
                   border: '1px solid var(--border-subtle)',
                   borderRadius: '6px',
-                  color: 'var(--text-muted)',
+                  color: 'var(--text-secondary)',
                   fontSize: '12px',
+                  fontWeight: 600,
                   cursor: 'pointer'
                 }}
               >

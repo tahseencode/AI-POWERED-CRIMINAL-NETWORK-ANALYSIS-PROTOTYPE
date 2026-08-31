@@ -25,8 +25,8 @@ export default function SpatioTemporalMap({ currentRole }) {
         zoomControl: false
       });
 
-      // Dark Matter Map Tiles (OpenStreetMap CartoDB Dark)
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      // Light Matter Map Tiles (OpenStreetMap CartoDB Light / Positron)
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
         subdomains: 'abcd',
         maxZoom: 19
@@ -71,15 +71,15 @@ export default function SpatioTemporalMap({ currentRole }) {
     // Render STRP-DBSCAN Clusters
     data.clusters?.forEach((cl) => {
       const circle = L.circle([cl.centroid.lat, cl.centroid.lng], {
-        color: '#00e5ff',
-        fillColor: '#00e5ff',
+        color: '#0284c7',
+        fillColor: '#0284c7',
         fillOpacity: 0.18,
         radius: epsSpatial * 1000
       });
 
       circle.bindPopup(`
-        <div style="font-family: 'Inter', sans-serif;">
-          <h4 style="color: #00e5ff; margin-bottom: 4px; font-weight: 700;">STRP Cluster #${cl.cluster_id}</h4>
+        <div style="font-family: 'Inter', sans-serif; color: #0f172a;">
+          <h4 style="color: #0284c7; margin-bottom: 4px; font-weight: 700;">STRP Cluster #${cl.cluster_id}</h4>
           <p style="font-size: 11px; margin: 2px 0;"><strong>Points:</strong> ${cl.num_points}</p>
           <p style="font-size: 11px; margin: 2px 0;"><strong>Entities:</strong> ${cl.unique_entities.join(', ')}</p>
           <p style="font-size: 11px; margin: 2px 0;"><strong>Vehicles:</strong> ${cl.unique_vehicles.join(', ')}</p>
@@ -93,16 +93,16 @@ export default function SpatioTemporalMap({ currentRole }) {
     data.detected_convoys?.forEach((cv) => {
       const marker = L.circleMarker([cv.location_centroid.lat, cv.location_centroid.lng], {
         radius: 12,
-        color: '#ff1744',
-        fillColor: '#ff1744',
+        color: '#dc2626',
+        fillColor: '#dc2626',
         fillOpacity: 0.85
       });
       marker.bindPopup(`
-        <div>
-          <h4 style="color: #ff1744; font-weight: 700;">🚨 Illicit Convoy Anomaly</h4>
+        <div style="color: #0f172a;">
+          <h4 style="color: #dc2626; font-weight: 700;">🚨 Illicit Convoy Anomaly</h4>
           <p style="font-size: 11px; margin: 2px 0;"><strong>Vehicles:</strong> ${cv.convoy_vehicles.join(', ')}</p>
           <p style="font-size: 11px; margin: 2px 0;"><strong>Suspects:</strong> ${cv.associated_suspects.join(', ')}</p>
-          <p style="font-size: 11px; margin: 2px 0; color: #ffb300;">${cv.threat_assessment}</p>
+          <p style="font-size: 11px; margin: 2px 0; color: #b45309;">${cv.threat_assessment}</p>
         </div>
       `);
       marker.addTo(layerGroup);
@@ -113,15 +113,15 @@ export default function SpatioTemporalMap({ currentRole }) {
       cl.points?.forEach((p) => {
         const pMarker = L.circleMarker([p.lat, p.lng], {
           radius: 5,
-          color: '#ffb300',
-          fillColor: '#ffb300',
+          color: '#d97706',
+          fillColor: '#d97706',
           fillOpacity: 0.9
         });
         pMarker.bindPopup(`
-          <div>
+          <div style="color: #0f172a;">
             <strong>${p.entity_name}</strong><br/>
             <span>${p.location_name || 'Event Point'}</span><br/>
-            <small>${p.timestamp}</small>
+            <small style="color: #64748b;">${p.timestamp}</small>
           </div>
         `);
         pMarker.addTo(layerGroup);
@@ -139,43 +139,45 @@ export default function SpatioTemporalMap({ currentRole }) {
           top: 12,
           left: 12,
           zIndex: 400,
-          background: 'rgba(13, 18, 29, 0.9)',
+          background: 'rgba(255, 255, 255, 0.98)',
           border: '1px solid var(--border-subtle)',
           borderRadius: '8px',
-          padding: '10px 14px',
+          padding: '8px 14px',
           display: 'flex',
-          gap: '12px',
+          gap: '14px',
           alignItems: 'center',
-          backdropFilter: 'blur(10px)'
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '11px', color: 'var(--accent-cyan)', fontFamily: 'var(--font-tech)' }}>Spatial Radius (ε₁):</span>
+            <span style={{ fontSize: '11px', color: 'var(--text-primary)', fontWeight: 600 }}>Area Radius:</span>
             <input
               type="number"
               value={epsSpatial}
               onChange={(e) => setEpsSpatial(parseFloat(e.target.value))}
-              style={{ width: '45px', background: '#07090e', border: '1px solid var(--border-subtle)', color: '#fff', padding: '2px 4px', borderRadius: '4px', fontSize: '11px' }}
+              style={{ width: '45px', background: '#ffffff', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', padding: '3px 6px', borderRadius: '4px', fontSize: '11px' }}
             />
-            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>km</span>
+            <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>km</span>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '11px', color: 'var(--accent-amber)', fontFamily: 'var(--font-tech)' }}>Time Window (ε₂):</span>
+            <span style={{ fontSize: '11px', color: 'var(--text-primary)', fontWeight: 600 }}>Time Window:</span>
             <input
               type="number"
               value={epsTemporal}
               onChange={(e) => setEpsTemporal(parseFloat(e.target.value))}
-              style={{ width: '45px', background: '#07090e', border: '1px solid var(--border-subtle)', color: '#fff', padding: '2px 4px', borderRadius: '4px', fontSize: '11px' }}
+              style={{ width: '45px', background: '#ffffff', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', padding: '3px 6px', borderRadius: '4px', fontSize: '11px' }}
             />
-            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>hrs</span>
+            <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>hrs</span>
           </div>
 
           <button
+            type="button"
             onClick={() => fetchClusters(epsSpatial, epsTemporal, minPts)}
             className="btn-primary"
-            style={{ fontSize: '11px', padding: '4px 10px' }}
+            style={{ fontSize: '11px', padding: '5px 12px', fontWeight: 600 }}
           >
-            Re-Cluster
+            Update Map
           </button>
         </div>
 
@@ -183,45 +185,45 @@ export default function SpatioTemporalMap({ currentRole }) {
         <div ref={mapContainerRef} style={{ flex: 1, width: '100%', height: '100%' }} />
       </div>
 
-      {/* Right Column: Spatio-Temporal Convoys & Hotspot Feed */}
+      {/* Right Column: Vehicle Convoys & Hotspot Alerts */}
       <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px', overflowY: 'auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Truck size={18} color="var(--accent-crimson)" />
-            <h2 style={{ fontSize: '15px', fontFamily: 'var(--font-tech)', color: '#fff', textTransform: 'uppercase' }}>
-              STRP Trajectory Anomaly Feed
+            <h2 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+              Live Vehicle & Movement Tracker
             </h2>
           </div>
-          <span className="badge badge-crimson">Live Radar</span>
+          <span className="badge badge-crimson">Live Alerts</span>
         </div>
-        <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-          Autonomously groups GPS pings, ANPR toll-booth hits, and cell-tower hops to isolate criminal convoys and Near-Repeat crime hotspots.
+        <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
+          Tracks vehicle license plates at highway tolls, tower locations, and crime spots to catch convoys travelling together.
         </p>
 
         {/* Convoy Alerts */}
         <div>
-          <span style={{ fontSize: '11px', color: 'var(--accent-crimson)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase' }}>
-            Detected Vehicle Convoys:
+          <span style={{ fontSize: '11px', color: 'var(--accent-crimson)', textTransform: 'uppercase', fontWeight: 700 }}>
+            🚨 Suspicious Vehicle Convoys (Group Travel):
           </span>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px' }}>
             {clustersData?.detected_convoys?.map((cv, idx) => (
               <div key={idx} style={{
-                background: 'rgba(255, 23, 68, 0.08)',
-                border: '1px solid rgba(255, 23, 68, 0.3)',
+                background: '#fef2f2',
+                border: '1px solid #fecaca',
                 borderRadius: '8px',
                 padding: '10px 12px'
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: 700, color: '#fff' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)' }}>
                     Convoy #{cv.cluster_id} Detected
                   </span>
                   <span className="badge badge-crimson" style={{ fontSize: '9px' }}>High Threat</span>
                 </div>
-                <div style={{ fontSize: '11px', color: 'var(--accent-amber)', fontFamily: 'var(--font-mono)' }}>
-                  Plates: {cv.convoy_vehicles?.join(' • ')}
+                <div style={{ fontSize: '11px', color: '#b91c1c', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
+                  Vehicles: {cv.convoy_vehicles?.join(' • ')}
                 </div>
-                <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                  Suspects: {cv.associated_suspects?.join(', ')}
+                <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '3px' }}>
+                  Suspects: <strong style={{ color: 'var(--text-primary)' }}>{cv.associated_suspects?.join(', ')}</strong>
                 </div>
               </div>
             ))}
@@ -230,26 +232,26 @@ export default function SpatioTemporalMap({ currentRole }) {
 
         {/* Near-Repeat Hotspot Alerts */}
         <div>
-          <span style={{ fontSize: '11px', color: 'var(--accent-amber)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase' }}>
-            Near-Repeat Spatial Hotspots:
+          <span style={{ fontSize: '11px', color: 'var(--accent-amber)', textTransform: 'uppercase', fontWeight: 700 }}>
+            📍 Repeat Incident Areas (Increase Patrols):
           </span>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px' }}>
             {clustersData?.near_repeat_hotspots?.map((hs, idx) => (
               <div key={idx} style={{
-                background: 'rgba(255, 179, 0, 0.08)',
-                border: '1px solid rgba(255, 179, 0, 0.3)',
+                background: '#fffbeb',
+                border: '1px solid #fde68a',
                 borderRadius: '8px',
                 padding: '10px 12px'
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: 700, color: '#fff' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)' }}>
                     {hs.hotspot_id}
                   </span>
                   <span className="badge badge-amber" style={{ fontSize: '9px' }}>
-                    {hs.correlated_crimes_count} Correlated Incidents
+                    {hs.correlated_crimes_count} Linked Incidents
                   </span>
                 </div>
-                <p style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '4px 0 0' }}>
                   {hs.recommended_patrol_focus}
                 </p>
               </div>
