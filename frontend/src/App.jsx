@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import LoginPortal from './components/LoginPortal.jsx';
-import Header from './components/Header.jsx';
+import Sidebar from './components/Sidebar.jsx';
+import TopNavbar from './components/TopNavbar.jsx';
 import DashboardHome from './components/DashboardHome.jsx';
 import GraphRAGConsole from './components/GraphRAGConsole.jsx';
 import KeyPlayerPanel from './components/KeyPlayerPanel.jsx';
@@ -25,6 +26,7 @@ export default function App() {
 
   const [activeTab, setActiveTab] = useState('dashboard');
   const [currentRole, setCurrentRole] = useState('Investigating Officer (IO)');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [systemStatus, setSystemStatus] = useState(null);
   const [graphData, setGraphData] = useState(null);
   const [selectedNodeId, setSelectedNodeId] = useState(null);
@@ -98,94 +100,130 @@ export default function App() {
     }));
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-page)' }}>
-      {/* Top Law-Enforcement Navigation Bar */}
-      <Header
-        currentRole={currentRole}
-        onRoleChange={setCurrentRole}
-        officerUser={officerUser}
-        onLogout={handleLogout}
-        systemStatus={systemStatus}
-        onRefresh={handleRefresh}
-        onOpenCctnsModal={() => setIsCctnsModalOpen(true)}
-        onOpenAddSuspectModal={() => {
-          setPrefilledSuspectData(null);
-          setIsAddSuspectOpen(true);
-        }}
+    <div style={{ minHeight: '100vh', display: 'flex', background: 'var(--bg-page)' }}>
+      {/* 1. Left Sidebar Navigation Bar (Collapsible) */}
+      <Sidebar
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        officerUser={officerUser}
+        onLogout={handleLogout}
+        onOpenCctnsModal={() => setIsCctnsModalOpen(true)}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed(prev => !prev)}
       />
 
-      {/* Main Content Area: Multi-Page Views */}
-      <main style={{ flex: 1, position: 'relative' }}>
-        {/* Page 1: Dashboard Overview */}
-        {activeTab === 'dashboard' && (
-          <DashboardHome
-            officerUser={officerUser}
-            systemStatus={systemStatus}
-            onNavigate={(pageId) => setActiveTab(pageId)}
-            onOpenAddSuspect={() => {
-              setPrefilledSuspectData(null);
-              setIsAddSuspectOpen(true);
-            }}
-            onOpenCctnsModal={() => setIsCctnsModalOpen(true)}
-          />
-        )}
+      {/* 2. Right Main Layout Area */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, height: '100vh', overflow: 'hidden' }}>
+        {/* Top Breadcrumb, Sidebar Toggle & Actions Bar */}
+        <TopNavbar
+          activeTab={activeTab}
+          currentRole={currentRole}
+          onRoleChange={setCurrentRole}
+          onRefresh={handleRefresh}
+          onOpenAddSuspectModal={() => {
+            setPrefilledSuspectData(null);
+            setIsAddSuspectOpen(true);
+          }}
+          onOpenCctnsModal={() => setIsCctnsModalOpen(true)}
+          isSidebarCollapsed={isSidebarCollapsed}
+          onToggleSidebar={() => setIsSidebarCollapsed(prev => !prev)}
+        />
 
-        {/* Page 2: Top Suspects & Arrest Disruption */}
-        {activeTab === 'keyplayer' && (
-          <KeyPlayerPanel
-            currentRole={currentRole}
-          />
-        )}
+        {/* Main Operational Module Display (Only active page shown) */}
+        <main style={{ flex: 1, overflowY: 'auto', background: 'var(--bg-page)' }}>
+          {/* Page 1: Dashboard Overview */}
+          {activeTab === 'dashboard' && (
+            <DashboardHome
+              officerUser={officerUser}
+              systemStatus={systemStatus}
+              onNavigate={(pageId) => setActiveTab(pageId)}
+              onOpenAddSuspect={() => {
+                setPrefilledSuspectData(null);
+                setIsAddSuspectOpen(true);
+              }}
+              onOpenCctnsModal={() => setIsCctnsModalOpen(true)}
+            />
+          )}
 
-        {/* Page 3: Case Q&A & Search */}
-        {activeTab === 'graphrag' && (
-          <GraphRAGConsole
-            currentRole={currentRole}
-          />
-        )}
+          {/* Page 2: Top Suspects & Arrest Disruption */}
+          {activeTab === 'keyplayer' && (
+            <KeyPlayerPanel
+              currentRole={currentRole}
+            />
+          )}
 
-        {/* Page 4: Crime Forecast & Hidden Links */}
-        {activeTab === 'gnn' && (
-          <GNNPredictor
-            currentRole={currentRole}
-          />
-        )}
+          {/* Page 3: Case Q&A & Search */}
+          {activeTab === 'graphrag' && (
+            <GraphRAGConsole
+              currentRole={currentRole}
+            />
+          )}
 
-        {/* Page 5: Crime Map & Vehicle Tracking */}
-        {activeTab === 'spatiotemporal' && (
-          <SpatioTemporalMap
-            currentRole={currentRole}
-          />
-        )}
+          {/* Page 4: Crime Forecast & Hidden Links */}
+          {activeTab === 'gnn' && (
+            <GNNPredictor
+              currentRole={currentRole}
+            />
+          )}
 
-        {/* Page 6: Duplicate Suspect Matcher */}
-        {activeTab === 'entityres' && (
-          <EntityResolutionStudio
-            currentRole={currentRole}
-            onRefreshGraph={handleRefresh}
-          />
-        )}
+          {/* Page 5: Crime Map & Vehicle Tracking */}
+          {activeTab === 'spatiotemporal' && (
+            <SpatioTemporalMap
+              currentRole={currentRole}
+            />
+          )}
 
-        {/* Page 7: Upload FIR & Documents */}
-        {activeTab === 'ingest' && (
-          <DataIngestionStudio
-            currentRole={currentRole}
-            onOpenAddSuspectWithData={(data) => {
-              setPrefilledSuspectData(data);
-              setIsAddSuspectOpen(true);
-            }}
-          />
-        )}
+          {/* Page 6: Duplicate Suspect Matcher */}
+          {activeTab === 'entityres' && (
+            <EntityResolutionStudio
+              currentRole={currentRole}
+              onRefreshGraph={handleRefresh}
+            />
+          )}
 
-        {/* Page 8: Court Evidence Log */}
-        {activeTab === 'audit' && (
-          <AuditLogViewer
-            currentRole={currentRole}
-          />
-        )}
-      </main>
+          {/* Page 7: Upload FIR & Documents */}
+          {activeTab === 'ingest' && (
+            <DataIngestionStudio
+              currentRole={currentRole}
+              onOpenAddSuspectWithData={(data) => {
+                setPrefilledSuspectData(data);
+                setIsAddSuspectOpen(true);
+              }}
+            />
+          )}
+
+          {/* Page 8: Court Evidence Log */}
+          {activeTab === 'audit' && (
+            <AuditLogViewer
+              currentRole={currentRole}
+            />
+          )}
+        </main>
+
+        {/* Official Government Footer */}
+        <footer style={{
+          background: '#0f2942',
+          color: '#cbd5e1',
+          borderTop: '2px solid #ff9933',
+          padding: '6px 20px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '10px',
+          fontSize: '11px',
+          flexShrink: 0
+        }}>
+          <div>
+            <strong style={{ color: '#ffffff' }}>Government of India • Ministry of Home Affairs</strong>
+            <span style={{ margin: '0 8px', color: '#64748b' }}>|</span>
+            <span>CCTNS & ICJS Synchronized Grid</span>
+          </div>
+          <div style={{ color: '#94a3b8' }}>
+            <span>Restricted Police Portal • Certified under BSA 2024 Sec 63</span>
+          </div>
+        </footer>
+      </div>
 
       {/* Add Suspect & Detailed Crime Dossier Modal */}
       <AddSuspectModal
@@ -204,29 +242,6 @@ export default function App() {
         isOpen={isCctnsModalOpen}
         onClose={() => setIsCctnsModalOpen(false)}
       />
-
-      {/* Official Government Footer */}
-      <footer style={{
-        background: '#0f2942',
-        color: '#cbd5e1',
-        borderTop: '3px solid #ff9933',
-        padding: '10px 24px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '10px',
-        fontSize: '11px'
-      }}>
-        <div>
-          <strong style={{ color: '#ffffff' }}>Government of India • Ministry of Home Affairs (MHA)</strong>
-          <span style={{ margin: '0 8px', color: '#64748b' }}>|</span>
-          <span>Inter-Operable Criminal Justice System (ICJS) & CCTNS Integrated</span>
-        </div>
-        <div style={{ color: '#94a3b8' }}>
-          <span>Restricted Law Enforcement Portal • Admissible under Section 63 BSA 2024</span>
-        </div>
-      </footer>
     </div>
   );
 }
