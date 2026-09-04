@@ -432,18 +432,50 @@ LEGAL DOCUMENT TO ANALYZE:
 
     def _extract_statutory(self, text: str) -> Dict[str, Any]:
         is_zero_fir = bool(self.zero_fir_pattern.search(text))
-        raw_sections = self.bns_sec_pattern.findall(text)
         
         statutory_codes = []
-        for sec, statute in raw_sections:
-            statute_name = statute.upper() if statute else "BNS"
-            statutory_codes.append(f"{statute_name} Sec {sec}")
 
-        if not statutory_codes and "bns" in text.lower():
-            statutory_codes.append("BNS Sec 111 (Organized Crime)")
+        # 1. Pattern: Act name preceding Section: "Arms Act 1959 Sec 25/27", "BSA 2024 Sec 63", "IT Act Sec 66D"
+        prefix_act_pattern = re.compile(
+            r"\b(BNS|BNSS|BSA|IPC|NDPS(?:\s*Act)?|UAPA|Arms\s*Act(?:\s*1959)?|IT\s*Act(?:\s*2000)?|PMLA(?:\s*2002)?)\s*(?:\d{4}\s*)?(?:Section|Sec|u\/s|U\/S|धारा|ধারা)\s*([0-9\(\)\,\s\/\-A-Za-z]+?)(?=[,\.\;\n\r]|\s+(?:and|dated|against|with|BSA|BNS|BNSS|Arms)|$)",
+            re.IGNORECASE
+        )
+        for m in prefix_act_pattern.finditer(text):
+            act_raw = m.group(1).strip()
+            sec_raw = m.group(2).strip().strip(":,.-() ")
+            if sec_raw:
+                act_name = "Arms Act 1959" if "arms" in act_raw.lower() else "IT Act 2000" if "it" in act_raw.lower() else "BSA 2024" if "bsa" in act_raw.lower() else "BNS 2024" if "bns" in act_raw.lower() else "BNSS 2024" if "bnss" in act_raw.lower() else "PMLA 2002" if "pmla" in act_raw.lower() else act_raw.upper()
+                statutory_codes.append(f"{act_name} Sec {sec_raw}")
+
+        # 2. Pattern: Section preceding Act: "Section 111 BNS 2024", "Sec 25 Arms Act"
+        suffix_act_pattern = re.compile(
+            r"\b(?:Section|Sec|u\/s|U\/S|धारा|ধারা)\s*(\d+[A-Z]?|\d+\([0-9a-zA-Z]+\)|\d+\/\d+)\s*(?:of\s*)?(BNS(?:\s*2024)?|BNSS(?:\s*2024)?|BSA(?:\s*2024)?|IPC|NDPS(?:\s*Act)?|UAPA|Arms\s*Act(?:\s*1959)?|IT\s*Act(?:\s*2000)?|PMLA)?\b",
+            re.IGNORECASE
+        )
+        for m in suffix_act_pattern.finditer(text):
+            sec_raw = m.group(1).strip()
+            act_raw = m.group(2)
+            if act_raw:
+                act_raw = act_raw.strip()
+                act_name = "Arms Act 1959" if "arms" in act_raw.lower() else "IT Act 2000" if "it" in act_raw.lower() else "BSA 2024" if "bsa" in act_raw.lower() else "BNS 2024" if "bns" in act_raw.lower() else act_raw.upper()
+                statutory_codes.append(f"{act_name} Sec {sec_raw}")
+            else:
+                statutory_codes.append(f"BNS Sec {sec_raw}")
+
+        # Deduplicate preserving order
+        seen = set()
+        deduped = []
+        for code in statutory_codes:
+            clean_code = re.sub(r"\s+", " ", code).strip()
+            if clean_code not in seen:
+                seen.add(clean_code)
+                deduped.append(clean_code)
+
+        if not deduped and "bns" in text.lower():
+            deduped.append("BNS Sec 111 (Organized Crime)")
 
         return {
-            "statutory_sections": list(set(statutory_codes)),
+            "statutory_sections": deduped,
             "zero_fir_status": is_zero_fir,
             "statute_framework": "Bharatiya Nyaya Sanhita (BNS) 2024 / BNSS Sec 173",
             "jurisdiction_reassignment_required": is_zero_fir

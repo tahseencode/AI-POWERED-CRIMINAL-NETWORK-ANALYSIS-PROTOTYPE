@@ -44,6 +44,7 @@ export default function EntityResolutionStudio({ currentRole, onRefreshGraph }) 
       const data = await resp.json();
       setMergeStatus(data);
       if (onRefreshGraph) onRefreshGraph();
+      await fetchErData();
       setTimeout(() => setMergeStatus(null), 4000);
     } catch (err) {
       console.error(err);

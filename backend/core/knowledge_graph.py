@@ -141,21 +141,106 @@ class KnowledgeGraphStore:
         if "HAWALA" in query_upper or "FINANCIAL" in query_upper:
             matched_nodes = [n for n in matched_nodes if any(k in str(n.get("properties", {})).lower() for k in ["hawala", "financial", "bank", "fund", "launder"])]
 
-        # Collect edge endpoints
-        valid_node_ids = {n["id"] for n in matched_nodes}
-        relevant_edges = [e for e in matched_edges if e["source"] in valid_node_ids or e["target"] in valid_node_ids]
+        # Collect edge endpoints and ensure connected nodes are included
+        initial_node_ids = {n["id"] for n in matched_nodes}
+        relevant_edges = [e for e in matched_edges if e["source"] in initial_node_ids or e["target"] in initial_node_ids]
+        
+        # Include all connected endpoint nodes for complete subgraphs
+        complete_node_ids = set(initial_node_ids)
+        for e in relevant_edges:
+            complete_node_ids.add(e["source"])
+            complete_node_ids.add(e["target"])
+            
+        final_nodes = [self.nodes[nid] for nid in complete_node_ids if nid in self.nodes]
 
         return {
             "query": cypher_query,
             "status": "SUCCESS_DETERMINISTIC_TRAVERSAL",
             "results": {
-                "nodes": matched_nodes,
+                "nodes": final_nodes,
                 "edges": relevant_edges,
-                "count_nodes": len(matched_nodes),
+                "count_nodes": len(final_nodes),
                 "count_edges": len(relevant_edges)
             },
             "chain_of_custody_verified": True
         }
+
+    def merge_nodes(self, primary_id: str, secondary_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Merges secondary duplicate node into primary entity node:
+        1. Consolidates aliases, biometric properties, statutory tags.
+        2. Re-routes all incoming and outgoing edges to primary node.
+        3. Removes secondary duplicate node and rebuilds adjacency index.
+        """
+        if primary_id not in self.nodes or secondary_id not in self.nodes:
+            return None
+        if primary_id == secondary_id:
+            return self.nodes[primary_id]
+
+        primary = self.nodes[primary_id]
+        secondary = self.nodes[secondary_id]
+
+        p_props = primary.get("properties", {})
+        s_props = secondary.get("properties", {})
+
+        # Merge Aliases
+        p_aliases = list(p_props.get("aliases", []))
+        s_name = s_props.get("name")
+        if s_name and s_name != p_props.get("name") and s_name not in p_aliases:
+            p_aliases.append(s_name)
+        for a in s_props.get("aliases", []):
+            if a not in p_aliases:
+                p_aliases.append(a)
+        p_props["aliases"] = p_aliases
+
+        # Threat score & Attribute load
+        p_props["threat_score"] = max(float(p_props.get("threat_score", 0.5)), float(s_props.get("threat_score", 0.5)))
+        p_props["attribute_load"] = max(float(p_props.get("attribute_load", 1.0)), float(s_props.get("attribute_load", 1.0)))
+
+        # BNS sections
+        p_bns = list(p_props.get("bns_sections", []))
+        for s in s_props.get("bns_sections", []):
+            if s not in p_bns:
+                p_bns.append(s)
+        p_props["bns_sections"] = p_bns
+
+        # Re-route edges and drop self-loops
+        new_edges = []
+        seen_edges = set()
+
+        for edge in self.edges:
+            s_id = edge["source"]
+            t_id = edge["target"]
+
+            if s_id == secondary_id:
+                s_id = primary_id
+            if t_id == secondary_id:
+                t_id = primary_id
+
+            # Skip self loops
+            if s_id == t_id:
+                continue
+
+            edge_key = (s_id, t_id, edge["type"])
+            if edge_key not in seen_edges:
+                seen_edges.add(edge_key)
+                new_edge = dict(edge)
+                new_edge["source"] = s_id
+                new_edge["target"] = t_id
+                new_edges.append(new_edge)
+
+        self.edges = new_edges
+
+        # Remove secondary node
+        del self.nodes[secondary_id]
+
+        # Rebuild adjacency list
+        self.adj_list = {nid: [] for nid in self.nodes}
+        for e in self.edges:
+            if e["source"] in self.adj_list:
+                self.adj_list[e["source"]].append(e)
+
+        return primary
 
     def serialize_to_cytoscape(self) -> Dict[str, Any]:
         """Formats graph into Cytoscape.js standard JSON format."""

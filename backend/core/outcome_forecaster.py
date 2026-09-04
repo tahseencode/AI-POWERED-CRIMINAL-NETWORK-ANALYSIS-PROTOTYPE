@@ -2,7 +2,7 @@ import re
 import math
 import hashlib
 from typing import Dict, Any, List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 class HistoricalCasePatternPredictor:
     """
@@ -184,7 +184,7 @@ class HistoricalCasePatternPredictor:
 
         return {
             "prediction_status": "HIGH_CONFIDENCE_PATTERN_MATCH",
-            "analysis_timestamp": datetime.utcnow().isoformat() + "Z",
+            "analysis_timestamp": datetime.now(timezone.utc).isoformat(),
             "suspect_analyzed": suspect_name,
             "overall_escalation_probability": escalation_prob,
             "overall_escalation_percentage": f"{round(escalation_prob * 100, 1)}%",

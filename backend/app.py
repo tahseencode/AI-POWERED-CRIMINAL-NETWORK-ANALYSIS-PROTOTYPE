@@ -3,7 +3,7 @@ import json
 import hashlib
 from pathlib import Path
 from typing import Dict, Any, List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import FastAPI, HTTPException, Query, Body, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -256,7 +256,35 @@ def run_entity_resolution():
 
 @app.post("/api/entity-resolution/merge")
 def merge_entities(req: EntityMergeRequest):
-    """Merges two resolved entity nodes in the Knowledge Graph with audit trail."""
+    """Merges two resolved entity nodes in the Knowledge Graph with audit trail and disk persistence."""
+    merged = kg_store.merge_nodes(req.primary_entity_id, req.secondary_entity_id)
+
+    # Persist updated graph to disk
+    try:
+        if Path(CASE_DATA_FILE).exists():
+            with open(CASE_DATA_FILE, "r", encoding="utf-8") as f:
+                cdata = json.load(f)
+            cdata["graph_data"]["nodes"] = list(kg_store.nodes.values())
+            cdata["graph_data"]["edges"] = kg_store.edges
+            
+            # Remove or update merged record in ER dataset
+            er_dataset = cdata.get("entity_resolution_dataset", [])
+            sec_name = ""
+            for r in er_dataset:
+                if r.get("id") == req.secondary_entity_id or req.secondary_entity_id in r.get("id", ""):
+                    sec_name = r.get("full_name", "")
+            
+            # Re-label or remove secondary from ER dataset
+            cdata["entity_resolution_dataset"] = [
+                r for r in er_dataset 
+                if r.get("id") != req.secondary_entity_id and req.secondary_entity_id not in r.get("id", "")
+            ]
+            
+            with open(CASE_DATA_FILE, "w", encoding="utf-8") as f:
+                json.dump(cdata, f, indent=2)
+    except Exception as err:
+        print(f"Warning: Failed to persist ER merge to {CASE_DATA_FILE}: {err}")
+
     audit_logger.log_action(
         officer_badge=req.officer_badge,
         role=req.role,
@@ -264,11 +292,15 @@ def merge_entities(req: EntityMergeRequest):
         query_or_target=f"Merged {req.secondary_entity_id} into {req.primary_entity_id}",
         resource_data={"primary": req.primary_entity_id, "secondary": req.secondary_entity_id}
     )
+
     return {
         "status": "ENTITIES_MERGED_SUCCESSFULLY",
         "unified_node_id": req.primary_entity_id,
         "deprecated_node_id": req.secondary_entity_id,
-        "statutory_note": "Entity resolution merge logged to immutable ledger pursuant to BSA digital standards."
+        "merged_node": merged,
+        "total_nodes_remaining": len(kg_store.nodes),
+        "total_edges_remaining": len(kg_store.edges),
+        "statutory_note": "Entity resolution merge executed and logged to immutable ledger pursuant to BSA digital standards."
     }
 
 # Ingestion & OCR / Legal NER
@@ -463,7 +495,7 @@ async def upload_crime_media_and_extract(
         "statutory_acts": structured_acts,
         "fir_number": fir_num,
         "police_station": thana,
-        "incident_date": stats.get("incident_date") or ocr_result.get("extracted_metadata", {}).get("incident_date") or datetime.utcnow().strftime("%Y-%m-%d %H:%M IST"),
+        "incident_date": stats.get("incident_date") or ocr_result.get("extracted_metadata", {}).get("incident_date") or datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M IST"),
         "incident_locus": stats.get("incident_locus") or (extracted_locs[0] if extracted_locs else "North 24 Parganas Corridor"),
         "case_status": "Under Active Investigation / Evidence Admitted",
         "phone_numbers": extracted_phones,
@@ -477,7 +509,7 @@ async def upload_crime_media_and_extract(
             "file_size_bytes": file_size,
             "sha256_hash": file_hash,
             "bsa_digital_certificate": f"BSA-2024-CERT-{file_hash[:12].upper()}",
-            "verified_at": datetime.utcnow().isoformat() + "Z"
+            "verified_at": datetime.now(timezone.utc).isoformat()
         }
     }
 

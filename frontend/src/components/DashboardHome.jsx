@@ -18,7 +18,8 @@ import {
   ExternalLink,
   Filter,
   CheckCircle2,
-  Database
+  Database,
+  Share2
 } from 'lucide-react';
 
 export default function DashboardHome({ 
@@ -31,6 +32,14 @@ export default function DashboardHome({
   const [alertFilter, setAlertFilter] = useState('ALL');
 
   const modules = [
+    {
+      id: 'graphexplorer',
+      title: 'Interactive Network Graph',
+      subtext: 'Cytoscape-powered multi-hop network explorer',
+      icon: Share2,
+      color: '#0284c7',
+      badge: 'Graph AI'
+    },
     {
       id: 'keyplayer',
       title: 'Wanted Targets & Arrest Plan',

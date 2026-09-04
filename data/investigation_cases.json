@@ -13,7 +13,10 @@
           "aliases": [
             "Tariq Hasan",
             "T. A. Hasani",
-            "Kabir Bhai"
+            "Kabir Bhai",
+            "Sunil 'Doctor' Roy",
+            "Dr. S. K. Roy",
+            "Sunil Kumar Roy"
           ],
           "role": "Syndicate Kingpin / Strategic Boss",
           "threat_score": 0.95,
@@ -25,7 +28,11 @@
             "BNS Sec 111 (Organized Crime Syndicate)",
             "BNS Sec 318 (Cheating & Financial Fraud)",
             "Arms Act Sec 25(1AA) (Prohibited Firearms)",
-            "BSA Sec 63 (Electronic Evidence Admissibility)"
+            "BSA Sec 63 (Electronic Evidence Admissibility)",
+            "BNS Sec 111 (Organized Crime)",
+            "BNS Sec 316 (Criminal Breach of Trust)",
+            "BNS Sec 318 (Cheating)",
+            "PMLA Sec 3 (Money Laundering)"
           ],
           "crime_details": {
             "crime_title": "Operation Ichhapur Matrix: Trans-Border Contraband, Arms & Hawala Conduit",
@@ -65,55 +72,6 @@
             "incident_locus": "Ichhapur Defence Estate Perimeter, North 24 Parganas",
             "case_status": "Active Trial / Non-Bailable Warrant Issued",
             "investigating_officer": "IO-KOLKATA-8842"
-          }
-        }
-      },
-      {
-        "id": "PERSON_002",
-        "label": "Person",
-        "properties": {
-          "name": "Sunil 'Doctor' Roy",
-          "aliases": [
-            "Dr. S. K. Roy",
-            "Sunil Kumar Roy"
-          ],
-          "role": "Chief Hawala Broker & Money Launderer",
-          "threat_score": 0.88,
-          "attribute_load": 4.2,
-          "age": 44,
-          "gender": "Male",
-          "cctns_id": "WB-CCTNS-2026-09102",
-          "bns_sections": [
-            "BNS Sec 111 (Organized Crime)",
-            "BNS Sec 316 (Criminal Breach of Trust)",
-            "BNS Sec 318 (Cheating)",
-            "PMLA Sec 3 (Money Laundering)"
-          ],
-          "crime_details": {
-            "crime_title": "Matrix Impex Shell Banking & Hawala Conduit Laundering",
-            "crime_category": "Financial Fraud, Hawala & PMLA Offence",
-            "incident_narrative": "Channelled over \u20b94.5 Crore of syndicated extortion and narcotics proceeds through fake export-import shell accounts (Matrix Impex at HDFC Park Street) and converted fiat into Bitcoin hardware cold vaults.",
-            "modus_operandi": "Utilized multiple fake GSTIN registrations and structured split cash deposits below \u20b950,000 threshold to evade FIU detection before bulk RTGS transfers into offshore crypto conversion desks.",
-            "seized_contraband": "HDFC Account \u20b94.50 Cr freeze order, 12 counterfeit bank seal stamps, 8 forged KYC pan cards",
-            "statutory_acts": [
-              {
-                "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
-                "section": "Section 316",
-                "title": "Criminal Breach of Trust",
-                "explanation": "Misappropriation of entrusted commercial bank accounts for laundering organized crime proceeds."
-              },
-              {
-                "act": "Prevention of Money Laundering Act (PMLA) 2002",
-                "section": "Section 3 & 4",
-                "title": "Offence of Money-Laundering",
-                "explanation": "Direct involvement in the concealment, possession, acquisition, and projection of untainted property."
-              }
-            ],
-            "fir_number": "FIR-2026/102/WB-PRK",
-            "police_station": "Park Street Special Fraud Thana",
-            "incident_date": "2026-08-20 11:15 IST",
-            "incident_locus": "Park Street Financial Commercial Complex, Kolkata",
-            "case_status": "Charge Sheet Prepared / Bank Accounts Frozen"
           }
         }
       },
@@ -499,17 +457,6 @@
     ],
     "edges": [
       {
-        "id": "EDGE_001",
-        "source": "PERSON_001",
-        "target": "PERSON_002",
-        "type": "COMMANDS",
-        "properties": {
-          "confidence": 0.98,
-          "weight": 2.5,
-          "intercept_count": 84
-        }
-      },
-      {
         "id": "EDGE_002",
         "source": "PERSON_001",
         "target": "PERSON_003",
@@ -522,7 +469,7 @@
       },
       {
         "id": "EDGE_003",
-        "source": "PERSON_002",
+        "source": "PERSON_001",
         "target": "BANK_HDFC_99182",
         "type": "CONTROLS",
         "properties": {
@@ -556,7 +503,7 @@
       },
       {
         "id": "EDGE_006",
-        "source": "PERSON_002",
+        "source": "PERSON_001",
         "target": "PERSON_007",
         "type": "TRANSFERRED_FUNDS_TO",
         "properties": {
@@ -577,7 +524,7 @@
       },
       {
         "id": "EDGE_008",
-        "source": "PERSON_002",
+        "source": "PERSON_001",
         "target": "PHONE_9831998877",
         "type": "OWNS",
         "properties": {
@@ -775,7 +722,7 @@
       },
       {
         "id": "EDGE_027",
-        "source": "PERSON_002",
+        "source": "PERSON_001",
         "target": "INCIDENT_002",
         "type": "ORGANIZED",
         "properties": {

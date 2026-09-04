@@ -73,6 +73,19 @@ def string_similarity(s1: str, s2: str) -> float:
     dist = compute_levenshtein(s1_clean, s2_clean)
     return max(0.0, 1.0 - (dist / max_len))
 
+def normalize_phone(phone: str) -> str:
+    """Normalizes phone to 10-digit numeric string."""
+    digits = re.sub(r"\D", "", str(phone))
+    return digits[-10:] if len(digits) >= 10 else digits
+
+def normalize_plate(plate: str) -> str:
+    """Normalizes vehicle plate by removing hyphens/spaces and uppercasing."""
+    return re.sub(r"[\s\-]", "", str(plate)).upper()
+
+def normalize_fin(fin: str) -> str:
+    """Normalizes bank account or UPI handle."""
+    return re.sub(r"\s+", "", str(fin)).lower()
+
 class FellegiSunterEntityResolver:
     """
     Fellegi-Sunter Probabilistic Record Linkage & Graph-Assisted Deduplication Engine.
@@ -143,9 +156,11 @@ class FellegiSunterEntityResolver:
             total_weight += w_name
             breakdown["full_name"] = {"status": "MISMATCH", "weight": round(w_name, 2), "sim": round(name_sim, 2)}
 
-        # 2. Phone Number Comparison
-        phones1 = set(rec1.get("phones", []))
-        phones2 = set(rec2.get("phones", []))
+        # 2. Phone Number Comparison (Normalized)
+        phones1_raw = rec1.get("phones", [])
+        phones2_raw = rec2.get("phones", [])
+        phones1 = {normalize_phone(p) for p in phones1_raw if normalize_phone(p)}
+        phones2 = {normalize_phone(p) for p in phones2_raw if normalize_phone(p)}
         if phones1 and phones2:
             shared_phones = phones1.intersection(phones2)
             if shared_phones:
@@ -157,9 +172,11 @@ class FellegiSunterEntityResolver:
                 total_weight += w_phone
                 breakdown["phone_number"] = {"status": "DIFFERENT_PHONES", "weight": round(w_phone, 2)}
 
-        # 3. Vehicle License Plate Comparison
-        plates1 = set(rec1.get("vehicles", []))
-        plates2 = set(rec2.get("vehicles", []))
+        # 3. Vehicle License Plate Comparison (Normalized)
+        plates1_raw = rec1.get("vehicles", [])
+        plates2_raw = rec2.get("vehicles", [])
+        plates1 = {normalize_plate(p) for p in plates1_raw if normalize_plate(p)}
+        plates2 = {normalize_plate(p) for p in plates2_raw if normalize_plate(p)}
         if plates1 and plates2:
             shared_plates = plates1.intersection(plates2)
             if shared_plates:
@@ -167,9 +184,11 @@ class FellegiSunterEntityResolver:
                 total_weight += w_plate
                 breakdown["license_plate"] = {"status": "LOGISTICS_MATCH", "weight": round(w_plate, 2), "shared": list(shared_plates)}
 
-        # 4. Bank / Financial Identifiers
-        fin1 = set(rec1.get("financial_ids", []))
-        fin2 = set(rec2.get("financial_ids", []))
+        # 4. Bank / Financial Identifiers (Normalized)
+        fin1_raw = rec1.get("financial_ids", []) or rec1.get("bank_accounts", []) or rec1.get("upi_ids", [])
+        fin2_raw = rec2.get("financial_ids", []) or rec2.get("bank_accounts", []) or rec2.get("upi_ids", [])
+        fin1 = {normalize_fin(f) for f in fin1_raw if normalize_fin(f)}
+        fin2 = {normalize_fin(f) for f in fin2_raw if normalize_fin(f)}
         if fin1 and fin2:
             shared_fin = fin1.intersection(fin2)
             if shared_fin:
@@ -191,15 +210,19 @@ class FellegiSunterEntityResolver:
                 total_weight += w_age
                 breakdown["age_proximity"] = {"status": "DIVERGENT", "weight": round(w_age, 2), "diff": diff}
 
-        # 6. Graph-Assisted Topological Context (Shared Associates)
-        assoc1 = set(rec1.get("known_associates", []))
-        assoc2 = set(rec2.get("known_associates", []))
+        # 6. Graph-Assisted Topological Context (Shared Associates with Fuzzy Matching)
+        assoc1 = list(rec1.get("known_associates", []))
+        assoc2 = list(rec2.get("known_associates", []))
         if assoc1 and assoc2:
-            shared_assoc = assoc1.intersection(assoc2)
+            shared_assoc = []
+            for a1 in assoc1:
+                for a2 in assoc2:
+                    if a1 == a2 or string_similarity(str(a1), str(a2)) >= 0.80:
+                        shared_assoc.append(f"{a1} / {a2}" if a1 != a2 else str(a1))
             if shared_assoc:
                 w_assoc = self.compute_attribute_weight("shared_associate", True, min(1.0, len(shared_assoc) * 0.4))
                 total_weight += w_assoc
-                breakdown["shared_associate"] = {"status": "GRAPH_CONTEXT_MATCH", "weight": round(w_assoc, 2), "shared": list(shared_assoc)}
+                breakdown["shared_associate"] = {"status": "GRAPH_CONTEXT_MATCH", "weight": round(w_assoc, 2), "shared": shared_assoc}
 
         # Determine Decision Category
         if total_weight >= self.match_threshold:
@@ -244,12 +267,12 @@ class FellegiSunterEntityResolver:
                 blocks[f"age_bucket_{age_bucket}"].append(rec)
 
             for phone in rec.get("phones", []):
-                p_clean = re.sub(r"\D", "", phone)
-                if len(p_clean) >= 6:
+                p_clean = normalize_phone(phone)
+                if len(p_clean) >= 5:
                     blocks[f"phone_prefix_{p_clean[:5]}"].append(rec)
 
             for plate in rec.get("vehicles", []):
-                pl_clean = re.sub(r"\s+", "", plate).upper()
+                pl_clean = normalize_plate(plate)
                 if len(pl_clean) >= 4:
                     blocks[f"plate_prefix_{pl_clean[:4]}"].append(rec)
 

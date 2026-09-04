@@ -178,8 +178,14 @@ class GraphRAGQueryEngine:
         )
 
         for i, ev in enumerate(evidence_chain[:5], 1):
-            props = ev["evidence_properties"]
-            amt = f" | Amount: ₹{props['amount']:,}" if "amount" in props else ""
+            props = ev.get("evidence_properties", {})
+            amt = ""
+            if "amount" in props:
+                try:
+                    amt_val = float(str(props["amount"]).replace("₹", "").replace(",", ""))
+                    amt = f" | Amount: ₹{amt_val:,.0f}"
+                except Exception:
+                    amt = f" | Amount: {props['amount']}"
             dur = f" | Duration: {props['duration_seconds']}s" if "duration_seconds" in props else ""
             stat = f" | Statute: {props['statute']}" if "statute" in props else ""
             narrative += f"- **Link {i}**: `{ev['source_entity']}` — **[{ev['relationship']}]** ➔ `{ev['target_entity']}` ({ev['timestamp']}{amt}{dur}{stat}) [BSA Hash: `{ev['bsa_hash'][:12]}...`]\n"

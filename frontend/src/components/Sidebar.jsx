@@ -13,7 +13,8 @@ import {
   Building2,
   ChevronRight,
   ChevronLeft,
-  Menu
+  Menu,
+  Share2
 } from 'lucide-react';
 
 export default function Sidebar({ 
@@ -29,7 +30,8 @@ export default function Sidebar({
     {
       groupTitle: 'MAIN',
       items: [
-        { id: 'dashboard', label: 'Dashboard Overview', icon: LayoutDashboard, badge: 'Overview' }
+        { id: 'dashboard', label: 'Dashboard Overview', icon: LayoutDashboard, badge: 'Overview' },
+        { id: 'graphexplorer', label: 'Interactive Network Graph', icon: Share2, badge: 'Cytoscape' }
       ]
     },
     {

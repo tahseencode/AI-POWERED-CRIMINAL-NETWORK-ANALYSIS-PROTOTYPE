@@ -10,6 +10,7 @@ import SpatioTemporalMap from './components/SpatioTemporalMap.jsx';
 import EntityResolutionStudio from './components/EntityResolutionStudio.jsx';
 import DataIngestionStudio from './components/DataIngestionStudio.jsx';
 import AuditLogViewer from './components/AuditLogViewer.jsx';
+import GraphExplorer from './components/GraphExplorer.jsx';
 import CCTNSPillarsModal from './components/CCTNSPillarsModal.jsx';
 import AddSuspectModal from './components/AddSuspectModal.jsx';
 
@@ -196,6 +197,15 @@ export default function App() {
           {activeTab === 'audit' && (
             <AuditLogViewer
               currentRole={currentRole}
+            />
+          )}
+
+          {/* Page 9: Interactive Knowledge Graph Explorer */}
+          {activeTab === 'graphexplorer' && (
+            <GraphExplorer
+              graphData={graphData}
+              onNodeSelect={(nodeId) => setSelectedNodeId(nodeId)}
+              selectedNodeId={selectedNodeId}
             />
           )}
         </main>

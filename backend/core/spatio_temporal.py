@@ -1,4 +1,5 @@
 import math
+import re
 import time
 from datetime import datetime, timedelta
 from typing import Dict, Any, List, Tuple, Optional
@@ -15,16 +16,49 @@ def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> fl
     return R * c
 
 def parse_iso_time(timestamp_str: str) -> float:
-    """Converts ISO timestamp string or epoch string into epoch hours."""
+    """Converts ISO timestamp string, Indian police datetime format, or epoch string into epoch hours."""
+    if not timestamp_str:
+        return 0.0
+    
+    clean_str = str(timestamp_str).strip()
+    # Strip common timezone suffixes or trailing text
+    clean_str = re.sub(r"\s+(?:IST|UTC|GMT|hrs|hours)$", "", clean_str, flags=re.IGNORECASE).strip()
+
+    # 1. Try ISO parsing
     try:
-        dt = datetime.fromisoformat(timestamp_str.replace("Z", "+00:00"))
+        dt = datetime.fromisoformat(clean_str.replace("Z", "+00:00"))
         return dt.timestamp() / 3600.0
     except Exception:
-        # Fallback if numeric
+        pass
+
+    # 2. Try common datetime patterns
+    formats = [
+        "%Y-%m-%d %H:%M:%S",
+        "%Y-%m-%d %H:%M",
+        "%Y-%m-%d",
+        "%d/%m/%Y %H:%M:%S",
+        "%d/%m/%Y %H:%M",
+        "%d/%m/%Y",
+        "%d-%m-%Y %H:%M:%S",
+        "%d-%m-%Y %H:%M",
+        "%d-%m-%Y"
+    ]
+    for fmt in formats:
         try:
-            return float(timestamp_str) / 3600.0
+            dt = datetime.strptime(clean_str, fmt)
+            return dt.timestamp() / 3600.0
         except Exception:
-            return 0.0
+            continue
+
+    # 3. Numeric epoch fallback
+    try:
+        val = float(clean_str)
+        # If milliseconds epoch
+        if val > 1e11:
+            val = val / 1000.0
+        return val / 3600.0
+    except Exception:
+        return 0.0
 
 class STRP_DBSCAN_Clusterer:
     """
