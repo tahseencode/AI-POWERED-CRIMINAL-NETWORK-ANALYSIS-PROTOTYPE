@@ -13,10 +13,7 @@
           "aliases": [
             "Tariq Hasan",
             "T. A. Hasani",
-            "Kabir Bhai",
-            "Sunil 'Doctor' Roy",
-            "Dr. S. K. Roy",
-            "Sunil Kumar Roy"
+            "Kabir Bhai"
           ],
           "role": "Syndicate Kingpin / Strategic Boss",
           "threat_score": 0.95,
@@ -28,11 +25,7 @@
             "BNS Sec 111 (Organized Crime Syndicate)",
             "BNS Sec 318 (Cheating & Financial Fraud)",
             "Arms Act Sec 25(1AA) (Prohibited Firearms)",
-            "BSA Sec 63 (Electronic Evidence Admissibility)",
-            "BNS Sec 111 (Organized Crime)",
-            "BNS Sec 316 (Criminal Breach of Trust)",
-            "BNS Sec 318 (Cheating)",
-            "PMLA Sec 3 (Money Laundering)"
+            "BSA Sec 63 (Electronic Evidence Admissibility)"
           ],
           "crime_details": {
             "crime_title": "Operation Ichhapur Matrix: Trans-Border Contraband, Arms & Hawala Conduit",
@@ -72,6 +65,55 @@
             "incident_locus": "Ichhapur Defence Estate Perimeter, North 24 Parganas",
             "case_status": "Active Trial / Non-Bailable Warrant Issued",
             "investigating_officer": "IO-KOLKATA-8842"
+          }
+        }
+      },
+      {
+        "id": "PERSON_002",
+        "label": "Person",
+        "properties": {
+          "name": "Sunil 'Doctor' Roy",
+          "aliases": [
+            "Dr. S. K. Roy",
+            "Sunil Kumar Roy"
+          ],
+          "role": "Chief Hawala Broker & Money Launderer",
+          "threat_score": 0.88,
+          "attribute_load": 4.2,
+          "age": 44,
+          "gender": "Male",
+          "cctns_id": "WB-CCTNS-2026-09102",
+          "bns_sections": [
+            "BNS Sec 111 (Organized Crime)",
+            "BNS Sec 316 (Criminal Breach of Trust)",
+            "BNS Sec 318 (Cheating)",
+            "PMLA Sec 3 (Money Laundering)"
+          ],
+          "crime_details": {
+            "crime_title": "Matrix Impex Shell Banking & Hawala Conduit Laundering",
+            "crime_category": "Financial Fraud, Hawala & PMLA Offence",
+            "incident_narrative": "Channelled over \u20b94.5 Crore of syndicated extortion and narcotics proceeds through fake export-import shell accounts (Matrix Impex at HDFC Park Street) and converted fiat into Bitcoin hardware cold vaults.",
+            "modus_operandi": "Utilized multiple fake GSTIN registrations and structured split cash deposits below \u20b950,000 threshold to evade FIU detection before bulk RTGS transfers into offshore crypto conversion desks.",
+            "seized_contraband": "HDFC Account \u20b94.50 Cr freeze order, 12 counterfeit bank seal stamps, 8 forged KYC pan cards",
+            "statutory_acts": [
+              {
+                "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
+                "section": "Section 316",
+                "title": "Criminal Breach of Trust",
+                "explanation": "Misappropriation of entrusted commercial bank accounts for laundering organized crime proceeds."
+              },
+              {
+                "act": "Prevention of Money Laundering Act (PMLA) 2002",
+                "section": "Section 3 & 4",
+                "title": "Offence of Money-Laundering",
+                "explanation": "Direct involvement in the concealment, possession, acquisition, and projection of untainted property."
+              }
+            ],
+            "fir_number": "FIR-2026/102/WB-PRK",
+            "police_station": "Park Street Special Fraud Thana",
+            "incident_date": "2026-08-20 11:15 IST",
+            "incident_locus": "Park Street Financial Commercial Complex, Kolkata",
+            "case_status": "Charge Sheet Prepared / Bank Accounts Frozen"
           }
         }
       },
@@ -453,9 +495,262 @@
           "investigating_officer": "IO-KOLKATA-8842",
           "case_status": "Charge Sheet Prepared / Court Committal"
         }
+      },
+      {
+        "id": "PERSON_008",
+        "label": "Person",
+        "properties": {
+          "name": "Arjun 'Ghost' Mukherjee",
+          "aliases": [
+            "A. Mukherjee",
+            "Ghost Armorer"
+          ],
+          "role": "Firearms Courier & Safehouse Custodian",
+          "threat_score": 0.82,
+          "attribute_load": 2.5,
+          "age": 36,
+          "gender": "Male",
+          "cctns_id": "WB-CCTNS-2026-84984",
+          "bns_sections": [
+            "Bharatiya Nyaya Sanhita (BNS) 2024 Section 111",
+            "Arms Act 1959 Section 25"
+          ],
+          "crime_details": {
+            "crime_title": "Inter-State Contraband Logistics & Cache Transit",
+            "crime_category": "Armed Weapon Trafficking & Logistics",
+            "incident_narrative": "Transferred illegal ordnance consignments from Asansol border to Ichhapur safehouse.",
+            "modus_operandi": "Concealed compartment in cargo van WB-04-T-1122 with fake delivery papers.",
+            "seized_contraband": "2x 9mm country pistols, 30 rounds, \u20b912,00,000 cash",
+            "statutory_acts": [
+              {
+                "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
+                "section": "Section 111",
+                "title": "Organized Crime Syndicate Offence",
+                "explanation": "Continuous organized crime trafficking."
+              },
+              {
+                "act": "Arms Act 1959",
+                "section": "Section 25",
+                "title": "Illegal Firearms",
+                "explanation": "Transporting unlicenced lethal weapons."
+              }
+            ],
+            "fir_number": "FIR-2026/358/WB-BKP",
+            "police_station": "Barrackpore Special Thana",
+            "incident_date": "2026-08-28 19:30 IST",
+            "incident_locus": "Ichhapur Safehouse Corridor",
+            "case_status": "Under Active Investigation / Warrant Issued",
+            "investigating_officer": "IO-KOLKATA-8842"
+          },
+          "evidence_attachment": null,
+          "predicted_outcome": {
+            "prediction_status": "HIGH_CONFIDENCE_PATTERN_MATCH",
+            "analysis_timestamp": "2026-09-05T17:05:11.527446+00:00",
+            "suspect_analyzed": "Arjun 'Ghost' Mukherjee",
+            "overall_escalation_probability": 0.6,
+            "overall_escalation_percentage": "60.0%",
+            "threat_classification": "HIGH_OPERATIONAL_RISK",
+            "matched_historical_precedent": {
+              "case_id": "HIST-CASE-2024-ICH-09",
+              "case_title": "Operation Ordnance Guard: Barrackpore-Ichhapur Arms Conduit (2024)",
+              "similarity_percentage": "45.0%",
+              "similarity_score": 0.45,
+              "actual_historical_outcome": "Syndicate attempted armed intimidation at industrial depot on Day 5 before lead courier was intercepted at Barrackpore Toll using ANPR roadblock."
+            },
+            "forecasted_outcome_timeline": [
+              {
+                "timeframe": "24 to 48 Hours (Imminent)",
+                "predicted_action": "Vehicle & Cache Transit: Movement of hidden firearm caches to peripheral safehouse dropoff points under darkness cover.",
+                "probability": "88.5%",
+                "threat_level": "HIGH",
+                "operational_indicator": "Burner SIM inactivity spikes followed by brief burst coordinates on NH highway corridors."
+              },
+              {
+                "timeframe": "3 to 5 Days (Tactical Evolution)",
+                "predicted_action": "Armed Extortion Enforcement: Targeted intimidation and warning shots fired at commercial targets to enforce syndicate protection fees.",
+                "probability": "82.4%",
+                "threat_level": "CRITICAL",
+                "operational_indicator": "Motorcycle scout reconnaissance spotted near industrial perimeter gates."
+              },
+              {
+                "timeframe": "6 to 10 Days (Syndicate Climax / High-Risk)",
+                "predicted_action": "Multi-State Exfiltration & Syndicate Dispersion: Core operatives split into separate transport corridors towards interstate borders (Siliguri/Jharkhand) to evade imminent warrant execution.",
+                "probability": "78.0%",
+                "threat_level": "CRITICAL",
+                "operational_indicator": "Simultaneous discard of primary burner SIM numbers and disposal of registered carrier vehicles."
+              }
+            ],
+            "tactical_intervention_strategy": {
+              "primary_action": "Establish high-speed ANPR roadblock at toll approaches and seize vehicle hydraulic floor cache before convoy separation.",
+              "statutory_mandate": "Pursuant to BNS 2024 Sec 111 (Organized Crime) & Arms Act 1959 Sec 25(1AA) & BNSS Sec 173",
+              "critical_window_hours": 36,
+              "disruption_efficacy_projected": "57.1%",
+              "recommended_warrant": "Non-Bailable Interception & Asset Attachment Warrant"
+            },
+            "all_matched_precedents": [
+              {
+                "case_id": "HIST-CASE-2024-ICH-09",
+                "case_title": "Operation Ordnance Guard: Barrackpore-Ichhapur Arms Conduit (2024)",
+                "crime_category": "Organized Crime Syndicate & Arms Smuggling",
+                "similarity_score": 0.45,
+                "similarity_percentage": "45.0%",
+                "historical_escalation": [
+                  {
+                    "phase": "Day 1-2",
+                    "event": "Arrival of interstate arms trunk shipment via NH highway corridor",
+                    "risk_level": "MODERATE"
+                  },
+                  {
+                    "phase": "Day 3-4",
+                    "event": "Safehouse caching and distribution to local extortion enforcers",
+                    "risk_level": "HIGH"
+                  },
+                  {
+                    "phase": "Day 5-6",
+                    "event": "Armed intimidation / warning firing at local merchant facilities",
+                    "risk_level": "CRITICAL"
+                  },
+                  {
+                    "phase": "Day 7+",
+                    "event": "Couriers split into separate getaway vehicles heading towards North Bengal border",
+                    "risk_level": "CRITICAL"
+                  }
+                ],
+                "actual_historical_outcome": "Syndicate attempted armed intimidation at industrial depot on Day 5 before lead courier was intercepted at Barrackpore Toll using ANPR roadblock.",
+                "best_countermeasure": "Establish high-speed ANPR roadblock at toll approaches and seize vehicle hydraulic floor cache before convoy separation.",
+                "statutory_act_applied": "BNS 2024 Sec 111 (Organized Crime) & Arms Act 1959 Sec 25(1AA)"
+              },
+              {
+                "case_id": "HIST-CASE-2024-KOL-88",
+                "case_title": "Operation Golden Anchor: Kolkata Port Hawala & Crypto Layering (2024)",
+                "crime_category": "Financial Fraud, Hawala & PMLA Offence",
+                "similarity_score": 0.45,
+                "similarity_percentage": "45.0%",
+                "historical_escalation": [
+                  {
+                    "phase": "Day 1-2",
+                    "event": "Bulk cash collection from angadia couriers in Burrabazar commercial market",
+                    "risk_level": "MODERATE"
+                  },
+                  {
+                    "phase": "Day 3-4",
+                    "event": "Layering across dummy director accounts and immediate conversion to USDT/Bitcoin",
+                    "risk_level": "HIGH"
+                  },
+                  {
+                    "phase": "Day 5-6",
+                    "event": "Cash withdrawal spikes at distributed suburban ATMs to drain residual balances",
+                    "risk_level": "CRITICAL"
+                  },
+                  {
+                    "phase": "Day 7+",
+                    "event": "Key broker absconds abroad with cold storage hardware wallet credentials",
+                    "risk_level": "CRITICAL"
+                  }
+                ],
+                "actual_historical_outcome": "\u20b93.8 Crore illicit fiat converted into offshore crypto vaults within 96 hours before bank freeze orders could take effect.",
+                "best_countermeasure": "Execute immediate provisional attachment under PMLA Section 5 and freeze linked UPI VPA handles within 24 hours.",
+                "statutory_act_applied": "PMLA 2002 Sec 3/4 & BNS 2024 Sec 316 (Criminal Breach of Trust)"
+              },
+              {
+                "case_id": "HIST-CASE-2025-CYB-12",
+                "case_title": "Operation GhostSwitch: Salt Lake SIM-Box & Digital Arrest Extortion (2025)",
+                "crime_category": "Cyber Extortion & Telecom Gateway Fraud",
+                "similarity_score": 0.45,
+                "similarity_percentage": "45.0%",
+                "historical_escalation": [
+                  {
+                    "phase": "Day 1-2",
+                    "event": "Activation of cloned SIM batch and VoIP gateway connection to offshore caller pool",
+                    "risk_level": "MODERATE"
+                  },
+                  {
+                    "phase": "Day 3-4",
+                    "event": "Automated blast calls targeting senior citizens and business owners",
+                    "risk_level": "HIGH"
+                  },
+                  {
+                    "phase": "Day 5-6",
+                    "event": "Aggressive video call extortion using AI synthesized uniform avatars",
+                    "risk_level": "CRITICAL"
+                  },
+                  {
+                    "phase": "Day 7+",
+                    "event": "SIM box relocated to alternate rental apartment upon cell tower signal flagging",
+                    "risk_level": "HIGH"
+                  }
+                ],
+                "actual_historical_outcome": "Extorted \u20b965 Lakh from 14 victims within 72 hours before SIM box RF triangulation pinpointed residential hub in Salt Lake.",
+                "best_countermeasure": "Initiate real-time RF triangulation and CDR cell-ID correlation with telecom service provider to raid gateway node.",
+                "statutory_act_applied": "IT Act 2000 Sec 66D & BNS 2024 Sec 318 (Cheating by Personation)"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "INCIDENT_025",
+        "label": "CrimeIncident",
+        "properties": {
+          "name": "Inter-State Contraband Logistics & Cache Transit",
+          "category": "Armed Weapon Trafficking & Logistics",
+          "summary": "Transferred illegal ordnance consignments from Asansol border to Ichhapur safehouse.",
+          "seized_items": "2x 9mm country pistols, 30 rounds, \u20b912,00,000 cash",
+          "date": "2026-08-28T19:30:00Z",
+          "locus": "Ichhapur Safehouse Corridor",
+          "threat_level": "CRITICAL"
+        }
+      },
+      {
+        "id": "PHONE_9874990011",
+        "label": "Phone",
+        "properties": {
+          "number": "+919874990011",
+          "subscriber": "Arjun 'Ghost' Mukherjee",
+          "service_provider": "Airtel / Jio"
+        }
+      },
+      {
+        "id": "VEHICLE_WB04T1122",
+        "label": "Vehicle",
+        "properties": {
+          "plate_number": "WB-04-T-1122",
+          "make_model": "Transport Vehicle",
+          "registered_owner": "Arjun 'Ghost' Mukherjee"
+        }
+      },
+      {
+        "id": "BANK_882211",
+        "label": "BankAccount",
+        "properties": {
+          "account_number": "301044882211",
+          "bank_name": "Commercial Bank",
+          "holder": "Arjun 'Ghost' Mukherjee",
+          "balance_flagged": 2500000
+        }
+      },
+      {
+        "id": "LOC_ICHHAPUR_SAFEHO",
+        "label": "Location",
+        "properties": {
+          "name": "Ichhapur Safehouse",
+          "district": "West Bengal",
+          "facility_type": "Suspect Locus"
+        }
       }
     ],
     "edges": [
+      {
+        "id": "EDGE_001",
+        "source": "PERSON_001",
+        "target": "PERSON_002",
+        "type": "COMMANDS",
+        "properties": {
+          "confidence": 0.98,
+          "weight": 2.5,
+          "intercept_count": 84
+        }
+      },
       {
         "id": "EDGE_002",
         "source": "PERSON_001",
@@ -469,7 +764,7 @@
       },
       {
         "id": "EDGE_003",
-        "source": "PERSON_001",
+        "source": "PERSON_002",
         "target": "BANK_HDFC_99182",
         "type": "CONTROLS",
         "properties": {
@@ -503,7 +798,7 @@
       },
       {
         "id": "EDGE_006",
-        "source": "PERSON_001",
+        "source": "PERSON_002",
         "target": "PERSON_007",
         "type": "TRANSFERRED_FUNDS_TO",
         "properties": {
@@ -524,7 +819,7 @@
       },
       {
         "id": "EDGE_008",
-        "source": "PERSON_001",
+        "source": "PERSON_002",
         "target": "PHONE_9831998877",
         "type": "OWNS",
         "properties": {
@@ -722,12 +1017,74 @@
       },
       {
         "id": "EDGE_027",
-        "source": "PERSON_001",
+        "source": "PERSON_002",
         "target": "INCIDENT_002",
         "type": "ORGANIZED",
         "properties": {
           "confidence": 0.99,
           "weight": 2.8
+        }
+      },
+      {
+        "id": "EDGE_028",
+        "source": "PERSON_008",
+        "target": "INCIDENT_025",
+        "type": "INVOLVED_IN",
+        "properties": {
+          "confidence": 0.99,
+          "weight": 2.2,
+          "role": "Firearms Courier & Safehouse Custodian"
+        }
+      },
+      {
+        "id": "EDGE_029",
+        "source": "PERSON_008",
+        "target": "PHONE_9874990011",
+        "type": "OWNS",
+        "properties": {
+          "confidence": 0.99
+        }
+      },
+      {
+        "id": "EDGE_030",
+        "source": "PERSON_008",
+        "target": "VEHICLE_WB04T1122",
+        "type": "OPERATES_IN",
+        "properties": {
+          "confidence": 0.95,
+          "weight": 1.8
+        }
+      },
+      {
+        "id": "EDGE_031",
+        "source": "PERSON_008",
+        "target": "BANK_882211",
+        "type": "CONTROLS",
+        "properties": {
+          "confidence": 0.98,
+          "weight": 2.5
+        }
+      },
+      {
+        "id": "EDGE_032",
+        "source": "PERSON_008",
+        "target": "LOC_ICHHAPUR_SAFEHO",
+        "type": "PRESENT_AT",
+        "properties": {
+          "confidence": 0.94,
+          "weight": 1.7,
+          "timestamp": "2026-08-28T18:00:00Z"
+        }
+      },
+      {
+        "id": "EDGE_033",
+        "source": "PERSON_008",
+        "target": "PERSON_001",
+        "type": "COLLABORATES_WITH",
+        "properties": {
+          "confidence": 0.96,
+          "weight": 2.0,
+          "intercept_count": 15
         }
       }
     ]
@@ -835,6 +1192,24 @@
         "Tariq Al-Hasani"
       ],
       "source_db": "Legacy CCTNS West Bengal (2023)"
+    },
+    {
+      "id": "REC_NEW_PERSON_008",
+      "full_name": "Arjun 'Ghost' Mukherjee",
+      "age": 36,
+      "phones": [
+        "+919874990011"
+      ],
+      "vehicles": [
+        "WB-04-T-1122"
+      ],
+      "financial_ids": [
+        "301044882211"
+      ],
+      "known_associates": [
+        "PERSON_001"
+      ],
+      "source_db": "Barrackpore Special Thana Digital Record (2026)"
     }
   ],
   "spatio_temporal_events": [

@@ -2482,5 +2482,77 @@
     "prev_entry_hash": "3b9833ab2bbfae5aa0c608c832633ad0fbfbc005fc1dcc955005b4dcd9115572",
     "entry_hash": "16cd23dfb7143a7d9c35b01de9bb80b8c3d8d48c6f8d55664ac471bce5ecd282",
     "hmac_sig": "667c929ab69bef4b8b1bb70884deb238009bb00d980ec437f7f0ac407afa2409"
+  },
+  {
+    "log_index": 207,
+    "timestamp": "2026-09-05T17:03:48.788612+00:00Z",
+    "officer_badge": "IO-KOLKATA-8842",
+    "role": "Investigating Officer (IO)",
+    "action": "GRAPHRAG_INTELLIGENCE_INTERROGATION",
+    "query_or_target": "Show me financial transfers connected to hawala",
+    "resource_hash": "d173fe99ccd753fae63b03438946fb0e2d3fb27a74babb1c55252093be3110c1",
+    "prev_entry_hash": "16cd23dfb7143a7d9c35b01de9bb80b8c3d8d48c6f8d55664ac471bce5ecd282",
+    "entry_hash": "30bf967ece2891e681d86221247713e7bf05b762f899b3fa8f00fcd856c15e38",
+    "hmac_sig": "c3a719c7c35ec287d28d232cdd88a7186c75e74ebd09e57a6c669a2c6f037d2b"
+  },
+  {
+    "log_index": 208,
+    "timestamp": "2026-09-05T17:04:02.167431+00:00Z",
+    "officer_badge": "TEST-IO-999",
+    "role": "Investigating Officer (IO)",
+    "action": "TEST_ACTION",
+    "query_or_target": "Unit test verification",
+    "resource_hash": "e8a09e7c9dbb47c4293edec3a284129a91e7d8ed367bde3bcbb2e94054169882",
+    "prev_entry_hash": "30bf967ece2891e681d86221247713e7bf05b762f899b3fa8f00fcd856c15e38",
+    "entry_hash": "bd85eb89015edb46ffae4ab47e10fc7512f092d36aa4a1c6ac4a87d65a255914",
+    "hmac_sig": "aecd4e3f0951596390ff995560cbad52bd8e1e5fcd87c5d90193b678d04ab202"
+  },
+  {
+    "log_index": 209,
+    "timestamp": "2026-09-05T17:05:07.403241+00:00Z",
+    "officer_badge": "IO-KOLKATA-8842",
+    "role": "Investigating Officer (IO)",
+    "action": "GRAPHRAG_INTELLIGENCE_INTERROGATION",
+    "query_or_target": "Show me hawala transfers",
+    "resource_hash": "d173fe99ccd753fae63b03438946fb0e2d3fb27a74babb1c55252093be3110c1",
+    "prev_entry_hash": "bd85eb89015edb46ffae4ab47e10fc7512f092d36aa4a1c6ac4a87d65a255914",
+    "entry_hash": "88d9f43d2a375c5712ef5ae8b18d0e0c5fa7f9d6b34cf544ffb46bdca27508b3",
+    "hmac_sig": "2864b5808466d9870b3aafa7796e213be22206670347b1e483f1b08b28c67a38"
+  },
+  {
+    "log_index": 210,
+    "timestamp": "2026-09-05T17:05:09.469508+00:00Z",
+    "officer_badge": "IA-SPECIAL-CELL-104",
+    "role": "Intelligence Analyst (IA)",
+    "action": "NETWORK_DISRUPTION_SIMULATION",
+    "query_or_target": "Targets: PERSON_001, PERSON_002",
+    "resource_hash": "9d7232eb21ba233ff40a755028603115a9ca35231d186584db7271345231c49a",
+    "prev_entry_hash": "88d9f43d2a375c5712ef5ae8b18d0e0c5fa7f9d6b34cf544ffb46bdca27508b3",
+    "entry_hash": "777d7d2dfbf08e68e708e8f86b6e7703c3b72625c422910875f6a5b6fef1d054",
+    "hmac_sig": "0a9d167f3c3610f5a90f7fecb563aca1c326bc2a6336c2a093d720cc1bd5886d"
+  },
+  {
+    "log_index": 211,
+    "timestamp": "2026-09-05T17:05:11.537540+00:00Z",
+    "officer_badge": "IO-KOLKATA-8842",
+    "role": "Firearms Courier & Safehouse Custodian",
+    "action": "SUSPECT_INGESTION_WITH_CRIME_DETAILS",
+    "query_or_target": "Added Suspect: Arjun 'Ghost' Mukherjee (PERSON_008) | Crime: Inter-State Contraband Logistics & Cache Transit",
+    "resource_hash": "3b559e3f3ee1a17d4fac8ab08f56f2cea10cf1117c5fdd6d05e2d94dba7012e9",
+    "prev_entry_hash": "777d7d2dfbf08e68e708e8f86b6e7703c3b72625c422910875f6a5b6fef1d054",
+    "entry_hash": "91b43e41a80b32fe49356d70529ddee8570f250f86e6ef1996ba479757f008b1",
+    "hmac_sig": "ba83bbbfcda8ee42dc0350dad5ae77ad0ee39636d93647191ac7d62717de2798"
+  },
+  {
+    "log_index": 212,
+    "timestamp": "2026-09-05T17:05:32.731173+00:00Z",
+    "officer_badge": "IO-KOLKATA-8842",
+    "role": "Investigating Officer (IO)",
+    "action": "MEDIA_PROOF_UPLOAD_AND_AI_EXTRACTION",
+    "query_or_target": "File: pasted_report.txt (SHA-256: ecf486d55f...)",
+    "resource_hash": "3d8afc765712010fe8bbd4ab29dbb6dc4304c5aff5fbb747e600d24546808334",
+    "prev_entry_hash": "91b43e41a80b32fe49356d70529ddee8570f250f86e6ef1996ba479757f008b1",
+    "entry_hash": "c70ca5348c09245a069811b0a98957c8acaeac219fc39dcc21a442264bff7230",
+    "hmac_sig": "1a5849f2359b95185c2025874a672655912d99104ffd869bdd2f6b6a11a88108"
   }
 ]
