@@ -22,6 +22,8 @@ from backend.core.gnn_predictive import gnn_engine
 from backend.core.spatio_temporal import strp_dbscan_clusterer
 from backend.core.outcome_forecaster import outcome_predictor
 from backend.core.data_generator import initialize_knowledge_graph, generate_default_intelligence_cases
+from backend.core.database import db_manager
+
 
 # Initialize data and knowledge graph
 initial_case_data = initialize_knowledge_graph()
@@ -118,6 +120,80 @@ class AddSuspectRequest(BaseModel):
     officer_badge: Optional[str] = "IO-KOLKATA-8842"
     role: Optional[str] = UserRole.INVESTIGATING_OFFICER.value
 
+# User & SQL Database Request Models
+class UserLoginRequest(BaseModel):
+    user_id: str
+    password: str
+    station: Optional[str] = None
+    role: Optional[str] = None
+
+class UserRegisterRequest(BaseModel):
+    user_id: str
+    full_name: str
+    password: str
+    role: Optional[str] = "Investigating Officer (IO)"
+    station: Optional[str] = "Barrackpore Special Thana (North 24 Parganas)"
+    badge_number: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    department: Optional[str] = "Organized Crime & Firearms Investigation Wing"
+    is_admin: Optional[int] = 0
+
+class UserLogoutRequest(BaseModel):
+    session_id: str
+    user_id: Optional[str] = None
+
+class UserProfileUpdateRequest(BaseModel):
+    full_name: Optional[str] = None
+    badge_number: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    station: Optional[str] = None
+    department: Optional[str] = None
+    role: Optional[str] = None
+
+class UserActivityLogRequest(BaseModel):
+    user_id: str
+    officer_name: Optional[str] = None
+    role: Optional[str] = None
+    action_type: str
+    target_resource: Optional[str] = None
+    details: Optional[Dict[str, Any]] = None
+
+class CaseNoteCreateRequest(BaseModel):
+    user_id: str
+    title: str
+    note_content: str
+    officer_name: Optional[str] = None
+    case_id: Optional[str] = "FIR-142/2026/WB-BKP"
+    suspect_id: Optional[str] = None
+    priority: Optional[str] = "MEDIUM"
+    tags: Optional[List[str]] = []
+
+class FieldReportCreateRequest(BaseModel):
+    subject: str
+    description: str
+    report_type: Optional[str] = "FIELD_INTELLIGENCE"
+    reporter_name: Optional[str] = "Field Operative"
+    user_id: Optional[str] = "IO-8842"
+    location: Optional[str] = "Barrackpore Jurisdiction"
+    evidence_refs: Optional[str] = None
+
+class FieldReportStatusUpdateRequest(BaseModel):
+    status: str
+
+class SavedQueryCreateRequest(BaseModel):
+    user_id: str
+    query_text: str
+    query_type: Optional[str] = "GRAPHRAG"
+    result_summary: Optional[str] = None
+    is_starred: Optional[int] = 0
+
+class RawSqlQueryRequest(BaseModel):
+    sql_query: str
+    limit: Optional[int] = 100
+
+
 # ==========================================
 # API ROUTES
 # ==========================================
@@ -164,16 +240,45 @@ def execute_cypher(req: CypherQueryRequest):
         query_or_target=req.query,
         resource_data={"matched_nodes": res["results"]["count_nodes"]}
     )
+    # Log to SQL user database
+    db_manager.save_user_query(
+        user_id=req.officer_badge or "IO-KOLKATA-8842",
+        query_text=req.query,
+        query_type="CYPHER",
+        result_summary=f"Matched {res['results']['count_nodes']} nodes"
+    )
+    db_manager.log_user_activity(
+        user_id=req.officer_badge or "IO-KOLKATA-8842",
+        role=req.role,
+        action_type="CYPHER_DIRECT_EXECUTION",
+        target_resource=req.query[:60],
+        details={"matched_nodes": res["results"]["count_nodes"]}
+    )
     return res
 
 @app.post("/api/graphrag/query")
 def query_graphrag(req: GraphRAGRequest):
     """Dynamic GraphRAG Interrogation with deterministic Cypher translation."""
-    return graph_rag_engine.query(
+    res = graph_rag_engine.query(
         natural_language_prompt=req.prompt,
         officer_badge=req.officer_badge,
         role=req.role
     )
+    # Log to SQL user database
+    db_manager.save_user_query(
+        user_id=req.officer_badge or "IO-KOLKATA-8842",
+        query_text=req.prompt,
+        query_type="GRAPHRAG",
+        result_summary=res.get("summary", "")[:120] if isinstance(res, dict) else ""
+    )
+    db_manager.log_user_activity(
+        user_id=req.officer_badge or "IO-KOLKATA-8842",
+        role=req.role,
+        action_type="GRAPHRAG_INTERROGATION",
+        target_resource=req.prompt[:60],
+        details={"confidence": res.get("confidence_score") if isinstance(res, dict) else None}
+    )
+    return res
 
 # Analytics Endpoints
 @app.get("/api/analytics/centrality")
@@ -945,6 +1050,20 @@ def add_new_suspect(req: AddSuspectRequest):
         }
     )
 
+    # SQL User Database Activity Tracking
+    db_manager.log_user_activity(
+        user_id=req.officer_badge or "IO-KOLKATA-8842",
+        role=req.role or "Investigating Officer (IO)",
+        action_type="ADD_SUSPECT_WITH_CRIME_PROFILE",
+        target_resource=f"Suspect: {req.name} ({suspect_id})",
+        details={
+            "crime_title": req.crime_title,
+            "threat_score": req.threat_score,
+            "fir_number": crime_details.get("fir_number")
+        }
+    )
+
+
     return {
         "success": True,
         "message": f"Suspect '{req.name}' with detailed crime dossier successfully added to Knowledge Graph.",
@@ -973,6 +1092,219 @@ def get_cctns_pillars():
             cdata = json.load(f)
         return cdata.get("cctns_icjs_pillars", {})
     return initial_case_data.get("cctns_icjs_pillars", {})
+
+# ==========================================
+# RELATIONAL SQL DATABASE & USER DATA ROUTES
+# ==========================================
+
+@app.post("/api/auth/login")
+def api_login(req: UserLoginRequest):
+    """Authenticates officer credentials against SQL users table and creates an active session."""
+    user = db_manager.authenticate_user(
+        user_id=req.user_id,
+        password=req.password
+    )
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid Officer Service ID or Password.")
+    return {
+        "success": True,
+        "message": "Officer authentication successful.",
+        "user": user
+    }
+
+@app.post("/api/auth/register")
+def api_register(req: UserRegisterRequest):
+    """Registers a new officer user into the SQL database."""
+    try:
+        new_user = db_manager.register_user(
+            user_id=req.user_id,
+            full_name=req.full_name,
+            password=req.password,
+            role=req.role or "Investigating Officer (IO)",
+            station=req.station,
+            badge_number=req.badge_number,
+            email=req.email,
+            phone=req.phone,
+            department=req.department,
+            is_admin=req.is_admin or 0
+        )
+        return {
+            "success": True,
+            "message": f"Officer '{req.full_name}' successfully registered in SQL database.",
+            "user": new_user
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/api/auth/logout")
+def api_logout(req: UserLogoutRequest):
+    """Ends user session in SQL database."""
+    db_manager.logout_session(session_id=req.session_id, user_id=req.user_id)
+    return {"success": True, "message": "Logged out successfully."}
+
+@app.get("/api/users")
+def get_all_users(
+    limit: int = 50,
+    offset: int = 0,
+    role: Optional[str] = None,
+    search: Optional[str] = None
+):
+    """Retrieves all registered officer accounts and activity metrics from SQL."""
+    users = db_manager.get_users(limit=limit, offset=offset, role=role, search=search)
+    return {
+        "total_returned": len(users),
+        "users": users
+    }
+
+
+@app.get("/api/users/activity")
+def get_user_activity_logs(
+    user_id: Optional[str] = None,
+    action_type: Optional[str] = None,
+    limit: int = 50
+):
+    """Retrieves live user activity & investigative telemetry stream from SQL."""
+    logs = db_manager.get_user_activity(user_id=user_id, action_type=action_type, limit=limit)
+    return {
+        "total": len(logs),
+        "logs": logs
+    }
+
+@app.post("/api/users/activity")
+def log_user_action(req: UserActivityLogRequest):
+    """Explicitly records an investigator telemetry action in SQL."""
+    log = db_manager.log_user_activity(
+        user_id=req.user_id,
+        officer_name=req.officer_name,
+        role=req.role,
+        action_type=req.action_type,
+        target_resource=req.target_resource,
+        details=req.details
+    )
+    return {"success": True, "log": log}
+
+@app.get("/api/users/notes")
+def get_case_notes(
+    user_id: Optional[str] = None,
+    suspect_id: Optional[str] = None,
+    case_id: Optional[str] = None,
+    limit: int = 50
+):
+    """Retrieves case notes and annotations from SQL database."""
+    notes = db_manager.get_case_notes(
+        user_id=user_id,
+        suspect_id=suspect_id,
+        case_id=case_id,
+        limit=limit
+    )
+    return {"total": len(notes), "notes": notes}
+
+@app.post("/api/users/notes")
+def create_case_note(req: CaseNoteCreateRequest):
+    """Saves a new case note or investigator observation in SQL."""
+    note = db_manager.create_case_note(
+        user_id=req.user_id,
+        title=req.title,
+        note_content=req.note_content,
+        officer_name=req.officer_name,
+        case_id=req.case_id,
+        suspect_id=req.suspect_id,
+        priority=req.priority or "MEDIUM",
+        tags=req.tags or []
+    )
+    return {"success": True, "note": note}
+
+@app.delete("/api/users/notes/{note_id}")
+def delete_case_note(note_id: int, user_id: Optional[str] = None):
+    """Deletes a case note from SQL database."""
+    deleted = db_manager.delete_case_note(note_id=note_id, user_id=user_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Note not found or unauthorized.")
+    return {"success": True, "message": f"Case Note #{note_id} deleted."}
+
+@app.get("/api/users/reports")
+def get_field_reports(
+    status: Optional[str] = None,
+    report_type: Optional[str] = None,
+    limit: int = 50
+):
+    """Retrieves field intelligence and tip-off submissions from SQL."""
+    reports = db_manager.get_field_reports(status=status, report_type=report_type, limit=limit)
+    return {"total": len(reports), "reports": reports}
+
+@app.post("/api/users/reports")
+def submit_field_report(req: FieldReportCreateRequest):
+    """Submits a new field report or citizen tip-off into SQL."""
+    report = db_manager.create_field_report(
+        subject=req.subject,
+        description=req.description,
+        report_type=req.report_type or "FIELD_INTELLIGENCE",
+        reporter_name=req.reporter_name,
+        user_id=req.user_id,
+        location=req.location,
+        evidence_refs=req.evidence_refs
+    )
+    return {"success": True, "report": report}
+
+@app.put("/api/users/reports/{report_id}/status")
+def update_report_status(report_id: int, req: FieldReportStatusUpdateRequest):
+    """Updates field report status in SQL."""
+    updated = db_manager.update_field_report_status(report_id, req.status)
+    if not updated:
+        raise HTTPException(status_code=404, detail="Report not found.")
+    return {"success": True, "message": f"Report #{report_id} status updated to {req.status}."}
+
+@app.get("/api/users/saved-queries")
+def get_user_saved_queries(user_id: Optional[str] = None, limit: int = 30):
+    """Retrieves user query history from SQL."""
+    queries = db_manager.get_user_saved_queries(user_id=user_id, limit=limit)
+    return {"total": len(queries), "queries": queries}
+
+@app.post("/api/users/saved-queries")
+def save_user_query(req: SavedQueryCreateRequest):
+    """Saves search query or GraphRAG question in SQL."""
+
+    saved = db_manager.save_user_query(
+        user_id=req.user_id,
+        query_text=req.query_text,
+        query_type=req.query_type or "GRAPHRAG",
+        result_summary=req.result_summary,
+        is_starred=req.is_starred or 0
+    )
+    return {"success": True, "saved_query": saved}
+
+@app.get("/api/users/{user_id}")
+def get_user_profile(user_id: str):
+    """Fetches single officer profile and telemetry statistics from SQL database."""
+    user = db_manager.get_user_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Officer not found in SQL database.")
+    return user
+
+@app.put("/api/users/{user_id}")
+def update_user_profile(user_id: str, req: UserProfileUpdateRequest):
+    """Updates officer profile information in SQL database."""
+    updates = req.model_dump(exclude_unset=True)
+    user = db_manager.update_user_profile(user_id, updates)
+    if not user:
+        raise HTTPException(status_code=404, detail="Officer not found.")
+    return {"success": True, "user": user}
+
+@app.get("/api/database/stats")
+
+def get_sql_database_stats():
+    """Retrieves full SQL database telemetry, table row counts, and storage metrics."""
+    return db_manager.get_database_stats()
+
+@app.post("/api/database/query")
+def execute_sql_query(req: RawSqlQueryRequest):
+    """Executes a SQL query in the administrative database console."""
+    try:
+        res = db_manager.execute_raw_sql(req.sql_query, limit=req.limit or 100)
+        return {"success": True, "result": res}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 
 # Serve frontend build if available
 FRONTEND_DIST = BASE_DIR / "frontend" / "dist"

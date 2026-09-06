@@ -14,7 +14,8 @@ import {
   ChevronRight,
   ChevronLeft,
   Menu,
-  Share2
+  Share2,
+  Database
 } from 'lucide-react';
 
 export default function Sidebar({ 
@@ -55,8 +56,15 @@ export default function Sidebar({
         { id: 'ingest', label: 'Upload FIR & Documents', icon: FileText, badge: 'OCR' },
         { id: 'audit', label: 'Court Evidence Log', icon: Lock, badge: 'BSA 2024' }
       ]
+    },
+    {
+      groupTitle: 'USER & SYSTEM DATABASE',
+      items: [
+        { id: 'userdb', label: 'User Database & Studio', icon: Database, badge: 'SQL' }
+      ]
     }
   ];
+
 
   return (
     <aside style={{

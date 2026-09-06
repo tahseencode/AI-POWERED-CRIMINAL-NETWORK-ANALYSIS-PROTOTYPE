@@ -8,6 +8,8 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 AUDIT_LOG_FILE = DATA_DIR / "immutable_audit_log.json"
 GRAPH_STORE_FILE = DATA_DIR / "knowledge_graph.json"
 CASE_DATA_FILE = DATA_DIR / "investigation_cases.json"
+SQL_DATABASE_FILE = DATA_DIR / "criminal_network_users.db"
+
 
 # Server configuration
 HOST = "0.0.0.0"

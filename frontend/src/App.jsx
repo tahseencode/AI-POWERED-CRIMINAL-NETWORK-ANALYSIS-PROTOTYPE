@@ -13,8 +13,10 @@ import AuditLogViewer from './components/AuditLogViewer.jsx';
 import GraphExplorer from './components/GraphExplorer.jsx';
 import CCTNSPillarsModal from './components/CCTNSPillarsModal.jsx';
 import AddSuspectModal from './components/AddSuspectModal.jsx';
+import UserDataStudio from './components/UserDataStudio.jsx';
 
 export default function App() {
+
   // Authentication State (Null = Show Login Portal)
   const [officerUser, setOfficerUser] = useState(() => {
     try {
@@ -208,7 +210,16 @@ export default function App() {
               selectedNodeId={selectedNodeId}
             />
           )}
+
+          {/* Page 10: User Database & Activity Studio (SQL) */}
+          {activeTab === 'userdb' && (
+            <UserDataStudio
+              officerUser={officerUser}
+              currentRole={currentRole}
+            />
+          )}
         </main>
+
 
         {/* Official Government Footer */}
         <footer style={{
