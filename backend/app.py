@@ -23,6 +23,7 @@ from backend.core.spatio_temporal import strp_dbscan_clusterer
 from backend.core.outcome_forecaster import outcome_predictor
 from backend.core.data_generator import initialize_knowledge_graph, generate_default_intelligence_cases
 from backend.core.database import db_manager
+from backend.core.otp_service import otp_service, OTPPurpose, OTPChannel, mask_contact
 
 
 # Initialize data and knowledge graph
@@ -142,6 +143,32 @@ class UserRegisterRequest(BaseModel):
 class UserLogoutRequest(BaseModel):
     session_id: str
     user_id: Optional[str] = None
+
+# OTP & 2FA Models
+class OtpSendRequest(BaseModel):
+    contact_target: Optional[str] = None
+    user_id: Optional[str] = None
+    purpose: Optional[str] = "LOGIN_2FA"
+    channel: Optional[str] = "SMS_SANDES"
+    action_name: Optional[str] = None
+
+class OtpVerifyRequest(BaseModel):
+    contact_target: Optional[str] = None
+    user_id: Optional[str] = None
+    otp_code: str
+    purpose: Optional[str] = "LOGIN_2FA"
+
+class PasswordResetRequest(BaseModel):
+    user_id_or_contact: str
+    otp_code: str
+    new_password: str
+
+class StepUpAuthRequest(BaseModel):
+    user_id: Optional[str] = "1234"
+    otp_code: str
+    action_name: str
+    resource_id: Optional[str] = None
+    officer_badge: Optional[str] = None
 
 class UserProfileUpdateRequest(BaseModel):
     full_name: Optional[str] = None
@@ -1141,6 +1168,161 @@ def api_logout(req: UserLogoutRequest):
     """Ends user session in SQL database."""
     db_manager.logout_session(session_id=req.session_id, user_id=req.user_id)
     return {"success": True, "message": "Logged out successfully."}
+
+# ==========================================
+# OTP & TWO-FACTOR AUTHENTICATION (2FA) ROUTES
+# ==========================================
+
+@app.post("/api/auth/otp/send")
+def api_send_otp(req: OtpSendRequest):
+    """
+    Generates and dispatches a cryptographically secure 6-digit OTP
+    via simulated NIC Sandes / MHA Police SMS / Gov Email gateway.
+    """
+    target = req.contact_target or req.user_id
+    if not target:
+        raise HTTPException(status_code=400, detail="Please provide an Officer ID, Phone, or Email target.")
+
+    dispatch = db_manager.create_otp(
+        contact_target=target,
+        purpose=req.purpose or "LOGIN_2FA",
+        user_id=req.user_id,
+        channel=req.channel or "SMS_SANDES",
+        metadata={"action_name": req.action_name} if req.action_name else None
+    )
+    return {
+        "success": True,
+        "message": f"Verification code dispatched to {dispatch['masked_target']} via {dispatch['channel']}.",
+        "dispatch": dispatch
+    }
+
+@app.post("/api/auth/otp/verify")
+def api_verify_otp(req: OtpVerifyRequest):
+    """
+    Verifies 6-digit OTP code against SQL database records.
+    If verifying for login, creates active authenticated user session.
+    """
+    target = req.contact_target or req.user_id
+    if not target or not req.otp_code:
+        raise HTTPException(status_code=400, detail="Missing contact target or OTP code.")
+
+    purpose = req.purpose or "LOGIN_2FA"
+    verify_result = db_manager.verify_otp(
+        contact_target_or_user_id=target,
+        otp_code=req.otp_code,
+        purpose=purpose
+    )
+
+    if not verify_result.get("valid"):
+        raise HTTPException(status_code=400, detail=verify_result.get("error", "Invalid OTP"))
+
+    # If login purpose, create or retrieve user session
+    session_user = None
+    if purpose in ["LOGIN_2FA", "MOBILE_LOGIN"]:
+        found_user = db_manager.find_user_by_contact_or_id(target)
+        if found_user:
+            import secrets
+            session_id = f"SES-{secrets.token_hex(12).upper()}"
+            now = datetime.now(timezone.utc).isoformat()
+            with db_manager.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                INSERT INTO user_sessions (
+                    session_id, user_id, role, station, ip_address, user_agent,
+                    login_time, logout_time, is_active
+                ) VALUES (?, ?, ?, ?, '127.0.0.1', '2FA OTP Browser', ?, NULL, 1)
+                """, (session_id, found_user["user_id"], found_user["role"], found_user["station"], now))
+                cursor.execute("UPDATE users SET last_login = ? WHERE user_id = ?", (now, found_user["user_id"]))
+                conn.commit()
+
+            found_user["session_id"] = session_id
+            session_user = found_user
+        else:
+            # Authenticate via mobile helper
+            session_user = db_manager.authenticate_user_by_phone_otp(target, req.otp_code)
+
+    return {
+        "success": True,
+        "valid": True,
+        "message": "OTP verification successful.",
+        "user": session_user,
+        "token_id": verify_result.get("token_id"),
+        "purpose": purpose
+    }
+
+@app.post("/api/auth/otp/resend")
+def api_resend_otp(req: OtpSendRequest):
+    """Resends a fresh OTP code with throttled validity."""
+    target = req.contact_target or req.user_id
+    if not target:
+        raise HTTPException(status_code=400, detail="Contact target or Officer ID is required.")
+
+    dispatch = db_manager.resend_otp(
+        contact_target_or_user_id=target,
+        purpose=req.purpose or "LOGIN_2FA",
+        channel=req.channel or "SMS_SANDES"
+    )
+    return {
+        "success": True,
+        "message": f"Fresh OTP code sent to {dispatch['masked_target']}.",
+        "dispatch": dispatch
+    }
+
+@app.post("/api/auth/otp/reset-password")
+def api_reset_password(req: PasswordResetRequest):
+    """Resets officer account password after OTP verification."""
+    if not req.user_id_or_contact or not req.otp_code or not req.new_password:
+        raise HTTPException(status_code=400, detail="Please provide Officer ID, OTP code, and new password.")
+
+    res = db_manager.reset_password_with_otp(
+        user_id_or_contact=req.user_id_or_contact,
+        otp_code=req.otp_code,
+        new_password=req.new_password
+    )
+    if not res.get("valid"):
+        raise HTTPException(status_code=400, detail=res.get("error", "Password reset failed."))
+
+    return res
+
+@app.post("/api/auth/otp/stepup-verify")
+def api_stepup_verify(req: StepUpAuthRequest):
+    """Step-up OTP authorization for critical legal / disruptive police operations."""
+    target = req.user_id or req.officer_badge or "1234"
+    res = db_manager.verify_otp(
+        contact_target_or_user_id=target,
+        otp_code=req.otp_code,
+        purpose="STEPUP_AUTH"
+    )
+    if not res.get("valid"):
+        raise HTTPException(status_code=400, detail=res.get("error", "Step-Up authorization failed."))
+
+    audit_logger.log_action(
+        officer_badge=target,
+        role="OFFICER",
+        action="STEPUP_AUTH_SUCCESS",
+        query_or_target=f"Authorized action: '{req.action_name}' on resource: '{req.resource_id or 'GENERAL'}'",
+        resource_data={"action": req.action_name, "resource_id": req.resource_id}
+    )
+    return {
+        "success": True,
+        "message": f"Step-Up 2FA authorization verified for action: {req.action_name}",
+        "action_name": req.action_name,
+        "authorized_at": datetime.now(timezone.utc).isoformat()
+    }
+
+@app.get("/api/auth/otp/logs")
+def api_get_otp_logs(limit: int = 50):
+    """Retrieves recent OTP dispatch and verification logs for security audit."""
+    logs = db_manager.get_otp_logs(limit=limit)
+    return {
+        "total": len(logs),
+        "logs": logs
+    }
+
+@app.get("/api/auth/otp/stats")
+def api_get_otp_stats():
+    """Retrieves real-time OTP gateway performance & security stats."""
+    return otp_service.get_gateway_statistics()
 
 @app.get("/api/users")
 def get_all_users(

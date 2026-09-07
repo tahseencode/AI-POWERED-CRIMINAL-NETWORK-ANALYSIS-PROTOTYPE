@@ -99,5 +99,58 @@ class TestApiSqlEndpoints(unittest.TestCase):
         self.assertIn("columns", data["result"])
         self.assertIn("rows", data["result"])
 
+    def test_otp_send_and_verify_api(self):
+        # 1. Send OTP
+        send_res = self.client.post("/api/auth/otp/send", json={
+            "user_id": "1234",
+            "purpose": "LOGIN_2FA"
+        })
+        self.assertEqual(send_res.status_code, 200)
+        send_data = send_res.json()
+        self.assertTrue(send_data["success"])
+        self.assertIn("dispatch", send_data)
+        code = send_data["dispatch"]["demo_otp_code"]
+
+        # 2. Verify OTP
+        verify_res = self.client.post("/api/auth/otp/verify", json={
+            "user_id": "1234",
+            "otp_code": code,
+            "purpose": "LOGIN_2FA"
+        })
+        self.assertEqual(verify_res.status_code, 200)
+        verify_data = verify_res.json()
+        self.assertTrue(verify_data["success"])
+        self.assertIsNotNone(verify_data["user"])
+        self.assertEqual(verify_data["user"]["user_id"], "1234")
+
+    def test_otp_stepup_authorization_api(self):
+        send_res = self.client.post("/api/auth/otp/send", json={
+            "user_id": "1234",
+            "purpose": "STEPUP_AUTH",
+            "action_name": "Export BSA 2024 Certificate"
+        })
+        self.assertEqual(send_res.status_code, 200)
+        code = send_res.json()["dispatch"]["demo_otp_code"]
+
+        auth_res = self.client.post("/api/auth/otp/stepup-verify", json={
+            "user_id": "1234",
+            "otp_code": code,
+            "action_name": "Export BSA 2024 Certificate",
+            "resource_id": "EVIDENCE-CERT-01"
+        })
+        self.assertEqual(auth_res.status_code, 200)
+        self.assertTrue(auth_res.json()["success"])
+
+    def test_otp_stats_and_logs_api(self):
+        logs_res = self.client.get("/api/auth/otp/logs")
+        self.assertEqual(logs_res.status_code, 200)
+        self.assertIn("logs", logs_res.json())
+
+        stats_res = self.client.get("/api/auth/otp/stats")
+        self.assertEqual(stats_res.status_code, 200)
+        stats = stats_res.json()
+        self.assertIn("gateway_status", stats)
+        self.assertEqual(stats["gateway_status"], "OPERATIONAL")
+
 if __name__ == "__main__":
     unittest.main()

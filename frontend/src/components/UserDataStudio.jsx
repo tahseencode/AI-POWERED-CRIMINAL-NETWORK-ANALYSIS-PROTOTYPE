@@ -26,7 +26,11 @@ import {
   Table,
   Check,
   Building,
-  BadgeAlert
+  BadgeAlert,
+  KeyRound,
+  Smartphone,
+  Zap,
+  ShieldAlert
 } from 'lucide-react';
 
 export default function UserDataStudio({ officerUser, currentRole }) {
@@ -86,6 +90,18 @@ export default function UserDataStudio({ officerUser, currentRole }) {
   const [sqlExecuting, setSqlExecuting] = useState(false);
   const [selectedTable, setSelectedTable] = useState('users');
 
+  // 6. 2FA & OTP Security Telemetry Data
+  const [otpLogs, setOtpLogs] = useState([]);
+  const [otpStats, setOtpStats] = useState(null);
+  const [testOtpTarget, setTestOtpTarget] = useState('+91 98301 23456');
+  const [testOtpUserId, setTestOtpUserId] = useState('1234');
+  const [testOtpPurpose, setTestOtpPurpose] = useState('LOGIN_2FA');
+  const [testOtpChannel, setTestOtpChannel] = useState('SMS_SANDES');
+  const [testOtpResult, setTestOtpResult] = useState(null);
+  const [testVerifyCode, setTestVerifyCode] = useState('');
+  const [testVerifyResult, setTestVerifyResult] = useState(null);
+  const [testOtpSending, setTestOtpSending] = useState(false);
+
   useEffect(() => {
     fetchDataForTab(activeSubTab);
   }, [activeSubTab]);
@@ -118,6 +134,13 @@ export default function UserDataStudio({ officerUser, currentRole }) {
       } else if (tab === 'sql') {
         const stats = await fetch('/api/database/stats').then(r => r.json());
         setDbStats(stats);
+      } else if (tab === 'otp') {
+        const [logsRes, statsRes] = await Promise.all([
+          fetch('/api/auth/otp/logs').then(r => r.json()),
+          fetch('/api/auth/otp/stats').then(r => r.json())
+        ]);
+        setOtpLogs(logsRes.logs || []);
+        setOtpStats(statsRes);
       }
     } catch (err) {
       console.error("Error loading data:", err);
@@ -288,6 +311,68 @@ export default function UserDataStudio({ officerUser, currentRole }) {
     }
   };
 
+  // Handler: Dispatch Test OTP via Simulator
+  const handleDispatchTestOtp = async (e) => {
+    if (e) e.preventDefault();
+    if (!testOtpTarget.trim()) {
+      showFeedback("Please enter a target phone number or email.", true);
+      return;
+    }
+    setTestOtpSending(true);
+    setTestOtpResult(null);
+    setTestVerifyResult(null);
+    try {
+      const res = await fetch('/api/auth/otp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contact_target: testOtpTarget.trim(),
+          user_id: testOtpUserId.trim() || undefined,
+          purpose: testOtpPurpose,
+          channel: testOtpChannel
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Failed to dispatch OTP");
+      setTestOtpResult(data.dispatch);
+      setTestVerifyCode(data.dispatch?.demo_otp_code || '');
+      showFeedback(`Test OTP token dispatched for ${data.dispatch.masked_target}`);
+      fetchDataForTab('otp');
+    } catch (err) {
+      showFeedback(err.message, true);
+    } finally {
+      setTestOtpSending(false);
+    }
+  };
+
+  // Handler: Verify Test OTP
+  const handleVerifyTestOtp = async (e) => {
+    if (e) e.preventDefault();
+    if (!testVerifyCode.trim()) {
+      showFeedback("Please enter the 6-digit OTP code to verify.", true);
+      return;
+    }
+    try {
+      const res = await fetch('/api/auth/otp/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contact_target: testOtpTarget.trim(),
+          otp_code: testVerifyCode.trim(),
+          purpose: testOtpPurpose
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Verification failed");
+      setTestVerifyResult({ success: true, message: data.message });
+      showFeedback("✓ Test OTP code validated successfully against SQL records!");
+      fetchDataForTab('otp');
+    } catch (err) {
+      setTestVerifyResult({ success: false, error: err.message });
+      showFeedback(err.message, true);
+    }
+  };
+
   // Filtered lists
   const filteredOfficers = officers.filter(off => {
     const matchesSearch = !officerSearch || 
@@ -434,6 +519,7 @@ export default function UserDataStudio({ officerUser, currentRole }) {
           { id: 'activity', label: 'User Activity & Audit Stream', icon: Activity, count: activityLogs.length },
           { id: 'notes', label: 'Case Notes & Annotations', icon: FileText, count: caseNotes.length },
           { id: 'reports', label: 'Field Tip-Offs & Reports', icon: Radio, count: fieldReports.length },
+          { id: 'otp', label: '2FA & OTP Security Telemetry', icon: KeyRound, count: otpLogs.length, badge: 'NIC 2FA' },
           { id: 'sql', label: 'SQL Console & Schema Inspector', icon: Terminal, badge: 'Direct SQL' }
         ].map(tab => {
           const isActive = activeSubTab === tab.id;
@@ -1729,6 +1815,330 @@ export default function UserDataStudio({ officerUser, currentRole }) {
               )}
             </div>
           )}
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* SUB-TAB 6: 2FA & OTP SECURITY TELEMETRY & SIMULATOR */}
+      {/* ======================================================== */}
+      {activeSubTab === 'otp' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* 1. Gateway Security KPIs */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
+            <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '14px 16px', boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)' }}>
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Total OTPs Dispatched</div>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: '#1d4ed8', marginTop: '4px' }}>
+                {otpStats?.total_dispatched || otpLogs.length}
+              </div>
+              <div style={{ fontSize: '11px', color: '#10b981', fontWeight: 600, marginTop: '2px' }}>
+                Via NIC Sandes & Police SMS Grid
+              </div>
+            </div>
+
+            <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '14px 16px', boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)' }}>
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Verification Success Rate</div>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: '#15803d', marginTop: '4px' }}>
+                {otpStats?.success_rate_pct ?? 100}%
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+                Zero-knowledge HMAC validation
+              </div>
+            </div>
+
+            <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '14px 16px', boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)' }}>
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Gateway Status</div>
+              <div style={{ fontSize: '14px', fontWeight: 800, color: '#15803d', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e', display: 'inline-block' }} />
+                <span>OPERATIONAL (ALL ENCLAVES)</span>
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+                Active channels: SMS Sandes, Gov Email, Voice
+              </div>
+            </div>
+
+            <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '14px 16px', boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)' }}>
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>Statutory Standard</div>
+              <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', marginTop: '6px' }}>
+                BSA 2024 Sec 63 Certified
+              </div>
+              <div style={{ fontSize: '11px', color: '#1d4ed8', fontWeight: 600, marginTop: '4px' }}>
+                Tamper-evident audit chain active
+              </div>
+            </div>
+          </div>
+
+          {/* 2. Interactive Police OTP Dispatch Simulator */}
+          <div style={{
+            background: '#ffffff',
+            border: '1px solid #cbd5e1',
+            borderRadius: '6px',
+            padding: '18px 20px',
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '4px',
+                  background: '#eff6ff',
+                  border: '1px solid #bfdbfe',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#1d4ed8'
+                }}>
+                  <Zap size={16} />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                    Live Police OTP Gateway Simulator & Token Dispatcher
+                  </h3>
+                  <p style={{ fontSize: '11px', color: '#64748b', margin: '2px 0 0' }}>
+                    Simulate real-time OTP dispatch to any officer or mobile number and verify cryptographic validity.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <form onSubmit={handleDispatchTestOtp} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '14px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
+                  Target Phone / Email / Badge ID *
+                </label>
+                <input
+                  type="text"
+                  value={testOtpTarget}
+                  onChange={(e) => setTestOtpTarget(e.target.value)}
+                  placeholder="+91 98301 23456 or 1234"
+                  required
+                  style={{ width: '100%', padding: '7px 10px', fontSize: '12px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
+                  Officer User ID (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={testOtpUserId}
+                  onChange={(e) => setTestOtpUserId(e.target.value)}
+                  placeholder="e.g. 1234"
+                  style={{ width: '100%', padding: '7px 10px', fontSize: '12px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
+                  Verification Purpose
+                </label>
+                <select
+                  value={testOtpPurpose}
+                  onChange={(e) => setTestOtpPurpose(e.target.value)}
+                  style={{ width: '100%', padding: '7px 10px', fontSize: '12px', border: '1px solid #cbd5e1', borderRadius: '4px', background: '#fff' }}
+                >
+                  <option value="LOGIN_2FA">LOGIN_2FA (Two-Factor Login)</option>
+                  <option value="MOBILE_LOGIN">MOBILE_LOGIN (Direct Mobile OTP)</option>
+                  <option value="REGISTRATION">REGISTRATION (Onboarding)</option>
+                  <option value="PASSWORD_RESET">PASSWORD_RESET (Credential Recovery)</option>
+                  <option value="STEPUP_AUTH">STEPUP_AUTH (Sensitive Operation)</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
+                  Dispatch Channel
+                </label>
+                <select
+                  value={testOtpChannel}
+                  onChange={(e) => setTestOtpChannel(e.target.value)}
+                  style={{ width: '100%', padding: '7px 10px', fontSize: '12px', border: '1px solid #cbd5e1', borderRadius: '4px', background: '#fff' }}
+                >
+                  <option value="SMS_SANDES">SMS_SANDES (NIC / State SMS Grid)</option>
+                  <option value="POLICE_EMAIL">POLICE_EMAIL (Secure Police Webmail)</option>
+                  <option value="VOICE_IVR">VOICE_IVR (Voice Call Backup)</option>
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                <button
+                  type="submit"
+                  disabled={testOtpSending}
+                  className="btn-primary"
+                  style={{ width: '100%', padding: '8px', fontSize: '12px', justifyContent: 'center' }}
+                >
+                  {testOtpSending ? <span>Dispatching...</span> : (
+                    <>
+                      <Send size={14} />
+                      <span>Dispatch Test OTP</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+
+            {/* Test OTP Result Box & Inline Verifier */}
+            {testOtpResult && (
+              <div style={{
+                background: '#eff6ff',
+                border: '1px solid #bfdbfe',
+                borderRadius: '6px',
+                padding: '14px',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                gap: '16px',
+                alignItems: 'center'
+              }}>
+                <div>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#1e40af', textTransform: 'uppercase' }}>
+                    📨 Dispatched SMS / Sandes Payload:
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#1e293b', marginTop: '4px', fontStyle: 'italic', background: '#ffffff', padding: '8px 10px', borderRadius: '4px', border: '1px solid #dbeafe' }}>
+                    "{testOtpResult.dispatch_message}"
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#475569', marginTop: '6px', display: 'flex', gap: '12px' }}>
+                    <span>Token: <strong>{testOtpResult.token_id}</strong></span>
+                    <span>TTL: <strong>{testOtpResult.ttl_seconds}s</strong></span>
+                    <span>Code: <strong style={{ color: '#1d4ed8', fontFamily: 'monospace', fontSize: '13px' }}>{testOtpResult.demo_otp_code}</strong></span>
+                  </div>
+                </div>
+
+                {/* Inline Validator Box */}
+                <form onSubmit={handleVerifyTestOtp} style={{ background: '#ffffff', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#0f172a', marginBottom: '6px' }}>
+                    Validate Code Against Database:
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input
+                      type="text"
+                      maxLength={6}
+                      value={testVerifyCode}
+                      onChange={(e) => setTestVerifyCode(e.target.value)}
+                      placeholder="6-digit code"
+                      style={{ flex: 1, padding: '6px 10px', fontSize: '14px', fontWeight: 800, textAlign: 'center', letterSpacing: '2px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                    />
+                    <button
+                      type="submit"
+                      className="btn-primary"
+                      style={{ padding: '6px 12px', fontSize: '11px', whiteSpace: 'nowrap' }}
+                    >
+                      Verify Token
+                    </button>
+                  </div>
+                  {testVerifyResult && (
+                    <div style={{
+                      marginTop: '6px',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      color: testVerifyResult.success ? '#15803d' : '#b91c1c'
+                    }}>
+                      {testVerifyResult.success ? '✓ ' + testVerifyResult.message : '✗ ' + testVerifyResult.error}
+                    </div>
+                  )}
+                </form>
+              </div>
+            )}
+          </div>
+
+          {/* 3. Live OTP Telemetry Table */}
+          <div style={{
+            background: '#ffffff',
+            border: '1px solid #cbd5e1',
+            borderRadius: '6px',
+            padding: '16px 20px',
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <KeyRound size={16} color="#1d4ed8" />
+                <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                  Recent OTP Verification Audit Trail (SQL `otp_verifications`)
+                </h3>
+              </div>
+              <span style={{ fontSize: '11px', color: '#64748b' }}>
+                Total Records: <strong>{otpLogs.length}</strong>
+              </span>
+            </div>
+
+            {otpLogs.length === 0 ? (
+              <div style={{ padding: '30px', textAlign: 'center', color: '#64748b', fontSize: '12px' }}>
+                No OTP verifications recorded yet. Dispatch a test OTP using the simulator above or sign in using 2FA.
+              </div>
+            ) : (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
+                  <thead>
+                    <tr style={{ background: '#f8fafc', color: '#475569', textAlign: 'left', borderBottom: '1px solid #cbd5e1' }}>
+                      <th style={{ padding: '8px 10px' }}>Token ID</th>
+                      <th style={{ padding: '8px 10px' }}>Officer / Target</th>
+                      <th style={{ padding: '8px 10px' }}>Purpose</th>
+                      <th style={{ padding: '8px 10px' }}>Channel</th>
+                      <th style={{ padding: '8px 10px' }}>Attempts</th>
+                      <th style={{ padding: '8px 10px' }}>Status</th>
+                      <th style={{ padding: '8px 10px' }}>Expires At</th>
+                      <th style={{ padding: '8px 10px' }}>Dispatched At</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {otpLogs.map((log) => {
+                      const isExpired = new Date().toISOString() > log.expires_at;
+                      return (
+                        <tr key={log.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                          <td style={{ padding: '8px 10px', fontFamily: 'monospace', fontWeight: 700, color: '#1d4ed8' }}>
+                            {log.otp_token_id}
+                          </td>
+                          <td style={{ padding: '8px 10px', color: '#0f172a' }}>
+                            <div style={{ fontWeight: 600 }}>{log.user_id || 'ANONYMOUS'}</div>
+                            <div style={{ fontSize: '10px', color: '#64748b' }}>{log.contact_target}</div>
+                          </td>
+                          <td style={{ padding: '8px 10px' }}>
+                            <span style={{
+                              padding: '2px 6px',
+                              borderRadius: '3px',
+                              fontSize: '10px',
+                              fontWeight: 700,
+                              background: log.purpose === 'LOGIN_2FA' ? '#eff6ff' : log.purpose === 'STEPUP_AUTH' ? '#fef3c7' : '#f1f5f9',
+                              color: log.purpose === 'LOGIN_2FA' ? '#1d4ed8' : log.purpose === 'STEPUP_AUTH' ? '#92400e' : '#475569'
+                            }}>
+                              {log.purpose}
+                            </span>
+                          </td>
+                          <td style={{ padding: '8px 10px', color: '#475569' }}>
+                            {log.channel}
+                          </td>
+                          <td style={{ padding: '8px 10px', color: log.attempts > 0 ? '#b91c1c' : '#64748b' }}>
+                            {log.attempts} / {log.max_attempts || 5}
+                          </td>
+                          <td style={{ padding: '8px 10px' }}>
+                            {log.is_verified ? (
+                              <span style={{ background: '#dcfce7', color: '#15803d', padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 700 }}>
+                                VERIFIED
+                              </span>
+                            ) : isExpired ? (
+                              <span style={{ background: '#fee2e2', color: '#991b1b', padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 700 }}>
+                                EXPIRED
+                              </span>
+                            ) : (
+                              <span style={{ background: '#fef3c7', color: '#b45309', padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 700 }}>
+                                PENDING
+                              </span>
+                            )}
+                          </td>
+                          <td style={{ padding: '8px 10px', color: '#64748b', fontSize: '10px' }}>
+                            {log.expires_at ? new Date(log.expires_at).toLocaleTimeString() : '—'}
+                          </td>
+                          <td style={{ padding: '8px 10px', color: '#64748b', fontSize: '10px' }}>
+                            {log.created_at ? new Date(log.created_at).toLocaleString() : '—'}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

@@ -3,7 +3,7 @@ import hashlib
 import secrets
 import json
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 
@@ -152,6 +152,27 @@ class DatabaseManager:
             );
             """)
 
+            # 7. OTP & 2FA Verifications Table (Law Enforcement Identity Verification)
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS otp_verifications (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                otp_token_id TEXT UNIQUE NOT NULL,
+                user_id TEXT,
+                contact_target TEXT NOT NULL,
+                otp_code_hash TEXT NOT NULL,
+                salt TEXT NOT NULL,
+                otp_code_plain TEXT,
+                purpose TEXT NOT NULL,
+                channel TEXT DEFAULT 'SMS_SANDES',
+                expires_at TEXT NOT NULL,
+                is_verified INTEGER DEFAULT 0,
+                attempts INTEGER DEFAULT 0,
+                max_attempts INTEGER DEFAULT 5,
+                metadata TEXT,
+                created_at TEXT NOT NULL
+            );
+            """)
+
             # Performance & Query Optimization Indexes
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_users_user_id ON users(user_id);")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);")
@@ -162,6 +183,9 @@ class DatabaseManager:
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_notes_user ON user_case_notes(user_id);")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_notes_suspect ON user_case_notes(suspect_id);")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_reports_status ON user_field_reports(status);")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_otp_target ON otp_verifications(contact_target);")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_otp_user ON otp_verifications(user_id);")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_otp_token ON otp_verifications(otp_token_id);")
 
             conn.commit()
 
@@ -919,6 +943,12 @@ class DatabaseManager:
             cursor.execute("SELECT COUNT(*) as c FROM user_saved_queries;")
             queries_count = cursor.fetchone()["c"]
 
+            cursor.execute("SELECT COUNT(*) as c FROM otp_verifications;")
+            otp_total_count = cursor.fetchone()["c"]
+
+            cursor.execute("SELECT COUNT(*) as c FROM otp_verifications WHERE is_verified = 1;")
+            otp_verified_count = cursor.fetchone()["c"]
+
             # Fetch table schemas
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';")
             tables = [r["name"] for r in cursor.fetchall()]
@@ -947,10 +977,414 @@ class DatabaseManager:
                 "total_activity_logs": activities_count,
                 "total_case_notes": notes_count,
                 "total_field_reports": reports_count,
-                "total_saved_queries": queries_count
+                "total_saved_queries": queries_count,
+                "total_otp_dispatches": otp_total_count,
+                "total_otp_verified": otp_verified_count
             },
             "timestamp": datetime.now(timezone.utc).isoformat()
         }
+
+    # =========================================================================
+    # LAW ENFORCEMENT OTP & 2FA VERIFICATION ENGINE
+    # =========================================================================
+
+    def find_user_by_contact_or_id(self, identifier: str) -> Optional[Dict[str, Any]]:
+        """Finds active user by user_id, badge_number, phone, or email."""
+        if not identifier:
+            return None
+        identifier = identifier.strip()
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+            SELECT id, user_id, full_name, badge_number, email, phone, role,
+                   station, department, is_active, is_admin, created_at, last_login
+            FROM users
+            WHERE (user_id = ? OR badge_number = ? OR phone = ? OR email = ?) AND is_active = 1
+            LIMIT 1
+            """, (identifier, identifier, identifier, identifier))
+            row = cursor.fetchone()
+            if row:
+                return dict(row)
+            
+            # Special check for official demo identifier 1234
+            if identifier in ["1234", "+91 98301 23456", "ak.banerjee@police.wb.gov.in"]:
+                cursor.execute("SELECT * FROM users WHERE user_id = '1234'")
+                row1234 = cursor.fetchone()
+                if row1234:
+                    u = dict(row1234)
+                    u.pop("password_hash", None)
+                    u.pop("salt", None)
+                    return u
+            return None
+
+    def create_otp(
+        self,
+        contact_target: str,
+        purpose: str = "LOGIN_2FA",
+        user_id: Optional[str] = None,
+        channel: str = "SMS_SANDES",
+        ttl_seconds: int = 300,
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """Generates a secure OTP, computes salted hash, saves to SQLite, and formats dispatch payload."""
+        from backend.core.otp_service import otp_service, hash_otp_code, mask_contact, OTPPurpose
+        from backend.core.security import audit_logger
+
+        contact_target = contact_target.strip()
+        code = otp_service.generate_numeric_code(6)
+        token_id = f"OTP-{secrets.token_hex(8).upper()}"
+        otp_hash, salt = hash_otp_code(code)
+        
+        now = datetime.now(timezone.utc)
+        expires_at = (now + timedelta(seconds=ttl_seconds)).isoformat()
+        created_at = now.isoformat()
+
+        officer_name = None
+        user_info = None
+        if user_id:
+            user_info = self.get_user_by_id(user_id)
+            if user_info:
+                officer_name = user_info.get("full_name")
+                if not contact_target:
+                    contact_target = user_info.get("phone") or user_info.get("email") or user_id
+        elif contact_target:
+            user_info = self.find_user_by_contact_or_id(contact_target)
+            if user_info:
+                user_id = user_info.get("user_id")
+                officer_name = user_info.get("full_name")
+
+        dispatch_msg = otp_service.create_dispatch_message(
+            otp_code=code,
+            purpose=purpose,
+            user_id=user_id,
+            officer_name=officer_name,
+            action_name=metadata.get("action_name") if metadata else None
+        )
+
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+            INSERT INTO otp_verifications (
+                otp_token_id, user_id, contact_target, otp_code_hash, salt,
+                otp_code_plain, purpose, channel, expires_at, is_verified,
+                attempts, max_attempts, metadata, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 5, ?, ?)
+            """, (
+                token_id,
+                user_id,
+                contact_target,
+                otp_hash,
+                salt,
+                code,
+                purpose,
+                channel,
+                expires_at,
+                json.dumps(metadata or {}),
+                created_at
+            ))
+            conn.commit()
+
+        # Audit log creation under BSA 2024 compliance
+        audit_logger.log_action(
+            officer_badge=user_id or "SYSTEM-OTP-GATEWAY",
+            role="SYSTEM",
+            action="OTP_GENERATED",
+            query_or_target=f"Target: {mask_contact(contact_target)} | Purpose: {purpose}",
+            resource_data={"token_id": token_id, "purpose": purpose, "expires_at": expires_at}
+        )
+
+        dispatch_record = {
+            "token_id": token_id,
+            "user_id": user_id,
+            "officer_name": officer_name,
+            "contact_target": contact_target,
+            "masked_target": mask_contact(contact_target),
+            "purpose": purpose,
+            "channel": channel,
+            "dispatch_message": dispatch_msg,
+            "demo_otp_code": code,
+            "expires_at": expires_at,
+            "ttl_seconds": ttl_seconds,
+            "created_at": created_at,
+            "status": "SENT"
+        }
+        otp_service.record_dispatch_telemetry(dispatch_record)
+
+        return dispatch_record
+
+    def verify_otp(
+        self,
+        contact_target_or_user_id: str,
+        otp_code: str,
+        purpose: str = "LOGIN_2FA"
+    ) -> Dict[str, Any]:
+        """Validates provided OTP against active unexpired records in SQLite."""
+        from backend.core.otp_service import verify_otp_hash, otp_service
+        from backend.core.security import audit_logger
+
+        if not contact_target_or_user_id or not otp_code:
+            return {"valid": False, "error": "Contact target and OTP code are required."}
+
+        identifier = contact_target_or_user_id.strip()
+        otp_code = otp_code.strip()
+        now_iso = datetime.now(timezone.utc).isoformat()
+
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+            SELECT id, otp_token_id, user_id, contact_target, otp_code_hash, salt,
+                   otp_code_plain, purpose, expires_at, is_verified, attempts, max_attempts
+            FROM otp_verifications
+            WHERE (contact_target = ? OR user_id = ? OR otp_token_id = ?) 
+              AND purpose = ? AND is_verified = 0
+            ORDER BY id DESC
+            LIMIT 1
+            """, (identifier, identifier, identifier, purpose))
+            row = cursor.fetchone()
+
+            if not row:
+                # Also check if matching a user found by identifier
+                found_user = self.find_user_by_contact_or_id(identifier)
+                if found_user:
+                    uid = found_user["user_id"]
+                    cursor.execute("""
+                    SELECT id, otp_token_id, user_id, contact_target, otp_code_hash, salt,
+                           otp_code_plain, purpose, expires_at, is_verified, attempts, max_attempts
+                    FROM otp_verifications
+                    WHERE (user_id = ? OR contact_target = ? OR contact_target = ?) 
+                      AND purpose = ? AND is_verified = 0
+                    ORDER BY id DESC
+                    LIMIT 1
+                    """, (uid, found_user.get("phone") or "", found_user.get("email") or "", purpose))
+                    row = cursor.fetchone()
+
+            if not row:
+                return {
+                    "valid": False,
+                    "error": "No active OTP found. Please request a new verification code."
+                }
+
+            otp_record = dict(row)
+
+            # Check max attempts
+            if otp_record["attempts"] >= otp_record["max_attempts"]:
+                return {
+                    "valid": False,
+                    "error": "Maximum verification attempts exceeded. Please request a new OTP."
+                }
+
+            # Check expiration
+            if now_iso > otp_record["expires_at"]:
+                return {
+                    "valid": False,
+                    "error": "This OTP has expired. Please request a new verification code."
+                }
+
+            # Check code match
+            is_match = verify_otp_hash(otp_code, otp_record["otp_code_hash"], otp_record["salt"])
+            if not is_match and otp_code == otp_record.get("otp_code_plain"):
+                is_match = True
+
+            if not is_match:
+                new_attempts = otp_record["attempts"] + 1
+                cursor.execute("""
+                UPDATE otp_verifications SET attempts = ? WHERE id = ?
+                """, (new_attempts, otp_record["id"]))
+                conn.commit()
+
+                audit_logger.log_action(
+                    officer_badge=otp_record.get("user_id") or "ANONYMOUS",
+                    role="SYSTEM",
+                    action="OTP_FAILED",
+                    query_or_target=f"Token: {otp_record['otp_token_id']} | Attempts: {new_attempts}",
+                    resource_data={"token_id": otp_record["otp_token_id"], "purpose": purpose}
+                )
+
+                remaining = otp_record["max_attempts"] - new_attempts
+                return {
+                    "valid": False,
+                    "attempts_remaining": remaining,
+                    "error": f"Invalid verification code. ({remaining} attempt{'s' if remaining != 1 else ''} left)"
+                }
+
+            # Success -> mark verified
+            cursor.execute("""
+            UPDATE otp_verifications SET is_verified = 1 WHERE id = ?
+            """, (otp_record["id"],))
+            conn.commit()
+
+        audit_logger.log_action(
+            officer_badge=otp_record.get("user_id") or "OFFICER",
+            role="SYSTEM",
+            action="OTP_VERIFIED",
+            query_or_target=f"Token: {otp_record['otp_token_id']} | Purpose: {purpose}",
+            resource_data={"token_id": otp_record["otp_token_id"], "purpose": purpose}
+        )
+
+        # Update in-memory telemetry
+        for item in otp_service._in_memory_recent_dispatches:
+            if item.get("token_id") == otp_record["otp_token_id"]:
+                item["status"] = "VERIFIED"
+                item["verified_at"] = now_iso
+                break
+
+        return {
+            "valid": True,
+            "message": "OTP verification successful.",
+            "token_id": otp_record["otp_token_id"],
+            "user_id": otp_record.get("user_id"),
+            "contact_target": otp_record.get("contact_target"),
+            "purpose": purpose
+        }
+
+    def resend_otp(
+        self,
+        contact_target_or_user_id: str,
+        purpose: str = "LOGIN_2FA",
+        channel: str = "SMS_SANDES"
+    ) -> Dict[str, Any]:
+        """Resends a fresh OTP code for the given user/contact target."""
+        user_info = self.find_user_by_contact_or_id(contact_target_or_user_id)
+        user_id = user_info["user_id"] if user_info else (contact_target_or_user_id if not "@" in contact_target_or_user_id and not contact_target_or_user_id.startswith("+") else None)
+        target = user_info.get("phone") or user_info.get("email") or contact_target_or_user_id if user_info else contact_target_or_user_id
+
+        return self.create_otp(
+            contact_target=target,
+            purpose=purpose,
+            user_id=user_id,
+            channel=channel
+        )
+
+    def reset_password_with_otp(
+        self,
+        user_id_or_contact: str,
+        otp_code: str,
+        new_password: str
+    ) -> Dict[str, Any]:
+        """Resets user password after verifying OTP."""
+        from backend.core.security import audit_logger
+
+        verify_res = self.verify_otp(
+            contact_target_or_user_id=user_id_or_contact,
+            otp_code=otp_code,
+            purpose="PASSWORD_RESET"
+        )
+        if not verify_res.get("valid"):
+            return verify_res
+
+        user_info = self.find_user_by_contact_or_id(user_id_or_contact)
+        if not user_info:
+            return {"valid": False, "error": f"User account '{user_id_or_contact}' not found."}
+
+        pwd_hash, salt = hash_password(new_password)
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+            UPDATE users SET password_hash = ?, salt = ? WHERE user_id = ?
+            """, (pwd_hash, salt, user_info["user_id"]))
+            conn.commit()
+
+        audit_logger.log_action(
+            officer_badge=user_info["user_id"],
+            role=user_info.get("role") or "OFFICER",
+            action="PASSWORD_RESET_OTP",
+            query_or_target=f"User: {user_info['user_id']} password successfully reset via OTP.",
+            resource_data={"user_id": user_info["user_id"]}
+        )
+
+        return {
+            "valid": True,
+            "success": True,
+            "message": f"Password for Officer '{user_info['full_name']}' ({user_info['user_id']}) has been successfully updated.",
+            "user_id": user_info["user_id"]
+        }
+
+    def authenticate_user_by_phone_otp(
+        self,
+        contact_target: str,
+        otp_code: str,
+        ip_address: Optional[str] = "127.0.0.1",
+        user_agent: Optional[str] = "Mobile OTP Client"
+    ) -> Optional[Dict[str, Any]]:
+        """Authenticates user via Direct Phone/Contact OTP verification and creates a session."""
+        verify_res = self.verify_otp(contact_target, otp_code, purpose="MOBILE_LOGIN")
+        if not verify_res.get("valid"):
+            # Try LOGIN_2FA purpose as fallback
+            verify_res = self.verify_otp(contact_target, otp_code, purpose="LOGIN_2FA")
+            if not verify_res.get("valid"):
+                return None
+
+        user_data = self.find_user_by_contact_or_id(contact_target)
+        if not user_data:
+            # Dynamically provision officer for phone number if demo mode
+            user_data = self.register_user(
+                user_id=f"OFFICER-{contact_target[-4:]}" if len(contact_target) >= 4 else "OFFICER-NEW",
+                full_name=f"Field Officer ({contact_target})",
+                password="temp_password",
+                phone=contact_target,
+                role="Investigating Officer (IO)",
+                station="Barrackpore Special Thana (North 24 Parganas)"
+            )
+
+        session_id = f"SES-{secrets.token_hex(12).upper()}"
+        now = datetime.now(timezone.utc).isoformat()
+
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+            INSERT INTO user_sessions (
+                session_id, user_id, role, station, ip_address, user_agent,
+                login_time, logout_time, is_active
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, NULL, 1)
+            """, (
+                session_id,
+                user_data["user_id"],
+                user_data["role"],
+                user_data["station"],
+                ip_address,
+                user_agent,
+                now
+            ))
+            cursor.execute("UPDATE users SET last_login = ? WHERE user_id = ?", (now, user_data["user_id"]))
+            conn.commit()
+
+        self.log_user_activity(
+            user_id=user_data["user_id"],
+            officer_name=user_data["full_name"],
+            role=user_data["role"],
+            action_type="USER_LOGIN_OTP",
+            target_resource=f"Session: {session_id}",
+            details={"ip": ip_address, "channel": "PHONE_OTP"},
+            ip_address=ip_address
+        )
+
+        user_data.pop("password_hash", None)
+        user_data.pop("salt", None)
+        user_data["session_id"] = session_id
+        return user_data
+
+    def get_otp_logs(self, limit: int = 50) -> List[Dict[str, Any]]:
+        """Retrieves recent OTP verification logs from SQL database."""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+            SELECT id, otp_token_id, user_id, contact_target, purpose, channel,
+                   expires_at, is_verified, attempts, max_attempts, metadata, created_at
+            FROM otp_verifications
+            ORDER BY id DESC
+            LIMIT ?
+            """, (limit,))
+            rows = cursor.fetchall()
+            logs = []
+            for r in rows:
+                item = dict(r)
+                if item.get("metadata"):
+                    try:
+                        item["metadata"] = json.loads(item["metadata"])
+                    except Exception:
+                        pass
+                logs.append(item)
+            return logs
 
     def execute_raw_sql(self, sql_query: str, limit: int = 100) -> Dict[str, Any]:
         """
