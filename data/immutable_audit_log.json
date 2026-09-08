@@ -3046,5 +3046,65 @@
     "prev_entry_hash": "502e53af02e0b00035bc13ea5a22dc2a2a087bd95ea1645c4c86683dffa3b676",
     "entry_hash": "7c080bb463b22490eb14fa200385ae0a4a71ab08fb8f398ceea0a44809a416b7",
     "hmac_sig": "45c584359180ef61644a3aa10a23c3e04164f5a3a353958eafd7b175b84be024"
+  },
+  {
+    "log_index": 254,
+    "timestamp": "2026-09-08T16:39:43.257092+00:00Z",
+    "officer_badge": "IO-KOLKATA-8842",
+    "role": "Investigating Officer (IO)",
+    "action": "GRAPHRAG_INTELLIGENCE_INTERROGATION",
+    "query_or_target": "Show me hawala transfers",
+    "resource_hash": "d173fe99ccd753fae63b03438946fb0e2d3fb27a74babb1c55252093be3110c1",
+    "prev_entry_hash": "7c080bb463b22490eb14fa200385ae0a4a71ab08fb8f398ceea0a44809a416b7",
+    "entry_hash": "f0ec8c523f3021f744e6ab61da6ea5b185cdbdad53e6ceeb5edf78fb13a12efa",
+    "hmac_sig": "031ec3f4a9815232f1a853c54d91f5ca455e6fd6aa99b9a463b086d45f7486f7"
+  },
+  {
+    "log_index": 255,
+    "timestamp": "2026-09-08T16:39:45.448640+00:00Z",
+    "officer_badge": "IA-SPECIAL-CELL-104",
+    "role": "Intelligence Analyst (IA)",
+    "action": "NETWORK_DISRUPTION_SIMULATION",
+    "query_or_target": "Targets: PERSON_001, PERSON_002",
+    "resource_hash": "9d7232eb21ba233ff40a755028603115a9ca35231d186584db7271345231c49a",
+    "prev_entry_hash": "f0ec8c523f3021f744e6ab61da6ea5b185cdbdad53e6ceeb5edf78fb13a12efa",
+    "entry_hash": "e1823728cd33edf95e56537216861572bd011594bc3808b413d57410319049c2",
+    "hmac_sig": "e6525f5ca372a7294a2dcce158a236d674be9fa1d851bdc15930dd25568f0fe9"
+  },
+  {
+    "log_index": 256,
+    "timestamp": "2026-09-08T16:39:47.572345+00:00Z",
+    "officer_badge": "IO-KOLKATA-8842",
+    "role": "Firearms Courier & Safehouse Custodian",
+    "action": "SUSPECT_INGESTION_WITH_CRIME_DETAILS",
+    "query_or_target": "Added Suspect: Arjun 'Ghost' Mukherjee (PERSON_008) | Crime: Inter-State Contraband Logistics & Cache Transit",
+    "resource_hash": "3b559e3f3ee1a17d4fac8ab08f56f2cea10cf1117c5fdd6d05e2d94dba7012e9",
+    "prev_entry_hash": "e1823728cd33edf95e56537216861572bd011594bc3808b413d57410319049c2",
+    "entry_hash": "b5cd22fc66ec0d3584f5f7b6a588952adc38130e4d5f6797f2439e33ee0b350f",
+    "hmac_sig": "c1a97f13db8ab7e4b447a29cd1b26ab0c09e321d5a4ec0f52938daaa9749c922"
+  },
+  {
+    "log_index": 257,
+    "timestamp": "2026-09-08T16:40:02.495026+00:00Z",
+    "officer_badge": "IO-KOLKATA-8842",
+    "role": "Investigating Officer (IO)",
+    "action": "MEDIA_PROOF_UPLOAD_AND_AI_EXTRACTION",
+    "query_or_target": "File: pasted_report.txt (SHA-256: ecf486d55f...)",
+    "resource_hash": "3d8afc765712010fe8bbd4ab29dbb6dc4304c5aff5fbb747e600d24546808334",
+    "prev_entry_hash": "b5cd22fc66ec0d3584f5f7b6a588952adc38130e4d5f6797f2439e33ee0b350f",
+    "entry_hash": "3bad55bab145f540e293665f8ce19816948b0f39e43818535e7dae432001a9ce",
+    "hmac_sig": "62c2eb242b7d5a8c249d3b7121807078a67bffb40e26c8a413efb0045a2f1988"
+  },
+  {
+    "log_index": 258,
+    "timestamp": "2026-09-08T16:40:12.979523+00:00Z",
+    "officer_badge": "IO-KOLKATA-8842",
+    "role": "Investigating Officer (IO)",
+    "action": "GRAPHRAG_INTELLIGENCE_INTERROGATION",
+    "query_or_target": "Show me hawala transfers",
+    "resource_hash": "51adf6349022feb571ac8a3bffc9191c669eb37492ca0184b5d6895934e430c6",
+    "prev_entry_hash": "3bad55bab145f540e293665f8ce19816948b0f39e43818535e7dae432001a9ce",
+    "entry_hash": "f005ac9b5238c5924da4d42ffb2eea76092bd43cafbc7a2862e39ef9bae1c866",
+    "hmac_sig": "15f9d82408e4df0ec6adb59c86e8ddc1c4343dfc14ba96cfdeb4be558e7170bc"
   }
 ]

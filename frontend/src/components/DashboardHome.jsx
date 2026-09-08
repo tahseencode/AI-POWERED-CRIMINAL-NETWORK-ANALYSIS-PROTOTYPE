@@ -19,7 +19,11 @@ import {
   Filter,
   CheckCircle2,
   Database,
-  Share2
+  Share2,
+  UserPlus,
+  Building2,
+  Activity,
+  Zap
 } from 'lucide-react';
 
 export default function DashboardHome({ 
@@ -30,73 +34,7 @@ export default function DashboardHome({
   onOpenCctnsModal 
 }) {
   const [alertFilter, setAlertFilter] = useState('ALL');
-
-  const modules = [
-    {
-      id: 'graphexplorer',
-      title: 'Interactive Network Graph',
-      subtext: 'Cytoscape-powered multi-hop network explorer',
-      icon: Share2,
-      color: '#0284c7',
-      badge: 'Graph AI'
-    },
-    {
-      id: 'keyplayer',
-      title: 'Wanted Targets & Arrest Plan',
-      subtext: 'Gang breakdown & kingpin simulator',
-      icon: Target,
-      color: '#dc2626',
-      badge: 'Priority'
-    },
-    {
-      id: 'graphrag',
-      title: 'Case Q&A & Search',
-      subtext: 'Plain-text case query & verified facts',
-      icon: Search,
-      color: '#2563eb',
-      badge: 'Natural Q&A'
-    },
-    {
-      id: 'gnn',
-      title: 'Crime Forecast & Links',
-      subtext: 'Predictive next moves & hidden ties',
-      icon: TrendingUp,
-      color: '#7c3aed',
-      badge: 'GNN AI'
-    },
-    {
-      id: 'spatiotemporal',
-      title: 'Crime Map & Radar',
-      subtext: 'GIS tracking & vehicle convoy radar',
-      icon: MapPin,
-      color: '#d97706',
-      badge: 'Live Radar'
-    },
-    {
-      id: 'entityres',
-      title: 'Duplicate Alias Matcher',
-      subtext: 'Cross-station identity resolution',
-      icon: Layers,
-      color: '#059669',
-      badge: 'Identity'
-    },
-    {
-      id: 'ingest',
-      title: 'Upload FIR & Documents',
-      subtext: 'Multilingual OCR & auto-extraction',
-      icon: FileText,
-      color: '#0284c7',
-      badge: 'OCR Ingest'
-    },
-    {
-      id: 'audit',
-      title: 'Court Evidence Log',
-      subtext: 'BSA Sec 63 certified tamper-proof trail',
-      icon: Lock,
-      color: '#16a34a',
-      badge: 'BSA 2024'
-    }
-  ];
+  const [searchQuery, setSearchQuery] = useState('');
 
   const recentAlerts = [
     {
@@ -107,7 +45,7 @@ export default function DashboardHome({
       badgeBg: '#fef2f2',
       badgeBorder: '#fecaca',
       title: 'High-Threat Vehicle Convoy Detected',
-      desc: 'Vehicles WB-24-AX-5512 (Bolero) & WB-02-AB-1234 (Scorpio) travelled within 3.5km at Ichhapur Toll within 4 hrs.',
+      desc: 'Vehicles WB-24-AX-5512 (Bolero) & WB-02-AB-1234 (Scorpio) travelled within 3.5km along Ichhapur Corridor in a 4-hour window.',
       location: 'Ichhapur Toll Plaza (NH-12)',
       time: 'Today, 21:30 hrs',
       targetModule: 'spatiotemporal'
@@ -119,8 +57,8 @@ export default function DashboardHome({
       badgeColor: '#d97706',
       badgeBg: '#fffbeb',
       badgeBorder: '#fde68a',
-      title: 'Duplicate Suspect Record Flagged',
-      desc: 'Suspect Sunil "Doctor" Roy matched with Sunil Mondal (Kolkata Port Trust FIR) with 98% confidence.',
+      title: 'Cross-Jurisdiction Alias Match Flagged',
+      desc: 'Suspect Sunil "Doctor" Roy matched with Sunil Mondal (Kolkata Port Trust FIR-089) with 98% Fellegi-Sunter confidence.',
       location: 'Barrackpore / Kolkata Port Link',
       time: 'Today, 18:45 hrs',
       targetModule: 'entityres'
@@ -132,17 +70,52 @@ export default function DashboardHome({
       badgeColor: '#7c3aed',
       badgeBg: '#f5f3ff',
       badgeBorder: '#ddd6fe',
-      title: 'Escalation Predicted: Cross-Border Handover',
-      desc: 'Historical pattern match (Siliguri Transit corridor) indicates 84% probability of firearm movement in 72 hrs.',
+      title: 'Escalation Predicted: Firearms Handover',
+      desc: 'GNN Link Prediction and historical precedent model indicate 84% probability of firearm transit in the Siliguri corridor within 72 hrs.',
       location: 'Siliguri Transit Corridor',
       time: 'Forecast Active (72h Window)',
       targetModule: 'gnn'
     }
   ];
 
-  const filteredAlerts = alertFilter === 'ALL' 
-    ? recentAlerts 
-    : recentAlerts.filter(a => a.category === alertFilter);
+  const topSuspects = [
+    {
+      id: 'PERSON_002',
+      name: 'Tariq Al-Hasani',
+      alias: 'Kabir Bhai',
+      role: 'Hawala & Crypto Financier',
+      threatScore: 92,
+      tier: 'Tier 1 Kingpin',
+      tierColor: '#dc2626'
+    },
+    {
+      id: 'PERSON_008',
+      name: 'Erick Ekka',
+      alias: 'Chhotu',
+      role: 'Enforcer & Logistics Courier',
+      threatScore: 88,
+      tier: 'Tier 1 Enforcer',
+      tierColor: '#ea580c'
+    },
+    {
+      id: 'PERSON_001',
+      name: 'Sunil "Doctor" Roy',
+      alias: 'Doctor Babu',
+      role: 'Syndicate Operational Head',
+      threatScore: 85,
+      tier: 'Tier 1 Syndicate Head',
+      tierColor: '#dc2626'
+    }
+  ];
+
+  const filteredAlerts = recentAlerts.filter(a => {
+    const matchesFilter = alertFilter === 'ALL' || a.category === alertFilter;
+    const matchesSearch = searchQuery.trim() === '' || 
+      a.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      a.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      a.location.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesFilter && matchesSearch;
+  });
 
   return (
     <div style={{ 
@@ -151,83 +124,113 @@ export default function DashboardHome({
       margin: '0 auto', 
       display: 'flex', 
       flexDirection: 'column', 
-      gap: '22px' 
+      gap: '20px' 
     }}>
       
-      {/* 1. Sleek Command Header Bar */}
+      {/* 1. Clean Command Header */}
       <div style={{
         background: '#ffffff',
         border: '1px solid #e2e8f0',
-        borderRadius: '8px',
-        padding: '16px 20px',
+        borderRadius: '10px',
+        padding: '16px 22px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
-        gap: '12px',
-        boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)'
+        gap: '14px',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <div style={{
             width: '42px',
             height: '42px',
             borderRadius: '8px',
-            background: 'linear-gradient(135deg, #1e3a8a, #0f172a)',
+            background: '#1e3a8a',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             color: '#ffffff',
-            boxShadow: '0 2px 6px rgba(30, 58, 138, 0.2)'
+            flexShrink: 0
           }}>
             <Shield size={22} />
           </div>
 
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <h2 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+              <h2 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
                 Welcome, {officerUser?.name || 'Investigating Officer'}
               </h2>
-              <span className="badge badge-cyan" style={{ fontSize: '10px', fontWeight: 700, padding: '2px 7px' }}>
+              <span style={{
+                background: '#eff6ff',
+                color: '#1d4ed8',
+                border: '1px solid #bfdbfe',
+                fontSize: '11px',
+                fontWeight: 700,
+                padding: '2px 8px',
+                borderRadius: '4px'
+              }}>
                 {officerUser?.role || 'Investigating Officer (IO)'}
               </span>
             </div>
-            <p style={{ fontSize: '12px', color: '#64748b', margin: '3px 0 0', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <span>Badge <strong style={{ color: '#0f172a' }}>{officerUser?.badgeId || 'IO-8842'}</strong></span>
+            <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <span>Badge: <strong style={{ color: '#0f172a' }}>{officerUser?.badgeId || 'IO-8842'}</strong></span>
               <span style={{ color: '#cbd5e1' }}>•</span>
-              <span>Thana <strong style={{ color: '#0f172a' }}>{officerUser?.station || 'Barrackpore Special Thana'}</strong></span>
+              <span>Station: <strong style={{ color: '#0f172a' }}>{officerUser?.station || 'Barrackpore Special Thana'}</strong></span>
               <span style={{ color: '#cbd5e1' }}>•</span>
-              <span>Active Case <strong style={{ color: '#1d4ed8' }}>Operation Ichhapur Matrix</strong></span>
+              <span>Active Case: <strong style={{ color: '#2563eb' }}>Operation Ichhapur Matrix</strong></span>
             </p>
           </div>
         </div>
 
-        {/* Status Pill & Live Sync */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        {/* Action Controls & Live Status */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
           <div style={{
-            background: '#f8fafc',
-            border: '1px solid #e2e8f0',
+            background: '#f0fdf4',
+            border: '1px solid #bbf7d0',
             borderRadius: '6px',
-            padding: '6px 12px',
+            padding: '5px 10px',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '6px',
             fontSize: '11px'
           }}>
             <span style={{
-              width: '8px',
-              height: '8px',
+              width: '7px',
+              height: '7px',
               borderRadius: '50%',
               background: '#16a34a',
-              display: 'inline-block',
-              boxShadow: '0 0 0 2px rgba(22, 163, 74, 0.2)'
+              display: 'inline-block'
             }} />
-            <span style={{ fontWeight: 600, color: '#334155' }}>CCTNS/ICJS Network:</span>
-            <span style={{ fontWeight: 700, color: '#16a34a' }}>Online & Synchronized</span>
+            <span style={{ fontWeight: 600, color: '#166534' }}>CCTNS/ICJS Synced</span>
           </div>
+
+          <button
+            type="button"
+            onClick={onOpenAddSuspect}
+            style={{
+              background: '#1d4ed8',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '6px',
+              padding: '7px 14px',
+              fontSize: '12px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              transition: 'background 0.15s ease'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#1e40af'}
+            onMouseLeave={(e) => e.currentTarget.style.background = '#1d4ed8'}
+          >
+            <UserPlus size={14} />
+            <span>+ Register Suspect / FIR</span>
+          </button>
         </div>
       </div>
 
-      {/* 2. Key Metrics Row (Clean, Minimalist & Spacious) */}
+      {/* 2. Key Metrics Bar (4 Balanced Cards) */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
@@ -236,199 +239,197 @@ export default function DashboardHome({
         {/* Metric 1 */}
         <div 
           onClick={() => onNavigate('keyplayer')}
-          className="gov-card" 
           style={{
-            padding: '16px 18px',
-            cursor: 'pointer',
-            border: '1px solid #e2e8f0',
-            borderRadius: '8px',
             background: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '10px',
+            padding: '16px 20px',
+            cursor: 'pointer',
             transition: 'all 0.15s ease',
-            position: 'relative',
-            overflow: 'hidden'
+            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)'
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderColor = '#dc2626';
-            e.currentTarget.style.transform = 'translateY(-1px)';
             e.currentTarget.style.boxShadow = '0 4px 12px rgba(220, 38, 38, 0.08)';
+            e.currentTarget.style.transform = 'translateY(-1px)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.borderColor = '#e2e8f0';
+            e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.03)';
             e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.05)';
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', letterSpacing: '0.4px', textTransform: 'uppercase' }}>
-              Most Wanted Targets
+            <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+              High-Threat Targets
             </span>
             <div style={{
-              width: '28px',
-              height: '28px',
-              borderRadius: '6px',
+              width: '32px',
+              height: '32px',
+              borderRadius: '8px',
               background: '#fef2f2',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <Target size={15} color="#dc2626" />
+              <Target size={16} color="#dc2626" />
             </div>
           </div>
-          <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', marginTop: '6px', display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-            4 <span style={{ fontSize: '12px', fontWeight: 600, color: '#dc2626' }}>Targets</span>
+          <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '6px' }}>
+            4 <span style={{ fontSize: '12px', fontWeight: 600, color: '#dc2626' }}>Identified</span>
           </div>
-          <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'flex', justifyContent: 'space-between' }}>
             <span>2 Category-A Kingpins</span>
-            <span style={{ color: '#dc2626', fontWeight: 700, fontSize: '10px' }}>Simulate →</span>
+            <span style={{ color: '#dc2626', fontWeight: 700 }}>Disrupt Plan →</span>
           </div>
         </div>
 
         {/* Metric 2 */}
         <div 
           onClick={() => onNavigate('graphrag')}
-          className="gov-card" 
           style={{
-            padding: '16px 18px',
-            cursor: 'pointer',
-            border: '1px solid #e2e8f0',
-            borderRadius: '8px',
             background: '#ffffff',
-            transition: 'all 0.15s ease'
+            border: '1px solid #e2e8f0',
+            borderRadius: '10px',
+            padding: '16px 20px',
+            cursor: 'pointer',
+            transition: 'all 0.15s ease',
+            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)'
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderColor = '#2563eb';
-            e.currentTarget.style.transform = 'translateY(-1px)';
             e.currentTarget.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.08)';
+            e.currentTarget.style.transform = 'translateY(-1px)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.borderColor = '#e2e8f0';
+            e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.03)';
             e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.05)';
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', letterSpacing: '0.4px', textTransform: 'uppercase' }}>
-              Synchronized FIRs
+            <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+              Active Case FIRs
             </span>
             <div style={{
-              width: '28px',
-              height: '28px',
-              borderRadius: '6px',
+              width: '32px',
+              height: '32px',
+              borderRadius: '8px',
               background: '#eff6ff',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <FileText size={15} color="#2563eb" />
+              <FileText size={16} color="#2563eb" />
             </div>
           </div>
-          <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', marginTop: '6px', display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-            3 <span style={{ fontSize: '12px', fontWeight: 600, color: '#2563eb' }}>Cases</span>
+          <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '6px' }}>
+            3 <span style={{ fontSize: '12px', fontWeight: 600, color: '#2563eb' }}>FIRs Ingested</span>
           </div>
-          <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'flex', justifyContent: 'space-between' }}>
             <span>BNS 2024 & Arms Act</span>
-            <span style={{ color: '#2563eb', fontWeight: 700, fontSize: '10px' }}>Query →</span>
+            <span style={{ color: '#2563eb', fontWeight: 700 }}>Search Dossier →</span>
           </div>
         </div>
 
         {/* Metric 3 */}
         <div 
           onClick={() => onNavigate('spatiotemporal')}
-          className="gov-card" 
           style={{
-            padding: '16px 18px',
-            cursor: 'pointer',
-            border: '1px solid #e2e8f0',
-            borderRadius: '8px',
             background: '#ffffff',
-            transition: 'all 0.15s ease'
+            border: '1px solid #e2e8f0',
+            borderRadius: '10px',
+            padding: '16px 20px',
+            cursor: 'pointer',
+            transition: 'all 0.15s ease',
+            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)'
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderColor = '#d97706';
-            e.currentTarget.style.transform = 'translateY(-1px)';
             e.currentTarget.style.boxShadow = '0 4px 12px rgba(217, 119, 6, 0.08)';
+            e.currentTarget.style.transform = 'translateY(-1px)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.borderColor = '#e2e8f0';
+            e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.03)';
             e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.05)';
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', letterSpacing: '0.4px', textTransform: 'uppercase' }}>
-              Tracked Vehicles
+            <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+              Surveillance Radar
             </span>
             <div style={{
-              width: '28px',
-              height: '28px',
-              borderRadius: '6px',
+              width: '32px',
+              height: '32px',
+              borderRadius: '8px',
               background: '#fffbeb',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <Truck size={15} color="#d97706" />
+              <Truck size={16} color="#d97706" />
             </div>
           </div>
-          <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', marginTop: '6px', display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-            4 <span style={{ fontSize: '12px', fontWeight: 600, color: '#d97706' }}>Plates</span>
+          <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '6px' }}>
+            4 <span style={{ fontSize: '12px', fontWeight: 600, color: '#d97706' }}>Vehicles Tracked</span>
           </div>
-          <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span>1 Active Group Convoy</span>
-            <span style={{ color: '#d97706', fontWeight: 700, fontSize: '10px' }}>Radar →</span>
+          <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'flex', justifyContent: 'space-between' }}>
+            <span>1 Active Convoy Alert</span>
+            <span style={{ color: '#d97706', fontWeight: 700 }}>Open Radar →</span>
           </div>
         </div>
 
         {/* Metric 4 */}
         <div 
           onClick={() => onNavigate('audit')}
-          className="gov-card" 
           style={{
-            padding: '16px 18px',
-            cursor: 'pointer',
-            border: '1px solid #e2e8f0',
-            borderRadius: '8px',
             background: '#ffffff',
-            transition: 'all 0.15s ease'
+            border: '1px solid #e2e8f0',
+            borderRadius: '10px',
+            padding: '16px 20px',
+            cursor: 'pointer',
+            transition: 'all 0.15s ease',
+            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)'
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderColor = '#16a34a';
-            e.currentTarget.style.transform = 'translateY(-1px)';
             e.currentTarget.style.boxShadow = '0 4px 12px rgba(22, 163, 74, 0.08)';
+            e.currentTarget.style.transform = 'translateY(-1px)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.borderColor = '#e2e8f0';
+            e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.03)';
             e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.05)';
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', letterSpacing: '0.4px', textTransform: 'uppercase' }}>
+            <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
               Court Evidence Chain
             </span>
             <div style={{
-              width: '28px',
-              height: '28px',
-              borderRadius: '6px',
+              width: '32px',
+              height: '32px',
+              borderRadius: '8px',
               background: '#f0fdf4',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <Lock size={15} color="#16a34a" />
+              <Lock size={16} color="#16a34a" />
             </div>
           </div>
-          <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', marginTop: '6px', display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-            20+ <span style={{ fontSize: '12px', fontWeight: 600, color: '#16a34a' }}>Records</span>
+          <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '6px' }}>
+            24 <span style={{ fontSize: '12px', fontWeight: 600, color: '#16a34a' }}>Ledger Blocks</span>
           </div>
-          <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span>BSA 2024 Sec 63 Hash-Locked</span>
-            <span style={{ color: '#16a34a', fontWeight: 700, fontSize: '10px' }}>Audit →</span>
+          <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'flex', justifyContent: 'space-between' }}>
+            <span>BSA 2024 Sec 63 Valid</span>
+            <span style={{ color: '#16a34a', fontWeight: 700 }}>Verify Ledger →</span>
           </div>
         </div>
       </div>
 
-      {/* 3. Main Command Center (2-Column Balanced Layout) */}
+      {/* 3. Main Two-Column Intelligence Workspace */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: '1.45fr 1fr',
@@ -436,17 +437,18 @@ export default function DashboardHome({
         alignItems: 'start'
       }}>
         
-        {/* Left Column: Live Priority Intelligence Leads (High Impact, Zero Clutter) */}
-        <div className="gov-card" style={{
-          padding: '20px',
-          borderRadius: '8px',
+        {/* Left Column: Live Priority Intelligence & Threat Radar */}
+        <div style={{
           background: '#ffffff',
           border: '1px solid #e2e8f0',
+          borderRadius: '10px',
+          padding: '20px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '16px'
+          gap: '16px',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)'
         }}>
-          {/* Section Title & Filter Tabs */}
+          {/* Header & Filter Controls */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -454,25 +456,33 @@ export default function DashboardHome({
             flexWrap: 'wrap',
             gap: '10px',
             borderBottom: '1px solid #f1f5f9',
-            paddingBottom: '12px'
+            paddingBottom: '14px'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Radio size={17} color="#dc2626" />
+              <Radio size={16} color="#dc2626" />
               <h3 style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
-                Live Case Intelligence & Priority Leads
+                Live Case Intelligence & Threat Radar
               </h3>
-              <span className="badge badge-amber" style={{ fontSize: '10px', fontWeight: 700 }}>
+              <span style={{
+                background: '#fef2f2',
+                color: '#dc2626',
+                border: '1px solid #fecaca',
+                fontSize: '10px',
+                fontWeight: 700,
+                padding: '1px 6px',
+                borderRadius: '4px'
+              }}>
                 {recentAlerts.length} Active
               </span>
             </div>
 
-            {/* Filter Chips */}
-            <div style={{ display: 'flex', gap: '4px' }}>
+            {/* Filter Buttons */}
+            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
               {[
                 { id: 'ALL', label: 'All Leads' },
                 { id: 'VEHICLE', label: 'Convoys' },
                 { id: 'IDENTITY', label: 'Aliases' },
-                { id: 'FORECAST', label: 'Forecast' }
+                { id: 'FORECAST', label: 'GNN Forecast' }
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -482,8 +492,8 @@ export default function DashboardHome({
                     background: alertFilter === tab.id ? '#1e3a8a' : '#f8fafc',
                     color: alertFilter === tab.id ? '#ffffff' : '#64748b',
                     border: alertFilter === tab.id ? '1px solid #1e3a8a' : '1px solid #e2e8f0',
-                    borderRadius: '4px',
-                    padding: '3px 9px',
+                    borderRadius: '5px',
+                    padding: '4px 10px',
                     fontSize: '11px',
                     fontWeight: alertFilter === tab.id ? 700 : 500,
                     cursor: 'pointer',
@@ -496,228 +506,157 @@ export default function DashboardHome({
             </div>
           </div>
 
-          {/* Alert Leads List */}
+          {/* Intel Alert Cards */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {filteredAlerts.map((alert) => (
-              <div
-                key={alert.id}
-                onClick={() => onNavigate(alert.targetModule)}
-                style={{
-                  background: '#f8fafc',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '6px',
-                  padding: '14px 16px',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '8px'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#ffffff';
-                  e.currentTarget.style.borderColor = '#93c5fd';
-                  e.currentTarget.style.boxShadow = '0 3px 10px rgba(37, 99, 235, 0.08)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#f8fafc';
-                  e.currentTarget.style.borderColor = '#e2e8f0';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                    <span style={{
-                      background: alert.badgeBg,
-                      color: alert.badgeColor,
-                      border: `1px solid ${alert.badgeBorder}`,
-                      fontSize: '9px',
-                      fontWeight: 800,
-                      padding: '1px 6px',
-                      borderRadius: '3px',
-                      letterSpacing: '0.4px',
-                      textTransform: 'uppercase'
-                    }}>
-                      {alert.severity}
-                    </span>
-                    <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a', margin: 0 }}>
-                      {alert.title}
-                    </h4>
-                  </div>
-                  <span style={{ fontSize: '11px', color: '#64748b', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <Clock size={12} />
-                    {alert.time}
-                  </span>
-                </div>
-
-                <p style={{ fontSize: '12px', color: '#475569', lineHeight: 1.45, margin: 0 }}>
-                  {alert.desc}
-                </p>
-
-                <div style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'center', 
-                  fontSize: '11px',
-                  paddingTop: '6px',
-                  borderTop: '1px dashed #e2e8f0'
-                }}>
-                  <span style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <MapPin size={12} color="#94a3b8" />
-                    {alert.location}
-                  </span>
-                  <span style={{ 
-                    color: '#2563eb', 
-                    fontWeight: 700, 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: '4px' 
-                  }}>
-                    Investigate Lead <ArrowRight size={13} />
-                  </span>
-                </div>
+            {filteredAlerts.length === 0 ? (
+              <div style={{ padding: '24px', textAlign: 'center', color: '#64748b', fontSize: '12px' }}>
+                No active intelligence items found under this filter.
               </div>
-            ))}
+            ) : (
+              filteredAlerts.map((alert) => (
+                <div
+                  key={alert.id}
+                  onClick={() => onNavigate(alert.targetModule)}
+                  style={{
+                    background: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    padding: '14px 16px',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '8px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#ffffff';
+                    e.currentTarget.style.borderColor = '#93c5fd';
+                    e.currentTarget.style.boxShadow = '0 3px 10px rgba(37, 99, 235, 0.08)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#f8fafc';
+                    e.currentTarget.style.borderColor = '#e2e8f0';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      <span style={{
+                        background: alert.badgeBg,
+                        color: alert.badgeColor,
+                        border: `1px solid ${alert.badgeBorder}`,
+                        fontSize: '10px',
+                        fontWeight: 800,
+                        padding: '2px 7px',
+                        borderRadius: '4px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.3px'
+                      }}>
+                        {alert.severity}
+                      </span>
+                      <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                        {alert.title}
+                      </h4>
+                    </div>
+                    <span style={{ fontSize: '11px', color: '#64748b', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Clock size={12} />
+                      {alert.time}
+                    </span>
+                  </div>
+
+                  <p style={{ fontSize: '12px', color: '#475569', lineHeight: 1.5, margin: 0 }}>
+                    {alert.desc}
+                  </p>
+
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center', 
+                    fontSize: '11px',
+                    paddingTop: '6px',
+                    borderTop: '1px solid #f1f5f9'
+                  }}>
+                    <span style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <MapPin size={12} color="#94a3b8" />
+                      {alert.location}
+                    </span>
+                    <span style={{ 
+                      color: '#2563eb', 
+                      fontWeight: 700, 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '4px' 
+                    }}>
+                      Investigate Lead <ArrowRight size={13} />
+                    </span>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
-        {/* Right Column: Quick Launch Hub & Active Case Synopsis */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+        {/* Right Column: Active Operation Dossier & Priority Roster */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           
-          {/* Quick-Launch Tools Hub (Compact, Sleek Tiles) */}
-          <div className="gov-card" style={{
-            padding: '18px 20px',
-            borderRadius: '8px',
+          {/* Card 1: Active Operation Briefing */}
+          <div style={{
             background: '#ffffff',
-            border: '1px solid #e2e8f0'
-          }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: '12px',
-              borderBottom: '1px solid #f1f5f9',
-              paddingBottom: '10px'
-            }}>
-              <h3 style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
-                Investigation Quick Launch
-              </h3>
-              <span style={{ fontSize: '11px', color: '#64748b' }}>Direct Tools</span>
-            </div>
-
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(135px, 1fr))',
-              gap: '10px'
-            }}>
-              {modules.map((m) => {
-                const IconComponent = m.icon;
-                return (
-                  <div
-                    key={m.id}
-                    onClick={() => onNavigate(m.id)}
-                    style={{
-                      background: '#f8fafc',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '6px',
-                      padding: '12px 10px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '8px',
-                      transition: 'all 0.12s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = '#ffffff';
-                      e.currentTarget.style.borderColor = m.color;
-                      e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.06)';
-                      e.currentTarget.style.transform = 'translateY(-1px)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = '#f8fafc';
-                      e.currentTarget.style.borderColor = '#e2e8f0';
-                      e.currentTarget.style.boxShadow = 'none';
-                      e.currentTarget.style.transform = 'translateY(0)';
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div style={{
-                        width: '28px',
-                        height: '28px',
-                        borderRadius: '6px',
-                        background: '#ffffff',
-                        border: '1px solid #e2e8f0',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}>
-                        <IconComponent size={15} color={m.color} />
-                      </div>
-                      <span style={{ fontSize: '9px', fontWeight: 700, color: '#64748b' }}>
-                        {m.badge}
-                      </span>
-                    </div>
-
-                    <div>
-                      <div style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', lineHeight: 1.3 }}>
-                        {m.title}
-                      </div>
-                      <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', lineHeight: 1.3 }}>
-                        {m.subtext}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Active Case Synopsis Card */}
-          <div className="gov-card" style={{
+            border: '1px solid #e2e8f0',
+            borderRadius: '10px',
             padding: '16px 18px',
-            borderRadius: '8px',
-            background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
-            border: '1px solid #e2e8f0'
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #f1f5f9' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Database size={14} color="#1e40af" />
-                <span style={{ fontSize: '11px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                <Database size={15} color="#1d4ed8" />
+                <span style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
                   Active Investigation Dossier
                 </span>
               </div>
-              <span className="badge badge-cyan" style={{ fontSize: '10px' }}>FIR 142/2026</span>
+              <span style={{
+                background: '#eff6ff',
+                color: '#1d4ed8',
+                border: '1px solid #bfdbfe',
+                fontSize: '10px',
+                fontWeight: 700,
+                padding: '2px 6px',
+                borderRadius: '4px'
+              }}>
+                FIR 142/2026
+              </span>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '12px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid #f1f5f9' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ color: '#64748b' }}>Operation:</span>
                 <strong style={{ color: '#0f172a' }}>Op Ichhapur Matrix</strong>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid #f1f5f9' }}>
-                <span style={{ color: '#64748b' }}>Primary Syndicate:</span>
-                <strong style={{ color: '#dc2626' }}>Roy Extortion & Arms Gang</strong>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#64748b' }}>Target Syndicate:</span>
+                <strong style={{ color: '#dc2626' }}>Roy Extortion & Firearms Wing</strong>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid #f1f5f9' }}>
-                <span style={{ color: '#64748b' }}>Lead Suspect:</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#64748b' }}>Primary Accused:</span>
                 <strong style={{ color: '#0f172a' }}>Sunil "Doctor" Roy</strong>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
-                <span style={{ color: '#64748b' }}>Jurisdiction:</span>
-                <span style={{ color: '#334155', fontWeight: 600 }}>Barrackpore Police Comm.</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#64748b' }}>Statutory Basis:</span>
+                <span style={{ color: '#1e40af', fontWeight: 600 }}>BNS Sec 111 / Arms Act</span>
               </div>
             </div>
 
             <button
               type="button"
-              onClick={() => onNavigate('keyplayer')}
+              onClick={() => onNavigate('graphexplorer')}
               style={{
                 width: '100%',
-                marginTop: '12px',
+                marginTop: '14px',
                 background: '#eff6ff',
                 border: '1px solid #bfdbfe',
                 color: '#1d4ed8',
                 borderRadius: '6px',
-                padding: '7px',
+                padding: '8px',
                 fontSize: '11px',
                 fontWeight: 700,
                 cursor: 'pointer',
@@ -736,7 +675,200 @@ export default function DashboardHome({
                 e.currentTarget.style.color = '#1d4ed8';
               }}
             >
-              Open Gang Target Breakdown <ChevronRight size={13} />
+              <Share2 size={13} />
+              <span>Explore Interactive Knowledge Graph</span>
+              <ChevronRight size={13} />
+            </button>
+          </div>
+
+          {/* Card 2: Priority Targets Roster */}
+          <div style={{
+            background: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '10px',
+            padding: '16px 18px',
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #f1f5f9' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Target size={15} color="#dc2626" />
+                <span style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                  Top Wanted Targets
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => onNavigate('keyplayer')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#2563eb',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  padding: 0
+                }}
+              >
+                View All →
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {topSuspects.map((suspect) => (
+                <div
+                  key={suspect.id}
+                  onClick={() => onNavigate('keyplayer')}
+                  style={{
+                    background: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '6px',
+                    padding: '10px 12px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '6px',
+                    transition: 'all 0.12s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#ffffff';
+                    e.currentTarget.style.borderColor = '#cbd5e1';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#f8fafc';
+                    e.currentTarget.style.borderColor = '#e2e8f0';
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <span style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a' }}>
+                        {suspect.name}
+                      </span>
+                      <span style={{ fontSize: '10px', color: '#64748b', marginLeft: '6px' }}>
+                        ({suspect.alias})
+                      </span>
+                    </div>
+                    <span style={{
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      color: suspect.tierColor
+                    }}>
+                      {suspect.threatScore}% Threat
+                    </span>
+                  </div>
+
+                  {/* Threat Progress Bar */}
+                  <div style={{
+                    width: '100%',
+                    height: '4px',
+                    background: '#e2e8f0',
+                    borderRadius: '2px',
+                    overflow: 'hidden'
+                  }}>
+                    <div style={{
+                      width: `${suspect.threatScore}%`,
+                      height: '100%',
+                      background: suspect.threatScore > 90 ? '#dc2626' : '#ea580c',
+                      borderRadius: '2px'
+                    }} />
+                  </div>
+
+                  <div style={{ fontSize: '10px', color: '#64748b', display: 'flex', justifyContent: 'space-between' }}>
+                    <span>{suspect.role}</span>
+                    <span style={{ fontWeight: 600, color: '#334155' }}>{suspect.tier}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Card 3: Direct Tactical Shortcuts */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '8px'
+          }}>
+            <button
+              type="button"
+              onClick={() => onNavigate('graphrag')}
+              style={{
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+                padding: '10px 6px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '6px',
+                cursor: 'pointer',
+                transition: 'all 0.12s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#2563eb';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#e2e8f0';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <Search size={16} color="#2563eb" />
+              <span style={{ fontSize: '10px', fontWeight: 700, color: '#0f172a', textAlign: 'center' }}>Case Q&A</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onNavigate('keyplayer')}
+              style={{
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+                padding: '10px 6px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '6px',
+                cursor: 'pointer',
+                transition: 'all 0.12s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#dc2626';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#e2e8f0';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <Zap size={16} color="#dc2626" />
+              <span style={{ fontSize: '10px', fontWeight: 700, color: '#0f172a', textAlign: 'center' }}>Disruption</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onNavigate('spatiotemporal')}
+              style={{
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+                padding: '10px 6px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '6px',
+                cursor: 'pointer',
+                transition: 'all 0.12s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#d97706';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#e2e8f0';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <MapPin size={16} color="#d97706" />
+              <span style={{ fontSize: '10px', fontWeight: 700, color: '#0f172a', textAlign: 'center' }}>Convoy Map</span>
             </button>
           </div>
 

@@ -61,7 +61,7 @@ export default function TopNavbar({
   return (
     <header style={{
       background: '#ffffff',
-      borderBottom: '1px solid #cbd5e1',
+      borderBottom: '1px solid #e2e8f0',
       padding: '10px 24px',
       display: 'flex',
       alignItems: 'center',
@@ -71,20 +71,24 @@ export default function TopNavbar({
       position: 'sticky',
       top: 0,
       zIndex: 100,
-      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)'
+      boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)'
     }}>
       {/* Left: Sidebar Toggle Button & Current Active Page Title */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <button
           type="button"
           onClick={onToggleSidebar}
-          className="btn-secondary"
           style={{
             padding: '6px 8px',
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '6px',
             color: '#1e40af',
+            cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            transition: 'background 0.12s ease'
           }}
           title={isSidebarCollapsed ? 'Expand Navigation Sidebar' : 'Collapse Navigation Sidebar'}
         >
@@ -92,55 +96,23 @@ export default function TopNavbar({
         </button>
 
         <div>
-          <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.4px' }}>
-            Portal Navigation / {currentInfo.section}
+          <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            {currentInfo.section}
           </div>
-          <h1 style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', margin: '2px 0 0' }}>
+          <h1 style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', margin: '1px 0 0' }}>
             {currentInfo.title}
           </h1>
         </div>
       </div>
 
-      {/* Center/Right: Active Case Details & Action Controls */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-        {/* Active Case Badge */}
-        <div style={{
-          background: '#eff6ff',
-          border: '1px solid #bfdbfe',
-          borderRadius: '4px',
-          padding: '4px 10px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          fontSize: '11px'
-        }}>
-          <span style={{ color: '#1e40af', fontWeight: 700 }}>Active Case:</span>
-          <span style={{ color: '#0f172a', fontWeight: 600 }}>Op Ichhapur Matrix (FIR 142/2026)</span>
-        </div>
-
-        {/* Live Status Pill */}
-        <div style={{
-          background: '#f0fdf4',
-          border: '1px solid #bbf7d0',
-          color: '#15803d',
-          borderRadius: '4px',
-          padding: '4px 8px',
-          fontSize: '11px',
-          fontWeight: 700,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '4px'
-        }}>
-          <CheckCircle2 size={12} color="#15803d" />
-          <span>ICJS LIVE</span>
-        </div>
-
+      {/* Right: Active Case, Role & Quick Actions */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
         {/* Officer Role Selector */}
         <div style={{
           background: '#f8fafc',
-          border: '1px solid #cbd5e1',
-          borderRadius: '4px',
-          padding: '3px 8px',
+          border: '1px solid #e2e8f0',
+          borderRadius: '6px',
+          padding: '4px 8px',
           display: 'flex',
           alignItems: 'center',
           gap: '6px'
@@ -171,25 +143,45 @@ export default function TopNavbar({
         <button 
           type="button"
           onClick={onOpenAddSuspectModal}
-          className="btn-primary"
           style={{
+            background: '#1d4ed8',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '6px',
+            padding: '6px 12px',
             fontSize: '11px',
-            padding: '5px 12px',
-            fontWeight: 700
+            fontWeight: 700,
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            transition: 'background 0.15s ease'
           }}
+          onMouseEnter={(e) => e.currentTarget.style.background = '#1e40af'}
+          onMouseLeave={(e) => e.currentTarget.style.background = '#1d4ed8'}
         >
           <UserPlus size={13} />
-          <span>+ Register Suspect / FIR</span>
+          <span>+ Register Suspect</span>
         </button>
 
         <button 
           type="button"
           onClick={onOpenCctnsModal}
-          className="btn-secondary"
           style={{
+            background: '#ffffff',
+            border: '1px solid #e2e8f0',
+            color: '#334155',
+            borderRadius: '6px',
+            padding: '6px 10px',
             fontSize: '11px',
-            padding: '5px 10px'
+            fontWeight: 600,
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px'
           }}
+          onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
+          onMouseLeave={(e) => e.currentTarget.style.background = '#ffffff'}
         >
           <Building2 size={13} color="#1e40af" />
           <span>National ICJS</span>
@@ -198,9 +190,20 @@ export default function TopNavbar({
         <button
           type="button"
           onClick={onRefresh}
-          className="btn-secondary"
-          style={{ padding: '5px 8px' }}
+          style={{
+            background: '#ffffff',
+            border: '1px solid #e2e8f0',
+            color: '#64748b',
+            borderRadius: '6px',
+            padding: '6px 8px',
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
           title="Refresh All Records"
+          onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
+          onMouseLeave={(e) => e.currentTarget.style.background = '#ffffff'}
         >
           <RefreshCw size={13} />
         </button>
