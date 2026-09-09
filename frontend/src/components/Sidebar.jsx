@@ -14,7 +14,6 @@ import {
   ChevronRight,
   ChevronLeft,
   Menu,
-  Share2,
   Database
 } from 'lucide-react';
 
@@ -31,8 +30,7 @@ export default function Sidebar({
     {
       groupTitle: 'MAIN',
       items: [
-        { id: 'dashboard', label: 'Dashboard Overview', icon: LayoutDashboard, badge: 'Overview' },
-        { id: 'graphexplorer', label: 'Interactive Network Graph', icon: Share2, badge: 'Cytoscape' }
+        { id: 'dashboard', label: 'Dashboard Overview', icon: LayoutDashboard, badge: 'Overview' }
       ]
     },
     {

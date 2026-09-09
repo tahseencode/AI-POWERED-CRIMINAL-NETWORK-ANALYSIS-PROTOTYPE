@@ -46,8 +46,6 @@ export default function TopNavbar({
         return { title: 'Upload FIR & Multilingual Document Scanner', section: 'Document Ingestion' };
       case 'audit':
         return { title: 'Official Court Evidence Log (BSA Sec 63)', section: 'Tamper-Proof Audit Trail' };
-      case 'graphexplorer':
-        return { title: 'Interactive Criminal Knowledge Graph Explorer', section: 'Network Intelligence' };
       case 'userdb':
         return { title: 'Officer Directory, Case Notes & SQL Database Studio', section: 'User & System Data' };
       default:

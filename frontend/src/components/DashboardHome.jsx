@@ -19,7 +19,6 @@ import {
   Filter,
   CheckCircle2,
   Database,
-  Share2,
   UserPlus,
   Building2,
   Activity,
@@ -648,7 +647,7 @@ export default function DashboardHome({
 
             <button
               type="button"
-              onClick={() => onNavigate('graphexplorer')}
+              onClick={() => onNavigate('keyplayer')}
               style={{
                 width: '100%',
                 marginTop: '14px',
@@ -675,8 +674,8 @@ export default function DashboardHome({
                 e.currentTarget.style.color = '#1d4ed8';
               }}
             >
-              <Share2 size={13} />
-              <span>Explore Interactive Knowledge Graph</span>
+              <Target size={13} />
+              <span>Simulate Syndicate Disruption</span>
               <ChevronRight size={13} />
             </button>
           </div>

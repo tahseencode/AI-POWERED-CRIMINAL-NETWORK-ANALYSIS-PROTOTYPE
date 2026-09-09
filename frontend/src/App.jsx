@@ -10,7 +10,6 @@ import SpatioTemporalMap from './components/SpatioTemporalMap.jsx';
 import EntityResolutionStudio from './components/EntityResolutionStudio.jsx';
 import DataIngestionStudio from './components/DataIngestionStudio.jsx';
 import AuditLogViewer from './components/AuditLogViewer.jsx';
-import GraphExplorer from './components/GraphExplorer.jsx';
 import CCTNSPillarsModal from './components/CCTNSPillarsModal.jsx';
 import AddSuspectModal from './components/AddSuspectModal.jsx';
 import UserDataStudio from './components/UserDataStudio.jsx';
@@ -202,16 +201,7 @@ export default function App() {
             />
           )}
 
-          {/* Page 9: Interactive Knowledge Graph Explorer */}
-          {activeTab === 'graphexplorer' && (
-            <GraphExplorer
-              graphData={graphData}
-              onNodeSelect={(nodeId) => setSelectedNodeId(nodeId)}
-              selectedNodeId={selectedNodeId}
-            />
-          )}
-
-          {/* Page 10: User Database & Activity Studio (SQL) */}
+          {/* Page 9: User Database & Activity Studio (SQL) */}
           {activeTab === 'userdb' && (
             <UserDataStudio
               officerUser={officerUser}
