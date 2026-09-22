@@ -3226,5 +3226,41 @@
     "prev_entry_hash": "01ca81d8d1bbc97fa7c466cf6dc8bb849913a6405a65189555724f149e81e906",
     "entry_hash": "ff577f066e57d1f42ca12bf67eecab9b73309cbb2f7b1f9ac76626aca18aa1c0",
     "hmac_sig": "88ecaebad80984909824291f9ebeaf9f1d6350ad4e27f16824360d73d0fef748"
+  },
+  {
+    "log_index": 269,
+    "timestamp": "2026-09-22T16:52:54.255274+00:00Z",
+    "officer_badge": "1234",
+    "role": "SYSTEM",
+    "action": "OTP_GENERATED",
+    "query_or_target": "Target: **** | Purpose: LOGIN_2FA",
+    "resource_hash": "a103acf65689063a0ff23022d895873e488f544f62815a45e2cbd5ec5cf34bd4",
+    "prev_entry_hash": "ff577f066e57d1f42ca12bf67eecab9b73309cbb2f7b1f9ac76626aca18aa1c0",
+    "entry_hash": "6b33c229de03a66ec3b19b7ee804a555a07431c291ccecc9089ef7dded23529d",
+    "hmac_sig": "25a970b795280a5d2c2715fa6bd574f8fb29cf3250e07fec998d321f724fa3cd"
+  },
+  {
+    "log_index": 270,
+    "timestamp": "2026-09-22T16:53:05.298670+00:00Z",
+    "officer_badge": "1234",
+    "role": "SYSTEM",
+    "action": "OTP_VERIFIED",
+    "query_or_target": "Token: OTP-04D6348B8235D0FC | Purpose: LOGIN_2FA",
+    "resource_hash": "0bc1de3d40bf65c9846fe6ece5b69646452f11345f3f76cf5af4f8892b1d9ca2",
+    "prev_entry_hash": "6b33c229de03a66ec3b19b7ee804a555a07431c291ccecc9089ef7dded23529d",
+    "entry_hash": "4d02a78419b1aab5f29e904f0b59cd297f28f32574be09e1710254e96aba07b5",
+    "hmac_sig": "fd3d0a583f379e15f83567670ac1d69d1aae9bc24a126dd85cdc458135638cc0"
+  },
+  {
+    "log_index": 271,
+    "timestamp": "2026-09-22T16:53:32.763607+00:00Z",
+    "officer_badge": "IA-SPECIAL-CELL-104",
+    "role": "Investigating Officer (IO)",
+    "action": "NETWORK_DISRUPTION_SIMULATION",
+    "query_or_target": "Targets: PERSON_002, PERSON_003, PERSON_001",
+    "resource_hash": "e539b10669c58c0199a2eddc8cfdfe9544ec242a634377edc70c0f63eb593753",
+    "prev_entry_hash": "4d02a78419b1aab5f29e904f0b59cd297f28f32574be09e1710254e96aba07b5",
+    "entry_hash": "ded623208a876b1f508689e596db39c8a698d7537fe9639b3192bb60ffcdc51c",
+    "hmac_sig": "7e591d9655c28ef4c57ad1c0b31788663bcd278eb66957d8f68dd02621b09e6a"
   }
 ]
