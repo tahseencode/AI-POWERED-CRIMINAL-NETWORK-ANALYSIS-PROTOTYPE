@@ -16,15 +16,18 @@ import UserDataStudio from './components/UserDataStudio.jsx';
 
 export default function App() {
 
-  // Authentication State (Null = Show Login Portal)
-  const [officerUser, setOfficerUser] = useState(() => {
+  // Authentication State: Login portal always comes first
+  const [officerUser, setOfficerUser] = useState(null);
+
+  useEffect(() => {
+    // Clear any previous persistent session so the official login page always displays first
     try {
-      const saved = localStorage.getItem('portal_officer_session');
-      return saved ? JSON.parse(saved) : null;
-    } catch {
-      return null;
+      localStorage.removeItem('portal_officer_session');
+    } catch (e) {
+      // Ignore
     }
-  });
+  }, []);
+
 
   const [activeTab, setActiveTab] = useState('dashboard');
   const [currentRole, setCurrentRole] = useState('Investigating Officer (IO)');

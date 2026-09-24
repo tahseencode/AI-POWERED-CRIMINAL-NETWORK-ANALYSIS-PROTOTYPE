@@ -3262,5 +3262,17 @@
     "prev_entry_hash": "4d02a78419b1aab5f29e904f0b59cd297f28f32574be09e1710254e96aba07b5",
     "entry_hash": "ded623208a876b1f508689e596db39c8a698d7537fe9639b3192bb60ffcdc51c",
     "hmac_sig": "7e591d9655c28ef4c57ad1c0b31788663bcd278eb66957d8f68dd02621b09e6a"
+  },
+  {
+    "log_index": 272,
+    "timestamp": "2026-09-24T15:34:38.404400+00:00Z",
+    "officer_badge": "IO-KOLKATA-8842",
+    "role": "Investigating Officer (IO)",
+    "action": "GRAPHRAG_INTELLIGENCE_INTERROGATION",
+    "query_or_target": "Show me financial transfers connected to hawala",
+    "resource_hash": "d173fe99ccd753fae63b03438946fb0e2d3fb27a74babb1c55252093be3110c1",
+    "prev_entry_hash": "ded623208a876b1f508689e596db39c8a698d7537fe9639b3192bb60ffcdc51c",
+    "entry_hash": "ea2b2c2ff30a21b2980f9796c68ccaeb86e6f030630c08aedcc27a115454beec",
+    "hmac_sig": "2d7162b5c390d74ebc8e612e87918892afbf4a2afb991be28bbd128da12a696c"
   }
 ]

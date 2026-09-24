@@ -1,7 +1,14 @@
 import os
+import sys
 import json
 import hashlib
 from pathlib import Path
+
+# Ensure project root is in sys.path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timezone
 from fastapi import FastAPI, HTTPException, Query, Body, UploadFile, File, Form
