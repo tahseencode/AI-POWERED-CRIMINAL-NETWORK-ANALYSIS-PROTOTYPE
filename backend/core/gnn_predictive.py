@@ -4,7 +4,14 @@ import torch.nn.functional as F
 import numpy as np
 from typing import Dict, Any, List, Tuple, Optional
 from backend.core.knowledge_graph import kg_store
-from backend.config import GNN_EMBEDDING_DIM, GNN_HIDDEN_DIM, GAT_HEADS
+from backend.config import GNN_EMBEDDING_DIM, GNN_HIDDEN_DIM, GAT_HEADS, DEVICE, TORCH_NUM_THREADS
+
+# Enforce CPU execution and thread allocation for edge hardware
+if hasattr(torch, "set_num_threads"):
+    try:
+        torch.set_num_threads(TORCH_NUM_THREADS)
+    except Exception:
+        pass
 
 class GraphAttentionLayer(nn.Module):
     """
@@ -83,7 +90,8 @@ class PredictivePolicingEngine:
 
     def __init__(self, graph_store=kg_store):
         self.graph_store = graph_store
-        self.model = CriminalGNNPredictor()
+        self.device = torch.device(DEVICE)
+        self.model = CriminalGNNPredictor().to(self.device)
         self.model.eval()
 
     def _prepare_tensors(self) -> Tuple[torch.Tensor, torch.Tensor, List[str], Dict[str, int]]:
@@ -92,7 +100,7 @@ class PredictivePolicingEngine:
         n = len(nodes)
 
         if n == 0:
-            return torch.zeros((0, 16)), torch.zeros((0, 0)), [], {}
+            return torch.zeros((0, 16), device=self.device), torch.zeros((0, 0), device=self.device), [], {}
 
         # 16-dimensional node feature vector: [threat, role_onehot(8), deg_norm, age_norm, attr_load, stat_flag, zero_fir, comm_id]
         features = np.zeros((n, 16), dtype=np.float32)
@@ -120,7 +128,7 @@ class PredictivePolicingEngine:
                 adj[s_idx, t_idx] = w
                 adj[t_idx, s_idx] = w # Symmetric message passing
 
-        return torch.tensor(features), torch.tensor(adj), nodes, node_idx_map
+        return torch.tensor(features, dtype=torch.float32, device=self.device), torch.tensor(adj, dtype=torch.float32, device=self.device), nodes, node_idx_map
 
     def run_prediction_pipeline(self) -> Dict[str, Any]:
         """
@@ -157,7 +165,7 @@ class PredictivePolicingEngine:
                 emb_v = embeddings[j]
                 
                 # NCSM centrality features
-                cent_feat = torch.tensor([features[i, 0], features[j, 0]], dtype=torch.float32)
+                cent_feat = torch.tensor([features[i, 0], features[j, 0]], dtype=torch.float32, device=self.device)
                 
                 prob = float(self.model.predict_link_prob(emb_u, emb_v, cent_feat).item())
                 
@@ -204,7 +212,7 @@ class PredictivePolicingEngine:
             "missing_intelligence_count": len(missing_intelligence_leads),
             "missing_intelligence_leads": missing_intelligence_leads[:8],
             "future_associations_forecast": future_associations_forecast[:6],
-            "inference_hardware": "CPU-Optimized Edge Inference (8GB RAM Target)",
+            "inference_hardware": f"100% CPU Execution ({self.device.type.upper()}) - Optimized Edge Inference (8GB RAM Target)",
             "statutory_note": "GNN link predictions serve as investigative leads pursuant to BNSS procedural guidelines."
         }
 

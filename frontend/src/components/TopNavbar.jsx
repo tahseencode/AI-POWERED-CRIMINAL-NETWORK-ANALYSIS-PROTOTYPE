@@ -7,7 +7,8 @@ import {
   CheckCircle2, 
   Menu,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Cpu
 } from 'lucide-react';
 
 export default function TopNavbar({ 
@@ -136,6 +137,37 @@ export default function TopNavbar({
             ))}
           </select>
         </div>
+
+        {/* Hardware Status Badge */}
+        <div 
+          title="Hardware Profile: 100% CPU Execution (PyTorch Geometric / ST-DBSCAN / GNN NCSM / NetworkX / OCR)"
+          style={{
+            background: '#ecfdf5',
+            border: '1px solid #a7f3d0',
+            borderRadius: '6px',
+            padding: '4px 8px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '5px',
+            fontSize: '11px',
+            fontWeight: 700,
+            color: '#065f46'
+          }}
+        >
+          <Cpu size={13} color="#059669" />
+          <span>CPU Mode</span>
+          <span style={{ 
+            fontSize: '9px', 
+            background: '#10b981', 
+            color: '#ffffff', 
+            borderRadius: '3px', 
+            padding: '1px 4px', 
+            fontWeight: 800 
+          }}>
+            ACTIVE
+          </span>
+        </div>
+
 
         {/* Action Buttons */}
         <button 

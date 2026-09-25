@@ -30,6 +30,13 @@ DEFAULT_EPS_SPATIAL_KM = 3.5    # eps1: spatial distance threshold
 DEFAULT_EPS_TEMPORAL_HOURS = 4.0 # eps2: temporal distance threshold
 DEFAULT_MIN_PTS = 3             # MinPts for trajectory/hotspot cluster
 
+# Hardware and Compute Configuration (100% CPU Execution Target)
+DEVICE = os.getenv("DEVICE", "cpu")
+TORCH_NUM_THREADS = int(os.getenv("TORCH_NUM_THREADS", "4"))
+USE_GPU = False
+HARDWARE_PROFILE = "CPU-Only Edge Target (8GB RAM Optimized)"
+
 # Fellegi-Sunter ER Parameters
 FS_MATCH_THRESHOLD = 7.5
 FS_UNCERTAIN_THRESHOLD = 4.0
+

@@ -17,7 +17,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
-from backend.config import BASE_DIR, DATA_DIR, CASE_DATA_FILE
+from backend.config import BASE_DIR, DATA_DIR, CASE_DATA_FILE, HARDWARE_PROFILE, DEVICE
 from backend.core.security import audit_logger, UserRole, ROLE_PERMISSIONS, generate_evidence_hash
 from backend.core.ocr_processor import ocr_processor
 from backend.core.legal_ner import legal_ner_engine
@@ -240,7 +240,9 @@ def get_system_status():
         "system_name": "AI-Powered Criminal Network Analysis Platform",
         "sih_problem_statement": "SIH26189",
         "deployment_node": "Ichhapur Defence Hub / Air-Gapped Secure Enclave",
-        "hardware_profile": "8GB RAM CPU-Only Edge Target (Quantized Inference)",
+        "hardware_profile": HARDWARE_PROFILE,
+        "execution_device": DEVICE.upper(),
+        "cpu_mode": True,
         "statutory_compliance": "Bharatiya Nyaya Sanhita (BNS) 2024 / BNSS Sec 173 / BSA Sec 63",
         "active_case": initial_case_data.get("case_title"),
         "total_entities_indexed": len(kg_store.nodes),
