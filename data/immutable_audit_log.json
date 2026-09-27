@@ -3898,5 +3898,77 @@
     "prev_entry_hash": "c562a14209bcfb8c530e0e2a0bfd2e8e2ca460845d8cf423fef349b6bc97ab68",
     "entry_hash": "9c7209b7c734796a6a5ba27fdeb336fcbb850baad0f0f57d3f624b278168f97e",
     "hmac_sig": "f9cba66384a684d9dfd2a48ab32214261965c0394c3567a8d95e62316dd3e83f"
+  },
+  {
+    "log_index": 325,
+    "timestamp": "2026-09-26T16:24:50.487896+00:00Z",
+    "officer_badge": "1234",
+    "role": "SYSTEM",
+    "action": "OTP_GENERATED",
+    "query_or_target": "Target: **** | Purpose: LOGIN_2FA",
+    "resource_hash": "39de6f62f596c74d740ac3c9332b0ac54daeb2aba212084a910fba955c9070bb",
+    "prev_entry_hash": "9c7209b7c734796a6a5ba27fdeb336fcbb850baad0f0f57d3f624b278168f97e",
+    "entry_hash": "081bd49f915bc7a5acc3de0943eb07fcee806da3c23d000cc0f72ee07f4b0026",
+    "hmac_sig": "8b9d4d6277f94e52e9a4680811f2aaca208c27a1d9a30541c979af5a0eefa4b7"
+  },
+  {
+    "log_index": 326,
+    "timestamp": "2026-09-26T16:24:53.520201+00:00Z",
+    "officer_badge": "1234",
+    "role": "SYSTEM",
+    "action": "OTP_VERIFIED",
+    "query_or_target": "Token: OTP-F4C0D4D59AD55DEF | Purpose: LOGIN_2FA",
+    "resource_hash": "7b0c5c86615293990dd21f4155c1904544a7def17db016783088c66909915e02",
+    "prev_entry_hash": "081bd49f915bc7a5acc3de0943eb07fcee806da3c23d000cc0f72ee07f4b0026",
+    "entry_hash": "c151dc41cfed4ace703520b39ff2ae8da76ff185b84a779dc8cffa75d5e8601a",
+    "hmac_sig": "5a5ed7778c0b46888888227b8d1abbd029fb7fe3618c0c9b5084908623ba5a66"
+  },
+  {
+    "log_index": 327,
+    "timestamp": "2026-09-27T07:58:21.710673+00:00Z",
+    "officer_badge": "1234",
+    "role": "SYSTEM",
+    "action": "OTP_GENERATED",
+    "query_or_target": "Target: **** | Purpose: LOGIN_2FA",
+    "resource_hash": "fe3359780b975e0456a455d2f8140aa86810586d9b1b86c9b35d0570f92e4f96",
+    "prev_entry_hash": "c151dc41cfed4ace703520b39ff2ae8da76ff185b84a779dc8cffa75d5e8601a",
+    "entry_hash": "fde3cbb74fa796b6ce0d2999a2f8131708e22181c025aae83db91933bfeb829b",
+    "hmac_sig": "2e636ba6d5cc14cb934c973f713b18a1263001a5b692d652cc01a79a9c096031"
+  },
+  {
+    "log_index": 328,
+    "timestamp": "2026-09-27T07:58:23.816085+00:00Z",
+    "officer_badge": "1234",
+    "role": "SYSTEM",
+    "action": "OTP_VERIFIED",
+    "query_or_target": "Token: OTP-DE88740A88C9AC35 | Purpose: LOGIN_2FA",
+    "resource_hash": "fc7b0c207df9c02ff3456016859fc7c76443aa8087b43c3be15d899b1b66154e",
+    "prev_entry_hash": "fde3cbb74fa796b6ce0d2999a2f8131708e22181c025aae83db91933bfeb829b",
+    "entry_hash": "32dca6d50967f8783127d37942ed896c9deb4f111e54ca0c0aa39056bc1edc7a",
+    "hmac_sig": "955163212420d22cb352aea44734a78de978e2d45213f876f2522ea103256e0b"
+  },
+  {
+    "log_index": 329,
+    "timestamp": "2026-09-27T13:47:25.678473+00:00Z",
+    "officer_badge": "1234",
+    "role": "SYSTEM",
+    "action": "OTP_GENERATED",
+    "query_or_target": "Target: **** | Purpose: LOGIN_2FA",
+    "resource_hash": "96a513378d78687a063cb3f7087f05a22f6883188f8b02e41b74400025fd44b5",
+    "prev_entry_hash": "32dca6d50967f8783127d37942ed896c9deb4f111e54ca0c0aa39056bc1edc7a",
+    "entry_hash": "8ff74cc5bd271b055db391ecbf8ca53226926ffe3f8903fb1793d6ab0d5479c3",
+    "hmac_sig": "6d7a879b4f5328a360025d00490832bdb57cbfab913625b022cb7fcecb96dc74"
+  },
+  {
+    "log_index": 330,
+    "timestamp": "2026-09-27T13:47:29.758817+00:00Z",
+    "officer_badge": "1234",
+    "role": "SYSTEM",
+    "action": "OTP_VERIFIED",
+    "query_or_target": "Token: OTP-720409B98A70B389 | Purpose: LOGIN_2FA",
+    "resource_hash": "52b7b82c8031ca945972d2c27d52648e3f5e2323fd5c903d19c1cd9f07670eae",
+    "prev_entry_hash": "8ff74cc5bd271b055db391ecbf8ca53226926ffe3f8903fb1793d6ab0d5479c3",
+    "entry_hash": "07fbd02c4ed41a1cdb94d8bb7a803bfaf9155e99ee80bcb32c8f33030a8eac2f",
+    "hmac_sig": "06a88a15d6468292413d6e62552c2c15364a34900823aba667cff4f9bd58bbdf"
   }
 ]
