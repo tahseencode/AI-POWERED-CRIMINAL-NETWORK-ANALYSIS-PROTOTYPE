@@ -317,7 +317,7 @@ class FellegiSunterEntityResolver:
         return {
             "total_records_processed": len(records),
             "candidate_pairs_evaluated": len(candidate_pairs),
-            "blocking_efficiency_savings": f"{max(0, 100 - (len(candidate_pairs) / (len(records)**2 / 2 + 1) * 100)):.1f}%",
+            "blocking_efficiency_savings": f"{max(0.0, min(100.0, (1 - len(candidate_pairs) / max(1, len(records) * (len(records) - 1) / 2)) * 100)):.1f}%",
             "definitive_matches": matches_found,
             "investigator_reviews_needed": review_required,
             "all_evaluations": evaluations

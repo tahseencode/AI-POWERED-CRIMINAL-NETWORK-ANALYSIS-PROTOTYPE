@@ -45,6 +45,7 @@ export default function SpatioTemporalMap({ currentRole }) {
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
+        layerGroupRef.current = null;
       }
     };
   }, []);
@@ -53,11 +54,12 @@ export default function SpatioTemporalMap({ currentRole }) {
     setLoading(true);
     try {
       const resp = await fetch(`/api/spatio-temporal/clusters?eps1=${s}&eps2=${t}&min_pts=${pts}`);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const data = await resp.json();
       setClustersData(data);
       renderMapOverlays(data);
     } catch (err) {
-      console.error(err);
+      console.error('Failed to fetch spatio-temporal clusters:', err);
     } finally {
       setLoading(false);
     }

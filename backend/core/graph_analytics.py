@@ -82,7 +82,7 @@ class CriminalNetworkAnalyticsEngine:
             energy_disruptive[node] = (load * 1.5 + threat_self) * energy_sum
 
         # Normalize energy disruptive scores to [0.0, 1.0]
-        max_energy = max(energy_disruptive.values()) if energy_disruptive.values() else 1.0
+        max_energy = max(energy_disruptive.values()) if energy_disruptive else 1.0
         if max_energy > 0:
             for k in energy_disruptive:
                 energy_disruptive[k] = round(energy_disruptive[k] / max_energy, 4)
@@ -152,11 +152,11 @@ class CriminalNetworkAnalyticsEngine:
             return {"communities": [], "modularity": 0.0}
 
         # Greedy modularity communities algorithm (Louvain modularity equivalent in NetworkX)
-        communities_generator = nx.algorithms.community.greedy_modularity_communities(G, weight="weight")
-        communities_list = [list(c) for c in communities_generator]
+        communities_raw = nx.algorithms.community.greedy_modularity_communities(G, weight="weight")
+        communities_list = [list(c) for c in communities_raw]
         
-        # Compute Newman-Girvan modularity
-        modularity = nx.algorithms.community.modularity(G, communities_generator, weight="weight")
+        # Compute Newman-Girvan modularity (must use same list, not exhausted generator)
+        modularity = nx.algorithms.community.modularity(G, communities_list, weight="weight")
 
         # Assign community metadata to nodes
         node_community_map = {}

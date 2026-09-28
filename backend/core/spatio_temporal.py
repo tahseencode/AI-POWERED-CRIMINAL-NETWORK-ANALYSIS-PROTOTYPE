@@ -89,7 +89,7 @@ class STRP_DBSCAN_Clusterer:
         """
         n = len(points)
         if n == 0:
-            return {"clusters": [], "noise": [], "convoys": [], "near_repeat_hotspots": []}
+            return {"clusters": [], "noise": [], "detected_convoys": [], "near_repeat_hotspots": []}
 
         # Step 1: Pre-convert timestamps to epoch hours
         formatted_pts = []
@@ -123,6 +123,7 @@ class STRP_DBSCAN_Clusterer:
             else:
                 cluster_labels[i] = current_cluster_id
                 queue = list(neighbors)
+                visited_queue = set(neighbors)  # Track queued items to avoid duplicates
                 
                 while queue:
                     neighbor_idx = queue.pop(0)
@@ -130,7 +131,9 @@ class STRP_DBSCAN_Clusterer:
                         visited.add(neighbor_idx)
                         nbr_neighbors = self._get_st_neighbors(neighbor_idx, formatted_pts)
                         if len(nbr_neighbors) >= self.min_pts:
-                            queue.extend([idx for idx in nbr_neighbors if idx not in queue])
+                            new_nbrs = [idx for idx in nbr_neighbors if idx not in visited_queue]
+                            queue.extend(new_nbrs)
+                            visited_queue.update(new_nbrs)
                     
                     if neighbor_idx not in cluster_labels or cluster_labels[neighbor_idx] == -1:
                         cluster_labels[neighbor_idx] = current_cluster_id

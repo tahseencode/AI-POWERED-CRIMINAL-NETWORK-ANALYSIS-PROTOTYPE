@@ -84,7 +84,7 @@ class ImmutableAuditLogger:
         if not self.log_path.exists():
             genesis_entry = {
                 "log_index": 0,
-                "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
+                "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f") + "Z",
                 "officer_badge": "GENESIS-SUPERVISOR-001",
                 "role": UserRole.SYSTEM_ADMIN.value,
                 "action": "GENESIS_NODE_INITIALIZED",
@@ -127,7 +127,7 @@ class ImmutableAuditLogger:
 
         new_entry = {
             "log_index": next_index,
-            "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f") + "Z",
             "officer_badge": officer_badge,
             "role": role,
             "action": action,
@@ -194,7 +194,7 @@ class ImmutableAuditLogger:
             "valid": True,
             "total_entries": len(logs),
             "latest_hash": logs[-1]["entry_hash"],
-            "verification_timestamp": datetime.now(timezone.utc).isoformat() + "Z",
+            "verification_timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f") + "Z",
             "statutory_compliance": "Bharatiya Sakshya Adhiniyam (BSA) 2024 Section 63 Digital Evidence Standard"
         }
 

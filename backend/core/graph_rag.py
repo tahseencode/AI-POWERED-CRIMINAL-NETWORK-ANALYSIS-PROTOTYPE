@@ -133,6 +133,7 @@ class GraphRAGQueryEngine:
                 return item
         # Fallback to general syndicate traversal
         return {
+            "keywords": [],
             "cypher_template": "MATCH (p:Person)-[r]->(target) RETURN p, r, target",
             "focus_rel": None,
             "title": "Comprehensive Criminal Network Multi-Hop Traversal"
@@ -164,8 +165,8 @@ class GraphRAGQueryEngine:
                 f"matching the parameters '{prompt}'. No speculative inferences were generated to adhere to BSA anti-hallucination protocols."
             )
 
-        names = [n["properties"].get("name", n["id"]) for n in nodes[:5]]
-        roles = set(n["properties"].get("role", "Actor") for n in nodes)
+        names = [n.get("properties", {}).get("name", n.get("id", "Unknown")) for n in nodes[:5]]
+        roles = set(n.get("properties", {}).get("role", "Actor") for n in nodes)
         
         narrative = (
             f"### Verified Intelligence Brief (GraphRAG Interrogation)\n\n"

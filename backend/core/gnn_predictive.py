@@ -138,7 +138,7 @@ class PredictivePolicingEngine:
         features, adj, nodes, node_idx_map = self._prepare_tensors()
         n = len(nodes)
         if n < 2:
-            return {"status": "INSUFFICIENT_NODES", "missing_intelligence": [], "future_associations": []}
+            return {"status": "INSUFFICIENT_NODES", "missing_intelligence_leads": [], "future_associations_forecast": []}
 
         with torch.no_grad():
             embeddings, attention_matrix = self.model.encode(features, adj)
@@ -161,16 +161,17 @@ class PredictivePolicingEngine:
                 # Check if edge already observed in database
                 is_observed = (u_id, v_id) in existing_edges
 
-                emb_u = embeddings[i]
-                emb_v = embeddings[j]
+                emb_u = embeddings[i].unsqueeze(0)  # [1, out_dim]
+                emb_v = embeddings[j].unsqueeze(0)  # [1, out_dim]
                 
                 # NCSM centrality features
-                cent_feat = torch.tensor([features[i, 0], features[j, 0]], dtype=torch.float32, device=self.device)
+                cent_feat = torch.tensor([[features[i, 0], features[j, 0]]], dtype=torch.float32, device=self.device)  # [1, 2]
                 
                 prob = float(self.model.predict_link_prob(emb_u, emb_v, cent_feat).item())
                 
                 # Dynamic calibration using cosine similarity of structural embeddings
-                cos_sim = float(F.cosine_similarity(emb_u.unsqueeze(0), emb_v.unsqueeze(0)).item())
+                # emb_u/emb_v are already [1, out_dim] — pass directly, no extra unsqueeze
+                cos_sim = float(F.cosine_similarity(emb_u, emb_v).item())
                 calibrated_prob = round(max(0.05, min(0.99, (prob * 0.4 + (cos_sim + 1) / 2 * 0.6))), 4)
 
                 u_node = self.graph_store.nodes[u_id]

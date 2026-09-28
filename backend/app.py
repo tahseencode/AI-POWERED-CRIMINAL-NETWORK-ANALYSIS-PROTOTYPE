@@ -513,7 +513,7 @@ def ingest_text_or_document(req: IngestionRequest):
         "statutory_acts": structured_acts,
         "fir_number": fir_num,
         "police_station": thana,
-        "incident_date": stats.get("incident_date") or ocr_result.get("extracted_metadata", {}).get("incident_date") or datetime.utcnow().strftime("%Y-%m-%d %H:%M IST"),
+        "incident_date": stats.get("incident_date") or ocr_result.get("extracted_metadata", {}).get("incident_date") or datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M IST"),
         "incident_locus": stats.get("incident_locus") or (extracted_locs[0] if extracted_locs else "Barrackpore Jurisdiction Corridor"),
         "case_status": "Under Active Investigation / Evidence Admitted",
         "phone_numbers": extracted_phones,
