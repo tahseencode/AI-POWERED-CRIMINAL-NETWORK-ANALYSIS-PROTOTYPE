@@ -2,6 +2,8 @@ import hashlib
 import hmac
 import json
 import time
+import threading
+import re
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Dict, Any, List, Optional
@@ -19,17 +21,17 @@ class UserRole(str, Enum):
 ROLE_PERMISSIONS = {
     UserRole.INVESTIGATING_OFFICER: [
         "view_cases", "view_graph", "run_graphrag_query", "view_hotspots",
-        "ingest_fir", "ingest_cdr_ipdr", "view_trajectories"
+        "ingest_fir", "ingest_cdr_ipdr", "view_trajectories", "manage_suspects"
     ],
     UserRole.INTELLIGENCE_ANALYST: [
         "view_cases", "view_graph", "run_graphrag_query", "view_hotspots",
-        "ingest_fir", "ingest_cdr_ipdr", "view_trajectories",
+        "ingest_fir", "ingest_cdr_ipdr", "view_trajectories", "manage_suspects",
         "run_gnn_prediction", "run_centrality_analytics", "simulate_disruption",
         "review_entity_resolution", "merge_entities"
     ],
     UserRole.STATION_HOUSE_OFFICER: [
         "view_cases", "view_graph", "run_graphrag_query", "view_hotspots",
-        "ingest_fir", "ingest_cdr_ipdr", "view_trajectories",
+        "ingest_fir", "ingest_cdr_ipdr", "view_trajectories", "manage_suspects",
         "run_gnn_prediction", "run_centrality_analytics", "simulate_disruption",
         "review_entity_resolution", "merge_entities",
         "approve_zero_fir_transfer", "issue_warrant_alert", "view_audit_trail"
@@ -40,13 +42,36 @@ ROLE_PERMISSIONS = {
     ],
     UserRole.SYSTEM_ADMIN: [
         "view_cases", "view_graph", "run_graphrag_query", "view_hotspots",
-        "ingest_fir", "ingest_cdr_ipdr", "view_trajectories",
+        "ingest_fir", "ingest_cdr_ipdr", "view_trajectories", "manage_suspects",
         "run_gnn_prediction", "run_centrality_analytics", "simulate_disruption",
         "review_entity_resolution", "merge_entities", "approve_zero_fir_transfer",
         "view_audit_trail", "verify_cryptographic_custody", "export_bsa_certificate",
         "system_config", "inspect_qap"
     ]
 }
+
+def check_role_permission(role: Optional[str], permission: str) -> bool:
+    """Verifies whether a role possesses statutory authorization for a specific action."""
+    if not role:
+        return False
+    # If role matches enum or string value
+    for r_enum, perms in ROLE_PERMISSIONS.items():
+        if role == r_enum.value or role == r_enum.name or role == r_enum:
+            return permission in perms
+    # Admin roles have all permissions
+    if "admin" in str(role).lower() or "administrator" in str(role).lower():
+        return True
+    return False
+
+def sanitize_input_text(text: Optional[str], max_len: int = 10000) -> str:
+    """Sanitizes text inputs to prevent XSS, control characters, and injection attacks."""
+    if not text:
+        return ""
+    # Strip null bytes and control chars (except normal whitespace)
+    cleaned = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]', '', str(text))
+    # Neutralize script tags
+    cleaned = re.sub(r'<\s*script[^>]*>.*?<\s*/\s*script\s*>', '', cleaned, flags=re.IGNORECASE | re.DOTALL)
+    return cleaned[:max_len].strip()
 
 def generate_evidence_hash(data: Any) -> str:
     """
@@ -75,10 +100,13 @@ class ImmutableAuditLogger:
     """
     Cryptographically chained immutable audit log.
     Mitigates 'burking' (hiding/ignoring crimes) and prevents unauthorized investigative snooping.
+    Thread-safe to prevent race conditions during concurrent requests.
     """
     def __init__(self, log_path: Path = AUDIT_LOG_FILE):
         self.log_path = log_path
-        self._ensure_log_file()
+        self._lock = threading.Lock()
+        with self._lock:
+            self._ensure_log_file()
 
     def _ensure_log_file(self):
         if not self.log_path.exists():
@@ -116,54 +144,57 @@ class ImmutableAuditLogger:
         resource_data: Any = None
     ) -> Dict[str, Any]:
         """Appends a cryptographically chained audit log entry."""
-        with open(self.log_path, "r", encoding="utf-8") as f:
-            logs = json.load(f)
+        with self._lock:
+            with open(self.log_path, "r", encoding="utf-8") as f:
+                logs = json.load(f)
 
-        last_entry = logs[-1] if logs else None
-        prev_hash = last_entry["entry_hash"] if last_entry else "0" * 64
-        next_index = len(logs)
+            last_entry = logs[-1] if logs else None
+            prev_hash = last_entry["entry_hash"] if last_entry else "0" * 64
+            next_index = len(logs)
 
-        resource_hash = generate_evidence_hash(resource_data) if resource_data else generate_evidence_hash(query_or_target)
+            resource_hash = generate_evidence_hash(resource_data) if resource_data else generate_evidence_hash(query_or_target)
 
-        new_entry = {
-            "log_index": next_index,
-            "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f") + "Z",
-            "officer_badge": officer_badge,
-            "role": role,
-            "action": action,
-            "query_or_target": query_or_target,
-            "resource_hash": resource_hash,
-            "prev_entry_hash": prev_hash,
-            "entry_hash": "",
-            "hmac_sig": ""
-        }
+            new_entry = {
+                "log_index": next_index,
+                "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f") + "Z",
+                "officer_badge": officer_badge,
+                "role": role,
+                "action": action,
+                "query_or_target": query_or_target,
+                "resource_hash": resource_hash,
+                "prev_entry_hash": prev_hash,
+                "entry_hash": "",
+                "hmac_sig": ""
+            }
 
-        new_entry["entry_hash"] = self._compute_entry_hash(new_entry)
-        new_entry["hmac_sig"] = generate_hmac_signature(new_entry["entry_hash"])
+            new_entry["entry_hash"] = self._compute_entry_hash(new_entry)
+            new_entry["hmac_sig"] = generate_hmac_signature(new_entry["entry_hash"])
 
-        logs.append(new_entry)
-        with open(self.log_path, "w", encoding="utf-8") as f:
-            json.dump(logs, f, indent=2)
+            logs.append(new_entry)
+            with open(self.log_path, "w", encoding="utf-8") as f:
+                json.dump(logs, f, indent=2)
 
-        return new_entry
+            return new_entry
 
     def get_logs(self, limit: int = 100) -> List[Dict[str, Any]]:
-        if not self.log_path.exists():
-            return []
-        with open(self.log_path, "r", encoding="utf-8") as f:
-            logs = json.load(f)
-        return logs[-limit:]
+        with self._lock:
+            if not self.log_path.exists():
+                return []
+            with open(self.log_path, "r", encoding="utf-8") as f:
+                logs = json.load(f)
+            return logs[-limit:]
 
     def verify_integrity(self) -> Dict[str, Any]:
         """Validates hash chain unbroken integrity for courtroom admissibility."""
-        if not self.log_path.exists():
-            return {"valid": False, "error": "Audit log file does not exist"}
+        with self._lock:
+            if not self.log_path.exists():
+                return {"valid": False, "error": "Audit log file does not exist"}
 
-        with open(self.log_path, "r", encoding="utf-8") as f:
-            logs = json.load(f)
+            with open(self.log_path, "r", encoding="utf-8") as f:
+                logs = json.load(f)
 
-        if not logs:
-            return {"valid": False, "error": "Audit log is empty"}
+            if not logs:
+                return {"valid": False, "error": "Audit log is empty"}
 
         for i, entry in enumerate(logs):
             expected_entry_hash = self._compute_entry_hash(entry)

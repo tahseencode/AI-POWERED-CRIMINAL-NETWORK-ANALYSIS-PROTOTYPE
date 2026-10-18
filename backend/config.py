@@ -12,9 +12,29 @@ SQL_DATABASE_FILE = DATA_DIR / "criminal_network_users.db"
 
 
 # Server configuration
-HOST = "0.0.0.0"
-PORT = 8000
-SECRET_KEY = os.getenv("SECRET_KEY", "SIH2026_CRIMINAL_NETWORK_ANALYSIS_KEY_SECURE_ICHHAPUR")
+HOST = os.getenv("HOST", "0.0.0.0")
+PORT = int(os.getenv("PORT", "8000"))
+
+# Cryptographic Enclave Key: Load from env or fallback to statutory enclave default
+DEFAULT_SECRET_KEY = "SIH2026_CRIMINAL_NETWORK_ANALYSIS_KEY_SECURE_ICHHAPUR"
+SECRET_KEY = os.getenv("SECRET_KEY", DEFAULT_SECRET_KEY)
+
+# Security & CORS Whitelist
+ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+_extra_origins = os.getenv("ALLOWED_ORIGINS", "")
+if _extra_origins:
+    ALLOWED_ORIGINS.extend([o.strip() for o in _extra_origins.split(",") if o.strip()])
+
+# File Upload Security Constraints
+MAX_UPLOAD_SIZE_BYTES = 15 * 1024 * 1024  # 15 MB
+ALLOWED_FILE_EXTENSIONS = {".pdf", ".png", ".jpg", ".jpeg", ".txt", ".csv", ".tiff", ".webp"}
 
 # GNN and Model Hyperparameters
 GNN_EMBEDDING_DIM = 64

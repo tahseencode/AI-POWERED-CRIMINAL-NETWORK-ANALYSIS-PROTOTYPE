@@ -10,17 +10,31 @@ from typing import Dict, Any, List, Optional, Tuple
 from backend.config import SQL_DATABASE_FILE, SECRET_KEY
 
 def hash_password(password: str, salt: Optional[str] = None) -> Tuple[str, str]:
-    """Generates a secure SHA-256 password hash with unique salt."""
+    """
+    Generates a secure PBKDF2-HMAC-SHA256 password hash (100,000 iterations)
+    with a unique 128-bit cryptographic salt for OWASP / NIST compliance.
+    """
     if not salt:
         salt = secrets.token_hex(16)
-    salted = f"{salt}{password}{SECRET_KEY}"
-    pwd_hash = hashlib.sha256(salted.encode("utf-8")).hexdigest()
+    # PBKDF2 derivation with secret key enclave pepper
+    peppered_salt = f"{salt}:{SECRET_KEY}".encode("utf-8")
+    pwd_bytes = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), peppered_salt, 100000)
+    pwd_hash = f"pbkdf2_sha256${pwd_bytes.hex()}"
     return pwd_hash, salt
 
 def verify_password(password: str, stored_hash: str, salt: str) -> bool:
-    """Verifies a plain password against the stored hash and salt."""
-    expected_hash, _ = hash_password(password, salt)
-    return secrets.compare_digest(expected_hash, stored_hash)
+    """
+    Verifies a plain password against the stored hash and salt.
+    Supports both modern PBKDF2 hashes and legacy SHA-256 for backward compatibility.
+    """
+    if stored_hash.startswith("pbkdf2_sha256$"):
+        expected_hash, _ = hash_password(password, salt)
+        return secrets.compare_digest(expected_hash, stored_hash)
+    else:
+        # Legacy SHA-256 fallback
+        legacy_salted = f"{salt}{password}{SECRET_KEY}"
+        legacy_hash = hashlib.sha256(legacy_salted.encode("utf-8")).hexdigest()
+        return secrets.compare_digest(legacy_hash, stored_hash)
 
 class DatabaseManager:
     """
@@ -387,18 +401,7 @@ class DatabaseManager:
             """, (user_id,))
             row = cursor.fetchone()
 
-            # Fallback for dynamic demo users if matching 1234
             if not row:
-                if password == "1234":
-                    # Dynamically create officer for seamless demo
-                    self.register_user(
-                        user_id=user_id,
-                        full_name=f"Officer {user_id}",
-                        password=password,
-                        role="Investigating Officer (IO)",
-                        station="Barrackpore Special Thana (North 24 Parganas)"
-                    )
-                    return self.authenticate_user(user_id, password, ip_address, user_agent)
                 return None
 
             user_data = dict(row)
@@ -443,6 +446,26 @@ class DatabaseManager:
         user_data.pop("salt", None)
         user_data["session_id"] = session_id
         return user_data
+
+    def get_session(self, session_id: str) -> Optional[Dict[str, Any]]:
+        """Retrieves active user session details from SQL database."""
+        if not session_id:
+            return None
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+            SELECT s.session_id, s.user_id, s.role, s.station, s.ip_address,
+                   s.login_time, s.is_active, u.full_name, u.badge_number,
+                   u.email, u.phone, u.department, u.is_admin
+            FROM user_sessions s
+            JOIN users u ON s.user_id = u.user_id
+            WHERE s.session_id = ? AND s.is_active = 1 AND u.is_active = 1
+            LIMIT 1
+            """, (session_id,))
+            row = cursor.fetchone()
+            if row:
+                return dict(row)
+            return None
 
     def logout_session(self, session_id: str, user_id: Optional[str] = None):
         """Ends a user session and updates the logout timestamp in SQL."""
@@ -531,9 +554,12 @@ class DatabaseManager:
 
             return user_data
 
-    def update_user_profile(self, user_id: str, updates: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        """Updates user profile fields in SQL database."""
-        allowed_fields = ["full_name", "badge_number", "email", "phone", "station", "department", "role", "profile_meta"]
+    def update_user_profile(self, user_id: str, updates: Dict[str, Any], is_admin_actor: bool = False) -> Optional[Dict[str, Any]]:
+        """Updates user profile fields in SQL database, preventing unauthorized privilege escalation."""
+        allowed_fields = ["full_name", "badge_number", "email", "phone", "station", "department", "profile_meta"]
+        if is_admin_actor:
+            allowed_fields.extend(["role", "is_admin"])
+
         set_clauses = []
         params = []
 
@@ -745,14 +771,14 @@ class DatabaseManager:
                 results.append(item)
             return results
 
-    def delete_case_note(self, note_id: int, user_id: Optional[str] = None) -> bool:
-        """Deletes a case note from SQL."""
+    def delete_case_note(self, note_id: int, user_id: Optional[str] = None, is_admin: bool = False) -> bool:
+        """Deletes a case note from SQL with authorization check."""
         with self.get_connection() as conn:
             cursor = conn.cursor()
-            if user_id:
-                cursor.execute("DELETE FROM user_case_notes WHERE id = ? AND user_id = ?", (note_id, user_id))
-            else:
+            if is_admin or not user_id:
                 cursor.execute("DELETE FROM user_case_notes WHERE id = ?", (note_id,))
+            else:
+                cursor.execute("DELETE FROM user_case_notes WHERE id = ? AND user_id = ?", (note_id, user_id))
             affected = cursor.rowcount
             conn.commit()
 
@@ -1075,7 +1101,7 @@ class DatabaseManager:
                 contact_target,
                 otp_hash,
                 salt,
-                code,
+                None,  # Do not store plaintext OTP in database
                 purpose,
                 channel,
                 expires_at,
@@ -1180,10 +1206,8 @@ class DatabaseManager:
                     "error": "This OTP has expired. Please request a new verification code."
                 }
 
-            # Check code match
+            # Check code match using constant-time hash comparison
             is_match = verify_otp_hash(otp_code, otp_record["otp_code_hash"], otp_record["salt"])
-            if not is_match and otp_code == otp_record.get("otp_code_plain"):
-                is_match = True
 
             if not is_match:
                 new_attempts = otp_record["attempts"] + 1
@@ -1276,12 +1300,20 @@ class DatabaseManager:
         if not user_info:
             return {"valid": False, "error": f"User account '{user_id_or_contact}' not found."}
 
+        if len(new_password) < 4:
+            return {"valid": False, "error": "New password must be at least 4 characters long."}
+
         pwd_hash, salt = hash_password(new_password)
+        now_ts = datetime.now(timezone.utc).isoformat()
         with self.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("""
             UPDATE users SET password_hash = ?, salt = ? WHERE user_id = ?
             """, (pwd_hash, salt, user_info["user_id"]))
+            # Invalidate all existing sessions for this user to prevent session hijacking
+            cursor.execute("""
+            UPDATE user_sessions SET is_active = 0, logout_time = ? WHERE user_id = ? AND is_active = 1
+            """, (now_ts, user_info["user_id"]))
             conn.commit()
 
         audit_logger.log_action(
@@ -1364,7 +1396,8 @@ class DatabaseManager:
         return user_data
 
     def get_otp_logs(self, limit: int = 50) -> List[Dict[str, Any]]:
-        """Retrieves recent OTP verification logs from SQL database."""
+        """Retrieves recent OTP verification logs from SQL database with masked contact targets for privacy."""
+        from backend.core.otp_service import mask_contact
         with self.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("""
@@ -1378,6 +1411,7 @@ class DatabaseManager:
             logs = []
             for r in rows:
                 item = dict(r)
+                item["contact_target"] = mask_contact(item.get("contact_target", ""))
                 if item.get("metadata"):
                     try:
                         item["metadata"] = json.loads(item["metadata"])
@@ -1389,21 +1423,52 @@ class DatabaseManager:
     def execute_raw_sql(self, sql_query: str, limit: int = 100) -> Dict[str, Any]:
         """
         Executes a read-only or inspection SQL query safely and returns structured rows.
-        Guarded to prevent accidental destruction while allowing rich analysis.
+        Guarded against SQL injection, stacked queries, mutation DDL/DML, and credential exfiltration.
         """
+        import re
         sql_clean = sql_query.strip().rstrip(";")
-        forbidden = ["DROP TABLE", "DROP DATABASE", "TRUNCATE", "VACUUM"]
-        if any(f in sql_clean.upper() for f in forbidden):
-            raise ValueError("Destructive DDL operations are restricted in SQL Console.")
+        
+        # 1. Prohibit stacked queries
+        if ";" in sql_clean:
+            raise ValueError("Multiple statements and stacked queries are prohibited.")
+
+        # 2. Require query to start with read-only inspection commands
+        allowed_starts = ("SELECT", "EXPLAIN", "PRAGMA TABLE_INFO")
+        if not any(sql_clean.upper().startswith(p) for p in allowed_starts):
+            raise ValueError("Only read-only inspection queries (SELECT, EXPLAIN, PRAGMA table_info) are permitted.")
+
+        # 3. Block destructive and mutation operations
+        forbidden_keywords = [
+            "DROP", "DELETE", "INSERT", "UPDATE", "ALTER", "TRUNCATE", 
+            "REPLACE", "CREATE", "ATTACH", "DETACH", "VACUUM", "WRITABLE_SCHEMA"
+        ]
+        for kw in forbidden_keywords:
+            if re.search(r'\b' + kw + r'\b', sql_clean, re.IGNORECASE):
+                raise ValueError(f"Destructive or mutating operation '{kw}' is restricted in SQL Console.")
+
+        # 4. Block explicit querying of sensitive credential hashes and salts
+        forbidden_fields = ["PASSWORD_HASH", "SALT", "OTP_CODE_HASH", "OTP_CODE_PLAIN"]
+        for field in forbidden_fields:
+            if re.search(r'\b' + field + r'\b', sql_clean, re.IGNORECASE):
+                raise ValueError(f"Direct querying of credential field '{field}' is restricted under statutory digital custody standards.")
 
         with self.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(sql_clean)
 
             if cursor.description:
-                columns = [col[0] for col in cursor.description]
+                raw_columns = [col[0] for col in cursor.description]
                 rows = cursor.fetchmany(limit)
-                results = [dict(zip(columns, row)) for row in rows]
+                
+                # Filter out sensitive fields if accidentally matched (e.g. via SELECT *)
+                columns = [c for c in raw_columns if c.lower() not in ["password_hash", "salt", "otp_code_hash", "otp_code_plain"]]
+                results = []
+                for row in rows:
+                    row_dict = dict(zip(raw_columns, row))
+                    for sensitive_col in ["password_hash", "salt", "otp_code_hash", "otp_code_plain"]:
+                        row_dict.pop(sensitive_col, None)
+                    results.append(row_dict)
+
                 return {
                     "query": sql_query,
                     "columns": columns,

@@ -116,28 +116,38 @@ export default function UserDataStudio({ officerUser, currentRole }) {
     }
   };
 
+  const getAuthHeaders = (extra = {}) => {
+    const headers = { ...extra };
+    const sessionId = officerUser?.session_id;
+    if (sessionId) {
+      headers['X-Session-ID'] = sessionId;
+      headers['Authorization'] = `Bearer ${sessionId}`;
+    }
+    return headers;
+  };
+
   const fetchDataForTab = async (tab) => {
     setLoading(true);
     try {
       if (tab === 'officers') {
-        const res = await fetch('/api/users').then(r => r.json());
+        const res = await fetch('/api/users', { headers: getAuthHeaders() }).then(r => r.json());
         setOfficers(res.users || []);
       } else if (tab === 'activity') {
-        const res = await fetch('/api/users/activity').then(r => r.json());
+        const res = await fetch('/api/users/activity', { headers: getAuthHeaders() }).then(r => r.json());
         setActivityLogs(res.logs || []);
       } else if (tab === 'notes') {
-        const res = await fetch('/api/users/notes').then(r => r.json());
+        const res = await fetch('/api/users/notes', { headers: getAuthHeaders() }).then(r => r.json());
         setCaseNotes(res.notes || []);
       } else if (tab === 'reports') {
-        const res = await fetch('/api/users/reports').then(r => r.json());
+        const res = await fetch('/api/users/reports', { headers: getAuthHeaders() }).then(r => r.json());
         setFieldReports(res.reports || []);
       } else if (tab === 'sql') {
-        const stats = await fetch('/api/database/stats').then(r => r.json());
+        const stats = await fetch('/api/database/stats', { headers: getAuthHeaders() }).then(r => r.json());
         setDbStats(stats);
       } else if (tab === 'otp') {
         const [logsRes, statsRes] = await Promise.all([
-          fetch('/api/auth/otp/logs').then(r => r.json()),
-          fetch('/api/auth/otp/stats').then(r => r.json())
+          fetch('/api/auth/otp/logs', { headers: getAuthHeaders() }).then(r => r.json()),
+          fetch('/api/auth/otp/stats', { headers: getAuthHeaders() }).then(r => r.json())
         ]);
         setOtpLogs(logsRes.logs || []);
         setOtpStats(statsRes);
@@ -159,7 +169,7 @@ export default function UserDataStudio({ officerUser, currentRole }) {
     try {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(newOfficerForm)
       });
       const data = await res.json();
@@ -192,8 +202,8 @@ export default function UserDataStudio({ officerUser, currentRole }) {
     }
     try {
       const payload = {
-        user_id: officerUser?.badgeId || '1234',
-        officer_name: officerUser?.name || 'Sub-Inspector A. K. Banerjee',
+        user_id: officerUser?.user_id || officerUser?.badgeId || '1234',
+        officer_name: officerUser?.full_name || officerUser?.name || 'Sub-Inspector A. K. Banerjee',
         title: noteForm.title,
         note_content: noteForm.note_content,
         suspect_id: noteForm.suspect_id || null,
@@ -202,7 +212,7 @@ export default function UserDataStudio({ officerUser, currentRole }) {
       };
       const res = await fetch('/api/users/notes', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(payload)
       });
       const data = await res.json();
@@ -226,7 +236,10 @@ export default function UserDataStudio({ officerUser, currentRole }) {
   const handleDeleteNote = async (noteId) => {
     if (!window.confirm(`Are you sure you want to delete Case Note #${noteId}?`)) return;
     try {
-      const res = await fetch(`/api/users/notes/${noteId}`, { method: 'DELETE' });
+      const res = await fetch(`/api/users/notes/${noteId}`, { 
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
       if (!res.ok) throw new Error("Delete failed");
       showFeedback(`Note #${noteId} deleted from SQL.`);
       fetchDataForTab('notes');
@@ -245,11 +258,11 @@ export default function UserDataStudio({ officerUser, currentRole }) {
     try {
       const payload = {
         ...reportForm,
-        user_id: officerUser?.badgeId || '1234'
+        user_id: officerUser?.user_id || officerUser?.badgeId || '1234'
       };
       const res = await fetch('/api/users/reports', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(payload)
       });
       const data = await res.json();
@@ -260,7 +273,7 @@ export default function UserDataStudio({ officerUser, currentRole }) {
         subject: '',
         description: '',
         report_type: 'FIELD_INTELLIGENCE',
-        reporter_name: officerUser?.name || 'Field Operative',
+        reporter_name: officerUser?.full_name || officerUser?.name || 'Field Operative',
         location: 'Barrackpore Tactical Corridor',
         evidence_refs: ''
       });
@@ -275,7 +288,7 @@ export default function UserDataStudio({ officerUser, currentRole }) {
     try {
       const res = await fetch(`/api/users/reports/${reportId}/status`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ status: newStatus })
       });
       if (!res.ok) throw new Error("Status update failed");
@@ -295,19 +308,21 @@ export default function UserDataStudio({ officerUser, currentRole }) {
     try {
       const res = await fetch('/api/database/query', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ sql_query: queryToRun })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "SQL execution error");
       setSqlResult(data.result);
       // Refresh stats
-      const stats = await fetch('/api/database/stats').then(r => r.json());
+      const stats = await fetch('/api/database/stats', { headers: getAuthHeaders() }).then(r => r.json());
       setDbStats(stats);
     } catch (err) {
       setSqlResult({ error: err.message });
     } finally {
       setSqlExecuting(false);
+    }
+  };
     }
   };
 
@@ -1657,7 +1672,7 @@ export default function UserDataStudio({ officerUser, currentRole }) {
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ fontSize: '11px', color: '#64748b' }}>
-                  Supports all standard SQL syntax: <code>SELECT</code>, <code>INSERT</code>, <code>UPDATE</code>, <code>JOIN</code>, <code>GROUP BY</code>.
+                  Restricted read-only console (BSA 2024 compliance): <code>SELECT</code>, <code>EXPLAIN</code>, <code>PRAGMA table_info</code>. Mutations (DROP/DELETE/UPDATE/INSERT) and credential exfiltration are strictly blocked.
                 </div>
                 <button
                   type="button"
