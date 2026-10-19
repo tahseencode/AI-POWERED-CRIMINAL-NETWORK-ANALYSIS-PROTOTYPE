@@ -1,1635 +1,228 @@
-import os
-import sys
+import datetime
 import json
-import hashlib
-from pathlib import Path
+import os
+import sqlite3
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+import jwt
 
-# Ensure project root is in sys.path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-
-import re
-from typing import Dict, Any, List, Optional
-from datetime import datetime, timezone
-from fastapi import FastAPI, HTTPException, Query, Body, UploadFile, File, Form, Request, Header, Depends
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, JSONResponse
-from pydantic import BaseModel
-
-from backend.config import (
-    BASE_DIR, DATA_DIR, CASE_DATA_FILE, HARDWARE_PROFILE, DEVICE,
-    ALLOWED_ORIGINS, MAX_UPLOAD_SIZE_BYTES, ALLOWED_FILE_EXTENSIONS
-)
+from backend.config import Config
+from backend.core.database import Database
+from backend.core.entity_resolution import EntityResolutionEngine
+from backend.core.gnn_predictive import PredictiveAnalysisEngine
+from backend.core.graph_analytics import GraphAnalyticsEngine
+from backend.core.graph_rag import GraphRAGEngine
+from backend.core.knowledge_graph import KnowledgeGraphEngine
+from backend.core.legal_ner import LegalNEREngine
+from backend.core.ocr_processor import OCRProcessor
+from backend.core.otp_service import OTPService
+from backend.core.outcome_forecaster import OutcomeForecastingEngine
 from backend.core.security import (
-    audit_logger, UserRole, ROLE_PERMISSIONS, generate_evidence_hash,
-    check_role_permission, sanitize_input_text
+    check_rbac_permission,
+    hash_password,
+    log_audit_event,
+    verify_password,
 )
-from backend.core.ocr_processor import ocr_processor
-from backend.core.legal_ner import legal_ner_engine
-from backend.core.entity_resolution import entity_resolver
-from backend.core.knowledge_graph import kg_store
-from backend.core.graph_rag import graph_rag_engine
-from backend.core.graph_analytics import analytics_engine
-from backend.core.gnn_predictive import gnn_engine
-from backend.core.spatio_temporal import strp_dbscan_clusterer
-from backend.core.outcome_forecaster import outcome_predictor
-from backend.core.data_generator import initialize_knowledge_graph, generate_default_intelligence_cases
-from backend.core.database import db_manager
-from backend.core.otp_service import otp_service, OTPPurpose, OTPChannel, mask_contact
+from backend.core.spatio_temporal import SpatioTemporalEngine
+
+app = Flask(__name__)
+app.config.from_object(Config)
+CORS(app)
+
+db = Database(app.config["DATABASE_PATH"])
+otp_service = OTPService()
+
+# Initialize Engine Components
+graph_analytics = GraphAnalyticsEngine()
+knowledge_graph = KnowledgeGraphEngine()
+entity_resolution = EntityResolutionEngine()
+gnn_engine = PredictiveAnalysisEngine()
+spatio_temporal = SpatioTemporalEngine()
+graph_rag = GraphRAGEngine()
+legal_ner = LegalNEREngine()
+ocr_processor = OCRProcessor()
+outcome_forecaster = OutcomeForecastingEngine()
 
 
-# Initialize data and knowledge graph
-initial_case_data = initialize_knowledge_graph()
+def token_required(f):
+    def decorator(*args, **kwargs):
+        token = None
+        if "Authorization" in request.headers:
+            auth_header = request.headers["Authorization"]
+            if auth_header.startswith("Bearer "):
+                token = auth_header.split(" ")[1]
 
-app = FastAPI(
-    title="AI-Powered Criminal Network Analysis System (SIH26189)",
-    description="Explainable Decision-Support Layer for Law-Enforcement Intelligence",
-    version="2.0.0"
-)
+        if not token:
+            return jsonify({"message": "Token is missing"}), 401
 
-# Secure CORS Middleware: Explicit Whitelisted Origins & Localhost Regex (Disallowing wildcard with credentials)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,
-    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["*"],
-)
+        try:
+            data = jwt.decode(
+                token, app.config["SECRET_KEY"], algorithms=[app.config["JWT_ALGORITHM"]]
+            )
+            current_user = db.get_user_by_id(data["user_id"])
+            if not current_user:
+                return jsonify({"message": "Invalid user token"}), 401
+        except Exception:
+            return jsonify({"message": "Token is invalid or expired"}), 401
 
-# Security Headers Middleware
-@app.middleware("http")
-async def add_security_headers(request: Request, call_next):
-    response = await call_next(request)
-    response.headers["X-Content-Type-Options"] = "nosniff"
-    response.headers["X-Frame-Options"] = "SAMEORIGIN"
-    response.headers["X-XSS-Protection"] = "1; mode=block"
-    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-    return response
+        return f(current_user, *args, **kwargs)
 
-# Session Authentication & Identity Verification Helper
-def get_current_officer(
-    request: Request,
-    x_session_id: Optional[str] = Header(None, alias="X-Session-ID"),
-    authorization: Optional[str] = Header(None, alias="Authorization")
-) -> Dict[str, Any]:
-    """
-    Extracts and validates active authenticated officer session from SQL session store.
-    Prevents role forgery and session impersonation across all critical investigative APIs.
-    """
-    session_id = x_session_id
-    if not session_id and authorization:
-        if authorization.lower().startswith("bearer "):
-            session_id = authorization[7:].strip()
-        else:
-            session_id = authorization.strip()
-
-    if session_id:
-        sess = db_manager.get_session(session_id)
-        if sess:
-            sess["is_authenticated"] = True
-            return sess
-
-    # Fallback context for unit tests and local prototype execution
-    ua = request.headers.get("user-agent", "").lower()
-    is_test = "testclient" in ua or "python" in ua
-    return {
-        "user_id": "IO-KOLKATA-8842",
-        "role": UserRole.INVESTIGATING_OFFICER.value,
-        "is_admin": 1 if is_test else 0,
-        "full_name": "Operating Officer",
-        "station": "Barrackpore Special Thana",
-        "is_authenticated": False
-    }
-
-# Request Models
-class CypherQueryRequest(BaseModel):
-    query: str
-    officer_badge: Optional[str] = "IO-KOLKATA-8842"
-    role: Optional[str] = UserRole.INVESTIGATING_OFFICER.value
-
-class GraphRAGRequest(BaseModel):
-    prompt: str
-    officer_badge: Optional[str] = "IO-KOLKATA-8842"
-    role: Optional[str] = UserRole.INVESTIGATING_OFFICER.value
-
-class DisruptionSimulationRequest(BaseModel):
-    target_node_ids: List[str]
-    officer_badge: Optional[str] = "IA-SPECIAL-CELL-104"
-    role: Optional[str] = UserRole.INTELLIGENCE_ANALYST.value
-
-class EntityMergeRequest(BaseModel):
-    primary_entity_id: str
-    secondary_entity_id: str
-    officer_badge: Optional[str] = "IA-SPECIAL-CELL-104"
-    role: Optional[str] = UserRole.INTELLIGENCE_ANALYST.value
-
-class IngestionRequest(BaseModel):
-    raw_text: str
-    source_type: Optional[str] = "FIR_NARRATIVE"
-    language: Optional[str] = "en"
-    officer_badge: Optional[str] = "IO-KOLKATA-8842"
-    role: Optional[str] = UserRole.INVESTIGATING_OFFICER.value
-
-class StatutoryActDetail(BaseModel):
-    act: str = "Bharatiya Nyaya Sanhita (BNS) 2024"
-    section: str = "Section 111"
-    title: Optional[str] = "Organized Crime Syndicate Offence"
-    explanation: Optional[str] = ""
-
-class AddSuspectRequest(BaseModel):
-    name: str
-    aliases: Optional[List[str]] = []
-    role: Optional[str] = "Syndicate Operative"
-    threat_score: Optional[float] = 0.75
-    attribute_load: Optional[float] = 2.5
-    age: Optional[int] = 32
-    gender: Optional[str] = "Male"
-    cctns_id: Optional[str] = None
-    
-    # Detailed Crime Profile
-    crime_title: str = "Unlawful Syndicate Conspiracy & Contraband Operations"
-    crime_category: Optional[str] = "Organized Crime & Firearms Trafficking"
-    incident_narrative: str = "Suspect engaged in active conspiracy and logistical coordination of contraband."
-    modus_operandi: Optional[str] = "Operates through encrypted telecom channels and rapid physical dropoffs."
-    seized_contraband: Optional[str] = "Country-made weapons and unaccounted currency notes."
-    statutory_acts: Optional[List[StatutoryActDetail]] = []
-    bns_sections: Optional[List[str]] = []
-    fir_number: Optional[str] = ""
-    police_station: Optional[str] = "Barrackpore Special Thana"
-    incident_date: Optional[str] = ""
-    incident_locus: Optional[str] = "Ichhapur Safehouse Corridor"
-    case_status: Optional[str] = "Under Active Investigation / Warrant Issued"
-    
-    # Associated Network Entities
-    phone_numbers: Optional[List[str]] = []
-    vehicle_plates: Optional[List[str]] = []
-    bank_accounts: Optional[List[str]] = []
-    upi_ids: Optional[List[str]] = []
-    crypto_wallets: Optional[List[str]] = []
-    locations: Optional[List[str]] = []
-    known_associates: Optional[List[str]] = []
-    associate_relation: Optional[str] = "COLLABORATES_WITH"
-
-    # Evidence Attachments & AI Predictions
-    evidence_attachment: Optional[Dict[str, Any]] = None
-    predicted_outcome: Optional[Dict[str, Any]] = None
-
-    # Audit & Security Context
-    officer_badge: Optional[str] = "IO-KOLKATA-8842"
-    role: Optional[str] = UserRole.INVESTIGATING_OFFICER.value
-
-# User & SQL Database Request Models
-class UserLoginRequest(BaseModel):
-    user_id: str
-    password: str
-    station: Optional[str] = None
-    role: Optional[str] = None
-
-class UserRegisterRequest(BaseModel):
-    user_id: str
-    full_name: str
-    password: str
-    role: Optional[str] = "Investigating Officer (IO)"
-    station: Optional[str] = "Barrackpore Special Thana (North 24 Parganas)"
-    badge_number: Optional[str] = None
-    email: Optional[str] = None
-    phone: Optional[str] = None
-    department: Optional[str] = "Organized Crime & Firearms Investigation Wing"
-    is_admin: Optional[int] = 0
-
-class UserLogoutRequest(BaseModel):
-    session_id: str
-    user_id: Optional[str] = None
-
-# OTP & 2FA Models
-class OtpSendRequest(BaseModel):
-    contact_target: Optional[str] = None
-    user_id: Optional[str] = None
-    purpose: Optional[str] = "LOGIN_2FA"
-    channel: Optional[str] = "SMS_SANDES"
-    action_name: Optional[str] = None
-
-class OtpVerifyRequest(BaseModel):
-    contact_target: Optional[str] = None
-    user_id: Optional[str] = None
-    otp_code: str
-    purpose: Optional[str] = "LOGIN_2FA"
-
-class PasswordResetRequest(BaseModel):
-    user_id_or_contact: str
-    otp_code: str
-    new_password: str
-
-class StepUpAuthRequest(BaseModel):
-    user_id: Optional[str] = "1234"
-    otp_code: str
-    action_name: str
-    resource_id: Optional[str] = None
-    officer_badge: Optional[str] = None
-
-class UserProfileUpdateRequest(BaseModel):
-    full_name: Optional[str] = None
-    badge_number: Optional[str] = None
-    email: Optional[str] = None
-    phone: Optional[str] = None
-    station: Optional[str] = None
-    department: Optional[str] = None
-    role: Optional[str] = None
-
-class UserActivityLogRequest(BaseModel):
-    user_id: str
-    officer_name: Optional[str] = None
-    role: Optional[str] = None
-    action_type: str
-    target_resource: Optional[str] = None
-    details: Optional[Dict[str, Any]] = None
-
-class CaseNoteCreateRequest(BaseModel):
-    user_id: str
-    title: str
-    note_content: str
-    officer_name: Optional[str] = None
-    case_id: Optional[str] = "FIR-142/2026/WB-BKP"
-    suspect_id: Optional[str] = None
-    priority: Optional[str] = "MEDIUM"
-    tags: Optional[List[str]] = []
-
-class FieldReportCreateRequest(BaseModel):
-    subject: str
-    description: str
-    report_type: Optional[str] = "FIELD_INTELLIGENCE"
-    reporter_name: Optional[str] = "Field Operative"
-    user_id: Optional[str] = "IO-8842"
-    location: Optional[str] = "Barrackpore Jurisdiction"
-    evidence_refs: Optional[str] = None
-
-class FieldReportStatusUpdateRequest(BaseModel):
-    status: str
-
-class SavedQueryCreateRequest(BaseModel):
-    user_id: str
-    query_text: str
-    query_type: Optional[str] = "GRAPHRAG"
-    result_summary: Optional[str] = None
-    is_starred: Optional[int] = 0
-
-class RawSqlQueryRequest(BaseModel):
-    sql_query: str
-    limit: Optional[int] = 100
+    decorator.__name__ = f.__name__
+    return decorator
 
 
-# ==========================================
-# API ROUTES
-# ==========================================
+@app.route("/api/auth/login", methods=["POST"])
+def login():
+    data = request.get_json() or {}
+    username = data.get("username")
+    password = data.get("password")
 
-@app.get("/api/status")
-def get_system_status():
-    """System health, hardware constraints, and compliance telemetry."""
-    return {
-        "status": "OPERATIONAL",
-        "system_name": "AI-Powered Criminal Network Analysis Platform",
-        "sih_problem_statement": "SIH26189",
-        "deployment_node": "Ichhapur Defence Hub / Air-Gapped Secure Enclave",
-        "hardware_profile": HARDWARE_PROFILE,
-        "execution_device": DEVICE.upper(),
-        "cpu_mode": True,
-        "statutory_compliance": "Bharatiya Nyaya Sanhita (BNS) 2024 / BNSS Sec 173 / BSA Sec 63",
-        "active_case": initial_case_data.get("case_title"),
-        "total_entities_indexed": len(kg_store.nodes),
-        "total_relationships_mapped": len(kg_store.edges)
-    }
+    user = db.get_user_by_username(username)
+    if not user or not verify_password(password, user["password_hash"]):
+        return jsonify({"message": "Invalid credentials"}), 401
 
-@app.get("/api/graph")
-def get_full_graph():
-    """Returns the complete Knowledge Graph in Cytoscape.js format with community assignments."""
-    # Ensure Louvain community partitions are mapped
-    louvain_data = analytics_engine.compute_louvain_communities()
-    for nid, cid in louvain_data.get("node_assignments", {}).items():
-        if nid in kg_store.nodes:
-            kg_store.nodes[nid]["properties"]["community_id"] = cid
-
-    return kg_store.serialize_to_cytoscape()
-
-@app.get("/api/graph/subgraph")
-def get_subgraph(center_ids: str = Query(..., description="Comma-separated node IDs"), depth: int = 2):
-    ids = [i.strip() for i in center_ids.split(",") if i.strip()]
-    return kg_store.extract_subgraph(ids, depth=depth)
-
-@app.post("/api/graph/cypher")
-def execute_cypher(req: CypherQueryRequest):
-    """Executes deterministic Cypher query directly on property graph."""
-    res = kg_store.execute_cypher(req.query)
-    audit_logger.log_action(
-        officer_badge=req.officer_badge,
-        role=req.role,
-        action="CYPHER_DIRECT_EXECUTION",
-        query_or_target=req.query,
-        resource_data={"matched_nodes": res["results"]["count_nodes"]}
-    )
-    # Log to SQL user database
-    db_manager.save_user_query(
-        user_id=req.officer_badge or "IO-KOLKATA-8842",
-        query_text=req.query,
-        query_type="CYPHER",
-        result_summary=f"Matched {res['results']['count_nodes']} nodes"
-    )
-    db_manager.log_user_activity(
-        user_id=req.officer_badge or "IO-KOLKATA-8842",
-        role=req.role,
-        action_type="CYPHER_DIRECT_EXECUTION",
-        target_resource=req.query[:60],
-        details={"matched_nodes": res["results"]["count_nodes"]}
-    )
-    return res
-
-@app.post("/api/graphrag/query")
-def query_graphrag(req: GraphRAGRequest):
-    """Dynamic GraphRAG Interrogation with deterministic Cypher translation."""
-    res = graph_rag_engine.query(
-        natural_language_prompt=req.prompt,
-        officer_badge=req.officer_badge,
-        role=req.role
-    )
-    # Log to SQL user database
-    db_manager.save_user_query(
-        user_id=req.officer_badge or "IO-KOLKATA-8842",
-        query_text=req.prompt,
-        query_type="GRAPHRAG",
-        result_summary=res.get("summary", "")[:120] if isinstance(res, dict) else ""
-    )
-    db_manager.log_user_activity(
-        user_id=req.officer_badge or "IO-KOLKATA-8842",
-        role=req.role,
-        action_type="GRAPHRAG_INTERROGATION",
-        target_resource=req.prompt[:60],
-        details={"confidence": res.get("confidence_score") if isinstance(res, dict) else None}
-    )
-    return res
-
-# Analytics Endpoints
-@app.get("/api/analytics/centrality")
-def get_centralities():
-    """Calculates Degree, Betweenness, Eigenvector, and Energy Disruptive Centralities."""
-    return analytics_engine.compute_all_centralities()
-
-@app.get("/api/analytics/kappa-path")
-def get_kappa_path_edge_centrality(kappa: int = 3):
-    """Computes kappa-path Edge Centrality for critical communication channels."""
-    return analytics_engine.compute_kappa_path_edge_centrality(kappa=kappa)
-
-@app.get("/api/analytics/louvain")
-def get_louvain_communities():
-    """Louvain Modularity Community Detection for factional cell breakdown."""
-    return analytics_engine.compute_louvain_communities()
-
-@app.get("/api/analytics/cpp-tri")
-def get_cpp_tri_matrix():
-    """Composition of Probabilistic Preferences multi-criteria threat tier matrix."""
-    return analytics_engine.compute_cpp_tri_threat_matrix()
-
-@app.get("/api/analytics/key-players")
-def get_key_players(k: int = 3):
-    """Borgatti's Key Player Problem (KPP-1 Fragmentation and KPP-2 Reach)."""
-    return analytics_engine.solve_key_player_problem(k=k)
-
-@app.post("/api/analytics/disruption-simulate")
-def simulate_disruption(req: DisruptionSimulationRequest):
-    """Simulates network fragmentation upon targeted arrests."""
-    res = analytics_engine.simulate_network_disruption(req.target_node_ids)
-    audit_logger.log_action(
-        officer_badge=req.officer_badge,
-        role=req.role,
-        action="NETWORK_DISRUPTION_SIMULATION",
-        query_or_target=f"Targets: {', '.join(req.target_node_ids)}",
-        resource_data={"disruption_pct": res.get("disruption_effectiveness_percent")}
-    )
-    return res
-
-@app.get("/api/analytics/qap")
-def get_qap_permutation_test(permutations: int = 500):
-    """Quadratic Assignment Procedure (QAP) permutation testing."""
-    return analytics_engine.run_qap_permutation_test(num_permutations=permutations)
-
-# GNN Predictive Policing
-@app.get("/api/gnn/predict")
-def run_gnn_predictions():
-    """Executes PyG GraphSAGE / GAT link prediction & missing intelligence discovery."""
-    return gnn_engine.run_prediction_pipeline()
-
-# Spatio-Temporal Trajectory & Hotspots
-@app.get("/api/spatio-temporal/clusters")
-def get_spatio_temporal_clusters(eps1: float = 3.5, eps2: float = 4.0, min_pts: int = 3):
-    """Executes STRP-DBSCAN on trajectory/event points, detecting convoys and near-repeat hotspots."""
-    if Path(CASE_DATA_FILE).exists():
-        with open(CASE_DATA_FILE, "r", encoding="utf-8") as f:
-            cdata = json.load(f)
-        events = cdata.get("spatio_temporal_events", [])
-    else:
-        events = initial_case_data.get("spatio_temporal_events", [])
-
-    strp_dbscan_clusterer.eps1 = eps1
-    strp_dbscan_clusterer.eps2 = eps2
-    strp_dbscan_clusterer.min_pts = min_pts
-    return strp_dbscan_clusterer.cluster_points(events)
-
-# Entity Resolution
-@app.get("/api/entity-resolution/resolve")
-def run_entity_resolution():
-    """Runs blocked Fellegi-Sunter probabilistic record linkage across candidate records."""
-    if Path(CASE_DATA_FILE).exists():
-        with open(CASE_DATA_FILE, "r", encoding="utf-8") as f:
-            cdata = json.load(f)
-        er_records = cdata.get("entity_resolution_dataset", [])
-    else:
-        er_records = initial_case_data.get("entity_resolution_dataset", [])
-
-    return entity_resolver.resolve_all_records(er_records)
-
-@app.post("/api/entity-resolution/merge")
-def merge_entities(req: EntityMergeRequest):
-    """Merges two resolved entity nodes in the Knowledge Graph with audit trail and disk persistence."""
-    merged = kg_store.merge_nodes(req.primary_entity_id, req.secondary_entity_id)
-
-    # Persist updated graph to disk
-    try:
-        if Path(CASE_DATA_FILE).exists():
-            with open(CASE_DATA_FILE, "r", encoding="utf-8") as f:
-                cdata = json.load(f)
-            cdata["graph_data"]["nodes"] = list(kg_store.nodes.values())
-            cdata["graph_data"]["edges"] = kg_store.edges
-            
-            # Remove or update merged record in ER dataset
-            er_dataset = cdata.get("entity_resolution_dataset", [])
-            sec_name = ""
-            for r in er_dataset:
-                if r.get("id") == req.secondary_entity_id or req.secondary_entity_id in r.get("id", ""):
-                    sec_name = r.get("full_name", "")
-            
-            # Re-label or remove secondary from ER dataset
-            cdata["entity_resolution_dataset"] = [
-                r for r in er_dataset 
-                if r.get("id") != req.secondary_entity_id and req.secondary_entity_id not in r.get("id", "")
-            ]
-            
-            with open(CASE_DATA_FILE, "w", encoding="utf-8") as f:
-                json.dump(cdata, f, indent=2)
-    except Exception as err:
-        print(f"Warning: Failed to persist ER merge to {CASE_DATA_FILE}: {err}")
-
-    audit_logger.log_action(
-        officer_badge=req.officer_badge,
-        role=req.role,
-        action="ENTITY_RESOLUTION_MERGE",
-        query_or_target=f"Merged {req.secondary_entity_id} into {req.primary_entity_id}",
-        resource_data={"primary": req.primary_entity_id, "secondary": req.secondary_entity_id}
-    )
-
-    return {
-        "status": "ENTITIES_MERGED_SUCCESSFULLY",
-        "unified_node_id": req.primary_entity_id,
-        "deprecated_node_id": req.secondary_entity_id,
-        "merged_node": merged,
-        "total_nodes_remaining": len(kg_store.nodes),
-        "total_edges_remaining": len(kg_store.edges),
-        "statutory_note": "Entity resolution merge executed and logged to immutable ledger pursuant to BSA digital standards."
-    }
-
-# Ingestion & OCR / Legal NER
-@app.post("/api/ingest/ocr-ner")
-def ingest_text_or_document(req: IngestionRequest):
-    """Runs Multilingual OCR (En/Hi/Bn) & Domain-Adapted Legal NER on input."""
-    # 1. OCR text standardization
-    ocr_result = ocr_processor.extract_text_from_document(req.raw_text, language=req.language)
-    
-    # 2. Domain-adapted NER extraction
-    ner_result = legal_ner_engine.extract_entities(ocr_result["cleaned_text"], source_type=req.source_type)
-
-    # 3. Build auto-filled suspect profile
-    entities = ner_result.get("entities", {})
-    bio_list = entities.get("biographic_data", [])
-    bio = bio_list[0] if bio_list else {}
-    comms = entities.get("communication_identifiers", [])
-    vehs = entities.get("vehicular_logistics", [])
-    fins = entities.get("financial_instruments", [])
-    spats = entities.get("spatial_and_geographic", [])
-    stats = entities.get("statutory_and_legal", {})
-    crime_meta = stats.get("crime_details", {})
-
-    extracted_phones = [c["value"] for c in comms if c.get("type") in ("Phone_Number", "Phone")]
-    extracted_vehicles = [v["plate_number"] for v in vehs if "plate_number" in v]
-    extracted_banks = [f["identifier"] for f in fins if f.get("type") == "Bank_Account"]
-    extracted_upis = [f["identifier"] for f in fins if f.get("type") == "UPI_ID"]
-    extracted_locs = [s["location_name"] for s in spats if "location_name" in s]
-
-    stat_sections = stats.get("statutory_sections", [])
-    structured_acts = []
-    for s in stat_sections:
-        s_str = str(s)
-        act_name = "Arms Act 1959" if "arms" in s_str.lower() else "Information Technology Act 2000" if "it" in s_str.lower() else "Bharatiya Nyaya Sanhita (BNS) 2024"
-        structured_acts.append({
-            "act": act_name,
-            "section": s_str,
-            "title": f"Statutory Offence {s_str}",
-            "explanation": f"Identified in FIR narrative and parsed under BNSS 173 protocol."
-        })
-
-    if not structured_acts:
-        structured_acts = [
+    if user.get("mfa_enabled"):
+        otp_service.generate_otp(user["id"])
+        return jsonify(
             {
-                "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
-                "section": "Section 111",
-                "title": "Organized Crime Syndicate Offence",
-                "explanation": "Engaging in organized syndicate conspiracy, contraband logistics, or economic offences."
+                "status": "mfa_required",
+                "user_id": user["id"],
+                "message": "OTP generated for verification.",
             }
-        ]
+        ), 200
 
-    fir_num = stats.get("fir_number") or ocr_result.get("extracted_metadata", {}).get("fir_number") or f"FIR-2026/{abs(hash(req.raw_text[:50]))%900 + 100}/WB-BKP"
-    thana = stats.get("police_station") or ocr_result.get("extracted_metadata", {}).get("police_station") or "Barrackpore Special Crime Thana"
-
-    auto_filled_suspect = {
-        "name": bio.get("full_name") or "Extracted Suspect",
-        "aliases": bio.get("aliases", []),
-        "role": bio.get("role_inferred") or crime_meta.get("role") or "Syndicate Operative",
-        "threat_score": bio.get("threat_score") or (0.84 if any(w in req.raw_text.lower() for w in ["arms", "kingpin", "extortion", "pistol", "trafficking"]) else 0.75),
-        "age": bio.get("age") or 32,
-        "gender": bio.get("gender") or "Male",
-        "father_or_relative": bio.get("father_or_relative"),
-        "cctns_id": f"WB-CCTNS-2026-{abs(hash(req.raw_text[:40]))%90000 + 10000}",
-        "crime_title": crime_meta.get("crime_title") or f"FIR Case: {fir_num}",
-        "crime_category": crime_meta.get("crime_category") or ("Organized Crime & Firearms Trafficking" if any(w in req.raw_text.lower() for w in ["arms", "pistol", "firearm", "cartridge"]) else "Financial Fraud & Hawala"),
-        "incident_narrative": crime_meta.get("incident_narrative") or ocr_result["cleaned_text"][:500],
-        "modus_operandi": crime_meta.get("modus_operandi") or "Operates using concealed transit channels and telecommunication identifiers extracted from FIR scan.",
-        "seized_contraband": crime_meta.get("seized_contraband") or "Seized items and physical evidence documented in legal narrative.",
-        "statutory_acts": structured_acts,
-        "fir_number": fir_num,
-        "police_station": thana,
-        "incident_date": stats.get("incident_date") or ocr_result.get("extracted_metadata", {}).get("incident_date") or datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M IST"),
-        "incident_locus": stats.get("incident_locus") or (extracted_locs[0] if extracted_locs else "Barrackpore Jurisdiction Corridor"),
-        "case_status": "Under Active Investigation / Evidence Admitted",
-        "phone_numbers": extracted_phones,
-        "vehicle_plates": extracted_vehicles,
-        "bank_accounts": extracted_banks,
-        "upi_ids": extracted_upis,
-        "locations": extracted_locs
-    }
-
-    # 4. Log ingestion
-    audit_logger.log_action(
-        officer_badge=req.officer_badge,
-        role=req.role,
-        action="MULTIMODAL_INGESTION_OCR_NER",
-        query_or_target=f"Source: {req.source_type} ({ocr_result['detected_language']})",
-        resource_data={"entities_count": ner_result["total_entities_extracted"], "suspect_identified": auto_filled_suspect["name"]}
+    token = jwt.encode(
+        {
+            "user_id": user["id"],
+            "role": user["role"],
+            "exp": datetime.datetime.utcnow()
+            + datetime.timedelta(minutes=app.config["JWT_EXPIRATION_MINUTES"]),
+        },
+        app.config["SECRET_KEY"],
+        algorithm=app.config["JWT_ALGORITHM"],
     )
 
-    return {
-        "ocr_processing": ocr_result,
-        "legal_ner_extraction": ner_result,
-        "auto_filled_suspect": auto_filled_suspect
-    }
+    log_audit_event(
+        app.config["AUDIT_LOG_PATH"], user["id"], "LOGIN", "User logged in successfully"
+    )
+    return jsonify({"token": token, "user": user}), 200
 
-# Media Upload & AI Document OCR / Proof Extraction
-@app.post("/api/ingest/upload-media")
-async def upload_crime_media_and_extract(
-    file: Optional[UploadFile] = File(None),
-    raw_text: Optional[str] = Form(None),
-    source_type: Optional[str] = Form("EVIDENCE_DOCUMENT"),
-    officer_badge: Optional[str] = Form("IO-KOLKATA-8842"),
-    role: Optional[str] = Form("Investigating Officer (IO)")
-):
-    """
-    Ingests uploaded FIR documents, proof photos, seizure memos (PDF, PNG, JPG, TXT).
-    Extracts text using Multilingual OCR & Gemini Multimodal Vision, extracts 6 legal ontologies,
-    hashes evidence for BSA digital custody, and predicts historical outcome trajectory.
-    """
-    filename = "intelligence_document.txt"
-    content_type = "text/plain"
-    file_size = 0
-    raw_content = ""
 
-    if file:
-        raw_name = file.filename or "evidence_document.txt"
-        safe_name = os.path.basename(raw_name)
-        safe_name = re.sub(r'[^a-zA-Z0-9_\.-]', '_', safe_name)
-        if not safe_name:
-            safe_name = "evidence_document.txt"
+@app.route("/api/auth/verify-otp", methods=["POST"])
+def verify_otp():
+    data = request.get_json() or {}
+    user_id = data.get("user_id")
+    code = data.get("code")
 
-        ext = Path(safe_name).suffix.lower()
-        if ext and ext not in ALLOWED_FILE_EXTENSIONS:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Restricted file extension '{ext}'. Allowed formats: {', '.join(sorted(ALLOWED_FILE_EXTENSIONS))}"
-            )
+    if not otp_service.verify_otp(user_id, code):
+        return jsonify({"message": "Invalid OTP code"}), 400
 
-        content_bytes = await file.read()
-        file_size = len(content_bytes)
-        if file_size > MAX_UPLOAD_SIZE_BYTES:
-            raise HTTPException(
-                status_code=413,
-                detail=f"Uploaded file exceeds {MAX_UPLOAD_SIZE_BYTES // (1024 * 1024)}MB maximum limit."
-            )
+    user = db.get_user_by_id(user_id)
+    token = jwt.encode(
+        {
+            "user_id": user["id"],
+            "role": user["role"],
+            "exp": datetime.datetime.utcnow()
+            + datetime.timedelta(minutes=app.config["JWT_EXPIRATION_MINUTES"]),
+        },
+        app.config["SECRET_KEY"],
+        algorithm=app.config["JWT_ALGORITHM"],
+    )
 
-        filename = safe_name
-        content_type = file.content_type or "application/octet-stream"
-        file_hash = hashlib.sha256(content_bytes).hexdigest()
-        ocr_result = ocr_processor.extract_text_from_document(content_bytes, filename=filename)
-    elif raw_text:
-        file_size = len(raw_text.encode("utf-8"))
-        if file_size > MAX_UPLOAD_SIZE_BYTES:
-            raise HTTPException(status_code=413, detail="Text payload exceeds 15MB limit.")
-        file_hash = hashlib.sha256(raw_text.encode("utf-8")).hexdigest()
-        filename = "pasted_report.txt"
-        content_type = "text/plain"
-        ocr_result = ocr_processor.extract_text_from_document(raw_text, filename=filename)
+    log_audit_event(
+        app.config["AUDIT_LOG_PATH"], user["id"], "LOGIN_MFA", "User completed MFA login"
+    )
+    return jsonify({"token": token, "user": user}), 200
+
+
+@app.route("/api/analytics/network-graph", methods=["GET"])
+@token_required
+def get_network_graph(current_user):
+    data = knowledge_graph.get_full_graph()
+    return jsonify(data), 200
+
+
+@app.route("/api/analytics/centrality", methods=["GET"])
+@token_required
+def get_centrality(current_user):
+    metrics = graph_analytics.calculate_centralities()
+    return jsonify(metrics), 200
+
+
+@app.route("/api/analytics/link-prediction", methods=["POST"])
+@token_required
+def predict_links(current_user):
+    predictions = gnn_engine.predict_links()
+    return jsonify(predictions), 200
+
+
+@app.route("/api/analytics/entity-resolution", methods=["POST"])
+@token_required
+def resolve_entities(current_user):
+    data = request.get_json() or {}
+    threshold = data.get("threshold", 0.85)
+    matches = entity_resolution.resolve_duplicates(threshold=threshold)
+    return jsonify(matches), 200
+
+
+@app.route("/api/analytics/spatio-temporal", methods=["GET"])
+@token_required
+def get_spatio_temporal(current_user):
+    st_data = spatio_temporal.get_hotspots()
+    return jsonify(st_data), 200
+
+
+@app.route("/api/analytics/legal-ner", methods=["POST"])
+@token_required
+def extract_legal_ner(current_user):
+    data = request.get_json() or {}
+    text = data.get("text", "")
+    entities = legal_ner.extract_entities(text)
+    return jsonify(entities), 200
+
+
+@app.route("/api/analytics/ocr", methods=["POST"])
+@token_required
+def process_ocr(current_user):
+    if "file" not in request.files:
+        return jsonify({"message": "No file uploaded"}), 400
+
+    uploaded_file = request.files["file"]
+    extracted_text = ocr_processor.process_image(uploaded_file)
+    return jsonify({"extracted_text": extracted_text}), 200
+
+
+@app.route("/api/analytics/query-rag", methods=["POST"])
+@token_required
+def query_rag(current_user):
+    data = request.get_json() or {}
+    query = data.get("query", "")
+    response = graph_rag.answer_query(query)
+    return jsonify(response), 200
+
+
+@app.route("/api/analytics/forecast-outcome", methods=["POST"])
+@token_required
+def forecast_outcome(current_user):
+    data = request.get_json() or {}
+    forecast = outcome_forecaster.forecast(data)
+    return jsonify(forecast), 200
+
+
+@app.route("/api/cases", methods=["GET"])
+@token_required
+def get_cases(current_user):
+    if not check_rbac_permission(current_user["role"], "read_cases"):
+        return jsonify({"message": "Unauthorized"}), 403
+
+    cases_path = app.config["CASES_PATH"]
+    if os.path.exists(cases_path):
+        with open(cases_path, "r") as f:
+            cases = json.load(f)
     else:
-        raise HTTPException(status_code=400, detail="No media file or text payload provided.")
+        cases = []
+    return jsonify(cases), 200
 
-    # 2. Legal NER extraction with cognitive Gemini comprehension
-    ner_result = legal_ner_engine.extract_entities(ocr_result["cleaned_text"], source_type=source_type)
-
-    # 3. Format Auto-filled Suspect & Crime Profile
-    entities = ner_result.get("entities", {})
-    bio_list = entities.get("biographic_data", [])
-    bio = bio_list[0] if bio_list else {}
-    comms = entities.get("communication_identifiers", [])
-    vehs = entities.get("vehicular_logistics", [])
-    fins = entities.get("financial_instruments", [])
-    spats = entities.get("spatial_and_geographic", [])
-    stats = entities.get("statutory_and_legal", {})
-    crime_meta = stats.get("crime_details", {})
-
-    extracted_phones = [c["value"] for c in comms if c.get("type") in ("Phone_Number", "Phone")]
-    extracted_vehicles = [v["plate_number"] for v in vehs if "plate_number" in v]
-    extracted_banks = [f["identifier"] for f in fins if f.get("type") == "Bank_Account"]
-    extracted_upis = [f["identifier"] for f in fins if f.get("type") == "UPI_ID"]
-    extracted_locs = [s["location_name"] for s in spats if "location_name" in s]
-
-    stat_sections = stats.get("statutory_sections", [])
-    structured_acts = []
-    for s in stat_sections:
-        s_str = str(s)
-        act_name = "Arms Act 1959" if "arms" in s_str.lower() else "Information Technology Act 2000" if "it" in s_str.lower() else "Bharatiya Nyaya Sanhita (BNS) 2024"
-        structured_acts.append({
-            "act": act_name,
-            "section": s_str,
-            "title": f"Statutory Offence {s_str}",
-            "explanation": f"Extracted from verified evidence scan ({filename}) and logged under BSA digital custody."
-        })
-
-    if not structured_acts:
-        structured_acts = [
-            {
-                "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
-                "section": "Section 111",
-                "title": "Organized Crime Syndicate Offence",
-                "explanation": "Engaging in organized syndicate conspiracy, extortion, and contraband logistics."
-            }
-        ]
-
-    fir_num = stats.get("fir_number") or ocr_result.get("extracted_metadata", {}).get("fir_number") or f"FIR-2026/{abs(hash(filename))%900 + 100}/WB-BKP"
-    thana = stats.get("police_station") or ocr_result.get("extracted_metadata", {}).get("police_station") or "Barrackpore Special Crime Thana"
-    
-    cleaned_txt = ocr_result.get("cleaned_text", "")
-    auto_filled_suspect = {
-        "name": bio.get("full_name") or "Suspect Identified from Media",
-        "aliases": bio.get("aliases", []),
-        "role": bio.get("role_inferred") or crime_meta.get("role") or "Syndicate Operative",
-        "threat_score": bio.get("threat_score") or (0.84 if any(w in cleaned_txt.lower() for w in ["arms", "kingpin", "extortion", "pistol", "trafficking"]) else 0.72),
-        "age": bio.get("age") or 34,
-        "gender": bio.get("gender") or "Male",
-        "father_or_relative": bio.get("father_or_relative"),
-        "cctns_id": f"WB-CCTNS-2026-{abs(hash(file_hash))%90000 + 10000}",
-        "crime_title": crime_meta.get("crime_title") or f"Syndicate Offence: {fir_num}",
-        "crime_category": crime_meta.get("crime_category") or ("Organized Crime & Firearms Trafficking" if any(w in cleaned_txt.lower() for w in ["arms", "pistol", "cartridge", "trafficking"]) else "Financial Fraud & Hawala"),
-        "incident_narrative": crime_meta.get("incident_narrative") or cleaned_txt[:450],
-        "modus_operandi": crime_meta.get("modus_operandi") or "Operates using concealed logistics channels and disposable telecommunication identifiers extracted from proof scan.",
-        "seized_contraband": crime_meta.get("seized_contraband") or "Seized contraband items, communication hardware, and forensic materials documented in proof scan.",
-        "statutory_acts": structured_acts,
-        "fir_number": fir_num,
-        "police_station": thana,
-        "incident_date": stats.get("incident_date") or ocr_result.get("extracted_metadata", {}).get("incident_date") or datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M IST"),
-        "incident_locus": stats.get("incident_locus") or (extracted_locs[0] if extracted_locs else "North 24 Parganas Corridor"),
-        "case_status": "Under Active Investigation / Evidence Admitted",
-        "phone_numbers": extracted_phones,
-        "vehicle_plates": extracted_vehicles,
-        "bank_accounts": extracted_banks,
-        "upi_ids": extracted_upis,
-        "locations": extracted_locs,
-        "evidence_attachment": {
-            "file_name": filename,
-            "content_type": content_type,
-            "file_size_bytes": file_size,
-            "sha256_hash": file_hash,
-            "bsa_digital_certificate": f"BSA-2024-CERT-{file_hash[:12].upper()}",
-            "verified_at": datetime.now(timezone.utc).isoformat()
-        }
-    }
-
-    # 4. Run AI Historical Pattern Recognition & Predictive Forecasting
-    predictive_outcome = outcome_predictor.predict_case_outcome(auto_filled_suspect)
-    auto_filled_suspect["predicted_outcome"] = predictive_outcome
-
-    # 5. Log in cryptographic audit ledger
-    audit_logger.log_action(
-        officer_badge=officer_badge or "IO-KOLKATA-8842",
-        role=role or "Investigating Officer (IO)",
-        action="MEDIA_PROOF_UPLOAD_AND_AI_EXTRACTION",
-        query_or_target=f"File: {filename} (SHA-256: {file_hash[:10]}...)",
-        resource_data={
-            "filename": filename,
-            "file_hash": file_hash,
-            "suspect_name": auto_filled_suspect["name"],
-            "entities_extracted": ner_result.get("total_entities_extracted", 0),
-            "matched_precedent": predictive_outcome.get("matched_historical_precedent", {}).get("case_title")
-        }
-    )
-
-    return {
-        "status": "SUCCESS_EXTRACTED",
-        "file_info": auto_filled_suspect["evidence_attachment"],
-        "ocr_processing": ocr_result,
-        "legal_ner_extraction": ner_result,
-        "auto_filled_suspect": auto_filled_suspect,
-        "predictive_outcome": predictive_outcome
-    }
-
-# AI Predictive Outcome Endpoints
-@app.post("/api/predict/outcome")
-def predict_outcome_for_suspect(req: Dict[str, Any] = Body(...)):
-    """Predicts upcoming syndicate outcome & escalation trajectory for given suspect/crime profile."""
-    return outcome_predictor.predict_case_outcome(req)
-
-@app.get("/api/predict/syndicate-outcomes")
-def get_all_syndicate_predicted_outcomes():
-    """Evaluates entire active Knowledge Graph against historical case archives."""
-    suspects_predictions = []
-    for nid, node in kg_store.nodes.items():
-        if node.get("label") == "Person":
-            props = node.get("properties", {})
-            suspect_dossier = {
-                "id": nid,
-                "name": props.get("name", nid),
-                "role": props.get("role", "Operative"),
-                "threat_score": props.get("threat_score", 0.7),
-                "crime_title": props.get("crime_details", {}).get("crime_title", "Syndicate Offence"),
-                "crime_category": props.get("crime_details", {}).get("crime_category", "Organized Crime"),
-                "incident_narrative": props.get("crime_details", {}).get("incident_narrative", ""),
-                "modus_operandi": props.get("crime_details", {}).get("modus_operandi", ""),
-                "seized_contraband": props.get("crime_details", {}).get("seized_contraband", ""),
-                "bns_sections": props.get("bns_sections", [])
-            }
-            pred = outcome_predictor.predict_case_outcome(suspect_dossier)
-            suspects_predictions.append({
-                "suspect_id": nid,
-                "suspect_name": props.get("name", nid),
-                "role": props.get("role", "Operative"),
-                "threat_score": props.get("threat_score", 0.7),
-                "prediction": pred
-            })
-    
-    suspects_predictions.sort(key=lambda x: x["prediction"]["overall_escalation_probability"], reverse=True)
-    
-    return {
-        "status": "SYNDICATE_TRAJECTORY_EVALUATED",
-        "total_suspects_evaluated": len(suspects_predictions),
-        "overall_syndicate_threat": "CRITICAL_ESCALATION_WINDOW",
-        "critical_syndicate_chokepoint": "Barrackpore-Ichhapur Logistics Transit & Hawala Dissipation",
-        "top_imminent_threats": suspects_predictions[:4],
-        "all_suspects_predictions": suspects_predictions
-    }
-
-# Suspect & Crime Intelligence Endpoints
-@app.get("/api/suspects")
-def get_all_suspects():
-    """Returns all suspects indexed in the Knowledge Graph with detailed crime dossiers, evidence, and outcome forecasts."""
-    suspects = []
-    for nid, node in kg_store.nodes.items():
-        if node.get("label") == "Person":
-            props = node.get("properties", {})
-            pred = props.get("predicted_outcome")
-            if not pred:
-                pred = outcome_predictor.predict_case_outcome({
-                    "name": props.get("name", nid),
-                    "role": props.get("role", "Unknown"),
-                    "threat_score": props.get("threat_score", 0.5),
-                    "crime_title": props.get("crime_details", {}).get("crime_title", ""),
-                    "crime_category": props.get("crime_details", {}).get("crime_category", ""),
-                    "incident_narrative": props.get("crime_details", {}).get("incident_narrative", ""),
-                    "modus_operandi": props.get("crime_details", {}).get("modus_operandi", ""),
-                    "bns_sections": props.get("bns_sections", [])
-                })
-            
-            suspects.append({
-                "id": nid,
-                "name": props.get("name", nid),
-                "aliases": props.get("aliases", []),
-                "role": props.get("role", "Unknown"),
-                "threat_score": props.get("threat_score", 0.5),
-                "age": props.get("age"),
-                "gender": props.get("gender", "Male"),
-                "cctns_id": props.get("cctns_id", ""),
-                "bns_sections": props.get("bns_sections", []),
-                "crime_details": props.get("crime_details", {}),
-                "evidence_attachment": props.get("evidence_attachment"),
-                "predicted_outcome": pred,
-                "neighbors_count": len(kg_store.get_neighbors(nid))
-            })
-    suspects.sort(key=lambda s: s.get("threat_score", 0.5), reverse=True)
-    return suspects
-
-@app.get("/api/crimes")
-def get_all_crimes():
-    """Returns all crime incidents, dossiers and statutory charges across the network."""
-    crimes = []
-    for nid, node in kg_store.nodes.items():
-        if node.get("label") == "CrimeIncident":
-            crimes.append({
-                "id": nid,
-                "type": "INCIDENT_NODE",
-                "title": node["properties"].get("name", nid),
-                "category": node["properties"].get("category", "General Crime"),
-                "summary": node["properties"].get("summary", ""),
-                "seized_items": node["properties"].get("seized_items", ""),
-                "date": node["properties"].get("date", ""),
-                "locus": node["properties"].get("locus", ""),
-                "threat_level": node["properties"].get("threat_level", "HIGH")
-            })
-        elif node.get("label") == "FIR":
-            crimes.append({
-                "id": nid,
-                "type": "FIR_RECORD",
-                "fir_number": node["properties"].get("fir_number", nid),
-                "title": node["properties"].get("crime_title", node["properties"].get("fir_number", nid)),
-                "statute": node["properties"].get("statute", "BNS 2024"),
-                "sections": node["properties"].get("sections", ""),
-                "police_station": node["properties"].get("police_station", ""),
-                "is_zero_fir": node["properties"].get("is_zero_fir", False),
-                "case_status": node["properties"].get("case_status", "Under Investigation")
-            })
-            
-    for nid, node in kg_store.nodes.items():
-        if node.get("label") == "Person" and "crime_details" in node.get("properties", {}):
-            cd = node["properties"]["crime_details"]
-            crimes.append({
-                "id": f"CRIME_PROFILE_{nid}",
-                "type": "SUSPECT_CRIME_DOSSIER",
-                "suspect_id": nid,
-                "suspect_name": node["properties"].get("name", nid),
-                "title": cd.get("crime_title", "Syndicate Offence"),
-                "category": cd.get("crime_category", "Organized Crime"),
-                "summary": cd.get("incident_narrative", ""),
-                "modus_operandi": cd.get("modus_operandi", ""),
-                "seized_items": cd.get("seized_contraband", ""),
-                "statutory_acts": cd.get("statutory_acts", []),
-                "fir_number": cd.get("fir_number", ""),
-                "police_station": cd.get("police_station", ""),
-                "date": cd.get("incident_date", ""),
-                "locus": cd.get("incident_locus", ""),
-                "case_status": cd.get("case_status", "Active Trial")
-            })
-    return crimes
-
-@app.post("/api/suspects/add")
-@app.post("/api/graph/add-suspect")
-def add_new_suspect(req: AddSuspectRequest):
-    """
-    Ingests a new suspect with complete biometrics, network entities, and rich crime details
-    directly into the Knowledge Graph and persists the intelligence.
-    """
-    import random
-    existing_person_ids = [nid for nid, n in kg_store.nodes.items() if n.get("label") == "Person"]
-    suspect_id = f"PERSON_{len(existing_person_ids) + 1:03d}"
-    
-    statutory_acts_data = []
-    if req.statutory_acts:
-        for sa in req.statutory_acts:
-            statutory_acts_data.append({
-                "act": sa.act,
-                "section": sa.section,
-                "title": sa.title or f"{sa.act} {sa.section}",
-                "explanation": sa.explanation or "Statutory offence committed as part of criminal syndicate."
-            })
-    else:
-        statutory_acts_data = [
-            {
-                "act": "Bharatiya Nyaya Sanhita (BNS) 2024",
-                "section": "Section 111",
-                "title": "Organized Crime Syndicate Offence",
-                "explanation": "Active participation in organized syndicate conspiracy, extortion, and unlawful supply."
-            },
-            {
-                "act": "Arms Act 1959",
-                "section": "Section 25",
-                "title": "Unlawful Possession of Arms",
-                "explanation": "Procurement and transport of prohibited arms and ammunition."
-            }
-        ]
-
-    bns_sections_list = req.bns_sections or [f"{sa['act']} {sa['section']}" for sa in statutory_acts_data]
-
-    sanitized_name = sanitize_input_text(req.name, 100)
-    sanitized_aliases = [sanitize_input_text(a, 50) for a in (req.aliases or []) if a]
-    sanitized_role = sanitize_input_text(req.role or "Syndicate Operative", 50)
-
-    crime_details = {
-        "crime_title": sanitize_input_text(req.crime_title, 200),
-        "crime_category": sanitize_input_text(req.crime_category or "Organized Crime Syndicate", 100),
-        "incident_narrative": sanitize_input_text(req.incident_narrative, 5000),
-        "modus_operandi": sanitize_input_text(req.modus_operandi or "Operates in clandestine syndicates using burner communication devices.", 1000),
-        "seized_contraband": sanitize_input_text(req.seized_contraband or "Unlicenced weaponry, forged credentials, and illicit funds.", 1000),
-        "statutory_acts": statutory_acts_data,
-        "fir_number": sanitize_input_text(req.fir_number or f"FIR-2026/{random.randint(100, 999)}/WB-BKP", 50),
-        "police_station": sanitize_input_text(req.police_station or "Barrackpore Special Crime Thana", 100),
-        "incident_date": req.incident_date or "2026-08-28 19:30 IST",
-        "incident_locus": sanitize_input_text(req.incident_locus or "Kolkata-Ichhapur Tactical Hub", 100),
-        "case_status": sanitize_input_text(req.case_status or "Under Active Investigation / Warrant Issued", 80),
-        "investigating_officer": sanitize_input_text(req.officer_badge or "IO-KOLKATA-8842", 50)
-    }
-
-    # Compute or attach predicted outcome
-    predicted_outcome = req.predicted_outcome
-    if not predicted_outcome:
-        predicted_outcome = outcome_predictor.predict_case_outcome({
-            "name": sanitized_name,
-            "role": sanitized_role,
-            "threat_score": float(req.threat_score or 0.75),
-            "crime_title": crime_details["crime_title"],
-            "crime_category": crime_details["crime_category"],
-            "incident_narrative": crime_details["incident_narrative"],
-            "modus_operandi": crime_details["modus_operandi"],
-            "seized_contraband": crime_details["seized_contraband"],
-            "bns_sections": bns_sections_list,
-            "phone_numbers": req.phone_numbers or [],
-            "vehicle_plates": req.vehicle_plates or []
-        })
-
-    cctns_id = sanitize_input_text(req.cctns_id or f"WB-CCTNS-2026-{random.randint(10000, 99999)}", 50)
-    person_node = kg_store.add_node(
-        node_id=suspect_id,
-        label="Person",
-        properties={
-            "name": sanitized_name,
-            "aliases": sanitized_aliases,
-            "role": sanitized_role,
-            "threat_score": float(req.threat_score or 0.75),
-            "attribute_load": float(req.attribute_load or 2.5),
-            "age": req.age or 32,
-            "gender": req.gender or "Male",
-            "cctns_id": cctns_id,
-            "bns_sections": bns_sections_list,
-            "crime_details": crime_details,
-            "evidence_attachment": req.evidence_attachment,
-            "predicted_outcome": predicted_outcome
-        }
-    )
-
-    nodes_added = [person_node]
-    edges_added = []
-
-    # Add Incident node
-    incident_id = f"INCIDENT_{len(kg_store.nodes) + 1:03d}"
-    incident_node = kg_store.add_node(
-        node_id=incident_id,
-        label="CrimeIncident",
-        properties={
-            "name": req.crime_title,
-            "category": req.crime_category,
-            "summary": req.incident_narrative,
-            "seized_items": req.seized_contraband,
-            "date": req.incident_date or "2026-08-28T19:30:00Z",
-            "locus": req.incident_locus,
-            "threat_level": "CRITICAL" if (req.threat_score or 0.75) >= 0.8 else "HIGH"
-        }
-    )
-    nodes_added.append(incident_node)
-    
-    edge_inc = kg_store.add_edge(
-        edge_id=f"EDGE_{len(kg_store.edges) + 1:03d}",
-        source=suspect_id,
-        target=incident_id,
-        rel_type="INVOLVED_IN",
-        properties={"confidence": 0.99, "weight": 2.2, "role": req.role}
-    )
-    edges_added.append(edge_inc)
-
-    # Phones
-    for idx, phone in enumerate(req.phone_numbers or []):
-        clean_num = phone.strip()
-        if clean_num:
-            phone_id = f"PHONE_{clean_num.replace('+', '').replace('-', '').replace(' ', '')[-10:]}"
-            p_node = kg_store.add_node(
-                node_id=phone_id,
-                label="Phone",
-                properties={"number": clean_num, "subscriber": req.name, "service_provider": "Airtel / Jio"}
-            )
-            nodes_added.append(p_node)
-            e = kg_store.add_edge(
-                edge_id=f"EDGE_{len(kg_store.edges) + 1:03d}",
-                source=suspect_id,
-                target=phone_id,
-                rel_type="OWNS",
-                properties={"confidence": 0.99}
-            )
-            edges_added.append(e)
-
-    # Vehicles
-    for idx, plate in enumerate(req.vehicle_plates or []):
-        clean_plate = plate.strip()
-        if clean_plate:
-            veh_id = f"VEHICLE_{clean_plate.replace('-', '').replace(' ', '').upper()}"
-            v_node = kg_store.add_node(
-                node_id=veh_id,
-                label="Vehicle",
-                properties={"plate_number": clean_plate, "make_model": "Transport Vehicle", "registered_owner": req.name}
-            )
-            nodes_added.append(v_node)
-            e = kg_store.add_edge(
-                edge_id=f"EDGE_{len(kg_store.edges) + 1:03d}",
-                source=suspect_id,
-                target=veh_id,
-                rel_type="OPERATES_IN",
-                properties={"confidence": 0.95, "weight": 1.8}
-            )
-            edges_added.append(e)
-
-    # Bank Accounts & UPI
-    for idx, acc in enumerate(req.bank_accounts or []):
-        clean_acc = acc.strip()
-        if clean_acc:
-            acc_id = f"BANK_{clean_acc.replace(' ', '')[-6:]}"
-            b_node = kg_store.add_node(
-                node_id=acc_id,
-                label="BankAccount",
-                properties={"account_number": clean_acc, "bank_name": "Commercial Bank", "holder": req.name, "balance_flagged": 2500000}
-            )
-            nodes_added.append(b_node)
-            e = kg_store.add_edge(
-                edge_id=f"EDGE_{len(kg_store.edges) + 1:03d}",
-                source=suspect_id,
-                target=acc_id,
-                rel_type="CONTROLS",
-                properties={"confidence": 0.98, "weight": 2.5}
-            )
-            edges_added.append(e)
-
-    for idx, upi in enumerate(req.upi_ids or []):
-        clean_upi = upi.strip()
-        if clean_upi:
-            upi_id = f"UPI_{clean_upi.replace('@', '_').replace('.', '_')}"
-            u_node = kg_store.add_node(
-                node_id=upi_id,
-                label="BankAccount",
-                properties={"upi_id": clean_upi, "linked_name": req.name, "daily_flow_avg": 500000}
-            )
-            nodes_added.append(u_node)
-            e = kg_store.add_edge(
-                edge_id=f"EDGE_{len(kg_store.edges) + 1:03d}",
-                source=suspect_id,
-                target=upi_id,
-                rel_type="CONTROLS",
-                properties={"confidence": 0.98, "weight": 2.0}
-            )
-            edges_added.append(e)
-
-    # Locations
-    for idx, loc in enumerate(req.locations or []):
-        clean_loc = loc.strip()
-        if clean_loc:
-            loc_id = f"LOC_{clean_loc.replace(' ', '_').upper()[:15]}"
-            l_node = kg_store.add_node(
-                node_id=loc_id,
-                label="Location",
-                properties={"name": clean_loc, "district": "West Bengal", "facility_type": "Suspect Locus"}
-            )
-            nodes_added.append(l_node)
-            e = kg_store.add_edge(
-                edge_id=f"EDGE_{len(kg_store.edges) + 1:03d}",
-                source=suspect_id,
-                target=loc_id,
-                rel_type="PRESENT_AT",
-                properties={"confidence": 0.94, "weight": 1.7, "timestamp": "2026-08-28T18:00:00Z"}
-            )
-            edges_added.append(e)
-
-    # Known Associates
-    for assoc_id in (req.known_associates or []):
-        if assoc_id in kg_store.nodes:
-            e = kg_store.add_edge(
-                edge_id=f"EDGE_{len(kg_store.edges) + 1:03d}",
-                source=suspect_id,
-                target=assoc_id,
-                rel_type=req.associate_relation or "COLLABORATES_WITH",
-                properties={"confidence": 0.96, "weight": 2.0, "intercept_count": 15}
-            )
-            edges_added.append(e)
-
-    # Persist to disk
-    try:
-        if Path(CASE_DATA_FILE).exists():
-            with open(CASE_DATA_FILE, "r", encoding="utf-8") as f:
-                cdata = json.load(f)
-            cdata["graph_data"]["nodes"] = list(kg_store.nodes.values())
-            cdata["graph_data"]["edges"] = kg_store.edges
-            cdata.setdefault("entity_resolution_dataset", []).append({
-                "id": f"REC_NEW_{suspect_id}",
-                "full_name": req.name,
-                "age": req.age or 32,
-                "phones": req.phone_numbers or [],
-                "vehicles": req.vehicle_plates or [],
-                "financial_ids": req.bank_accounts or req.upi_ids or [],
-                "known_associates": req.known_associates or [],
-                "source_db": f"{crime_details['police_station']} Digital Record (2026)"
-            })
-            with open(CASE_DATA_FILE, "w", encoding="utf-8") as f:
-                json.dump(cdata, f, indent=2)
-    except Exception as err:
-        print(f"Warning: Failed to persist to {CASE_DATA_FILE}: {err}")
-
-    # Audit log
-    audit_logger.log_action(
-        officer_badge=req.officer_badge or "IO-KOLKATA-8842",
-        role=req.role or "Investigating Officer (IO)",
-        action="SUSPECT_INGESTION_WITH_CRIME_DETAILS",
-        query_or_target=f"Added Suspect: {req.name} ({suspect_id}) | Crime: {req.crime_title}",
-        resource_data={
-            "suspect_id": suspect_id,
-            "crime_title": req.crime_title,
-            "statutory_acts_count": len(statutory_acts_data),
-            "threat_score": req.threat_score,
-            "nodes_added_count": len(nodes_added),
-            "edges_added_count": len(edges_added)
-        }
-    )
-
-    # SQL User Database Activity Tracking
-    db_manager.log_user_activity(
-        user_id=req.officer_badge or "IO-KOLKATA-8842",
-        role=req.role or "Investigating Officer (IO)",
-        action_type="ADD_SUSPECT_WITH_CRIME_PROFILE",
-        target_resource=f"Suspect: {req.name} ({suspect_id})",
-        details={
-            "crime_title": req.crime_title,
-            "threat_score": req.threat_score,
-            "fir_number": crime_details.get("fir_number")
-        }
-    )
-
-
-    return {
-        "success": True,
-        "message": f"Suspect '{req.name}' with detailed crime dossier successfully added to Knowledge Graph.",
-        "suspect_id": suspect_id,
-        "incident_id": incident_id,
-        "suspect_node": person_node,
-        "nodes_added_count": len(nodes_added),
-        "edges_added_count": len(edges_added),
-        "total_graph_nodes": len(kg_store.nodes),
-        "total_graph_edges": len(kg_store.edges)
-    }
-
-# Cybersecurity & Cryptographic Custody
-@app.get("/api/audit/logs")
-def get_audit_logs(limit: int = 50):
-    return audit_logger.get_logs(limit=limit)
-
-@app.get("/api/audit/verify")
-def verify_audit_integrity():
-    return audit_logger.verify_integrity()
-
-@app.get("/api/cctns/pillars")
-def get_cctns_pillars():
-    if Path(CASE_DATA_FILE).exists():
-        with open(CASE_DATA_FILE, "r", encoding="utf-8") as f:
-            cdata = json.load(f)
-        return cdata.get("cctns_icjs_pillars", {})
-    return initial_case_data.get("cctns_icjs_pillars", {})
-
-# ==========================================
-# RELATIONAL SQL DATABASE & USER DATA ROUTES
-# ==========================================
-
-@app.post("/api/auth/login")
-def api_login(req: UserLoginRequest):
-    """Authenticates officer credentials against SQL users table and creates an active session."""
-    user = db_manager.authenticate_user(
-        user_id=req.user_id,
-        password=req.password
-    )
-    if not user:
-        raise HTTPException(status_code=401, detail="Invalid Officer Service ID or Password.")
-    return {
-        "success": True,
-        "message": "Officer authentication successful.",
-        "user": user
-    }
-
-@app.post("/api/auth/register")
-def api_register(req: UserRegisterRequest, officer: Dict[str, Any] = Depends(get_current_officer)):
-    """Registers a new officer user into the SQL database with privilege isolation."""
-    # Prevent unauthorized privilege escalation: public registration cannot create admins
-    is_admin = 0
-    if officer.get("is_authenticated") and officer.get("is_admin") == 1 and req.is_admin:
-        is_admin = 1
-    
-    role = req.role or "Investigating Officer (IO)"
-    if ("admin" in role.lower() or "administrator" in role.lower()) and not (officer.get("is_authenticated") and officer.get("is_admin") == 1):
-        role = "Investigating Officer (IO)"
-
-    try:
-        new_user = db_manager.register_user(
-            user_id=sanitize_input_text(req.user_id, 50),
-            full_name=sanitize_input_text(req.full_name, 100),
-            password=req.password,
-            role=role,
-            station=sanitize_input_text(req.station, 100),
-            badge_number=sanitize_input_text(req.badge_number, 50) if req.badge_number else None,
-            email=sanitize_input_text(req.email, 100) if req.email else None,
-            phone=sanitize_input_text(req.phone, 30) if req.phone else None,
-            department=sanitize_input_text(req.department, 100) if req.department else None,
-            is_admin=is_admin
-        )
-        return {
-            "success": True,
-            "message": f"Officer '{new_user['full_name']}' successfully registered in SQL database.",
-            "user": new_user
-        }
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-@app.post("/api/auth/logout")
-def api_logout(req: UserLogoutRequest):
-    """Ends user session in SQL database."""
-    db_manager.logout_session(session_id=req.session_id, user_id=req.user_id)
-    return {"success": True, "message": "Logged out successfully."}
-
-# ==========================================
-# OTP & TWO-FACTOR AUTHENTICATION (2FA) ROUTES
-# ==========================================
-
-@app.post("/api/auth/otp/send")
-def api_send_otp(req: OtpSendRequest):
-    """
-    Generates and dispatches a cryptographically secure 6-digit OTP
-    via simulated NIC Sandes / MHA Police SMS / Gov Email gateway.
-    """
-    target = req.contact_target or req.user_id
-    if not target:
-        raise HTTPException(status_code=400, detail="Please provide an Officer ID, Phone, or Email target.")
-
-    dispatch = db_manager.create_otp(
-        contact_target=target,
-        purpose=req.purpose or "LOGIN_2FA",
-        user_id=req.user_id,
-        channel=req.channel or "SMS_SANDES",
-        metadata={"action_name": req.action_name} if req.action_name else None
-    )
-    return {
-        "success": True,
-        "message": f"Verification code dispatched to {dispatch['masked_target']} via {dispatch['channel']}.",
-        "dispatch": dispatch
-    }
-
-@app.post("/api/auth/otp/verify")
-def api_verify_otp(req: OtpVerifyRequest):
-    """
-    Verifies 6-digit OTP code against SQL database records.
-    If verifying for login, creates active authenticated user session.
-    """
-    target = req.contact_target or req.user_id
-    if not target or not req.otp_code:
-        raise HTTPException(status_code=400, detail="Missing contact target or OTP code.")
-
-    purpose = req.purpose or "LOGIN_2FA"
-    verify_result = db_manager.verify_otp(
-        contact_target_or_user_id=target,
-        otp_code=req.otp_code,
-        purpose=purpose
-    )
-
-    if not verify_result.get("valid"):
-        raise HTTPException(status_code=400, detail=verify_result.get("error", "Invalid OTP"))
-
-    # If login purpose, create or retrieve user session
-    session_user = None
-    if purpose in ["LOGIN_2FA", "MOBILE_LOGIN"]:
-        found_user = db_manager.find_user_by_contact_or_id(target)
-        if found_user:
-            import secrets
-            session_id = f"SES-{secrets.token_hex(12).upper()}"
-            now = datetime.now(timezone.utc).isoformat()
-            with db_manager.get_connection() as conn:
-                cursor = conn.cursor()
-                cursor.execute("""
-                INSERT INTO user_sessions (
-                    session_id, user_id, role, station, ip_address, user_agent,
-                    login_time, logout_time, is_active
-                ) VALUES (?, ?, ?, ?, '127.0.0.1', '2FA OTP Browser', ?, NULL, 1)
-                """, (session_id, found_user["user_id"], found_user["role"], found_user["station"], now))
-                cursor.execute("UPDATE users SET last_login = ? WHERE user_id = ?", (now, found_user["user_id"]))
-                conn.commit()
-
-            found_user["session_id"] = session_id
-            session_user = found_user
-        else:
-            # Authenticate via mobile helper
-            session_user = db_manager.authenticate_user_by_phone_otp(target, req.otp_code)
-
-    return {
-        "success": True,
-        "valid": True,
-        "message": "OTP verification successful.",
-        "user": session_user,
-        "token_id": verify_result.get("token_id"),
-        "purpose": purpose
-    }
-
-@app.post("/api/auth/otp/resend")
-def api_resend_otp(req: OtpSendRequest):
-    """Resends a fresh OTP code with throttled validity."""
-    target = req.contact_target or req.user_id
-    if not target:
-        raise HTTPException(status_code=400, detail="Contact target or Officer ID is required.")
-
-    dispatch = db_manager.resend_otp(
-        contact_target_or_user_id=target,
-        purpose=req.purpose or "LOGIN_2FA",
-        channel=req.channel or "SMS_SANDES"
-    )
-    return {
-        "success": True,
-        "message": f"Fresh OTP code sent to {dispatch['masked_target']}.",
-        "dispatch": dispatch
-    }
-
-@app.post("/api/auth/otp/reset-password")
-def api_reset_password(req: PasswordResetRequest):
-    """Resets officer account password after OTP verification."""
-    if not req.user_id_or_contact or not req.otp_code or not req.new_password:
-        raise HTTPException(status_code=400, detail="Please provide Officer ID, OTP code, and new password.")
-
-    res = db_manager.reset_password_with_otp(
-        user_id_or_contact=req.user_id_or_contact,
-        otp_code=req.otp_code,
-        new_password=req.new_password
-    )
-    if not res.get("valid"):
-        raise HTTPException(status_code=400, detail=res.get("error", "Password reset failed."))
-
-    return res
-
-@app.post("/api/auth/otp/stepup-verify")
-def api_stepup_verify(req: StepUpAuthRequest):
-    """Step-up OTP authorization for critical legal / disruptive police operations."""
-    target = req.user_id or req.officer_badge or "1234"
-    res = db_manager.verify_otp(
-        contact_target_or_user_id=target,
-        otp_code=req.otp_code,
-        purpose="STEPUP_AUTH"
-    )
-    if not res.get("valid"):
-        raise HTTPException(status_code=400, detail=res.get("error", "Step-Up authorization failed."))
-
-    audit_logger.log_action(
-        officer_badge=target,
-        role="OFFICER",
-        action="STEPUP_AUTH_SUCCESS",
-        query_or_target=f"Authorized action: '{req.action_name}' on resource: '{req.resource_id or 'GENERAL'}'",
-        resource_data={"action": req.action_name, "resource_id": req.resource_id}
-    )
-    return {
-        "success": True,
-        "message": f"Step-Up 2FA authorization verified for action: {req.action_name}",
-        "action_name": req.action_name,
-        "authorized_at": datetime.now(timezone.utc).isoformat()
-    }
-
-@app.get("/api/auth/otp/logs")
-def api_get_otp_logs(limit: int = 50):
-    """Retrieves recent OTP dispatch and verification logs for security audit."""
-    logs = db_manager.get_otp_logs(limit=limit)
-    return {
-        "total": len(logs),
-        "logs": logs
-    }
-
-@app.get("/api/auth/otp/stats")
-def api_get_otp_stats():
-    """Retrieves real-time OTP gateway performance & security stats."""
-    return otp_service.get_gateway_statistics()
-
-@app.get("/api/users")
-def get_all_users(
-    limit: int = 50,
-    offset: int = 0,
-    role: Optional[str] = None,
-    search: Optional[str] = None
-):
-    """Retrieves all registered officer accounts and activity metrics from SQL."""
-    users = db_manager.get_users(limit=limit, offset=offset, role=role, search=search)
-    return {
-        "total_returned": len(users),
-        "users": users
-    }
-
-
-@app.get("/api/users/activity")
-def get_user_activity_logs(
-    user_id: Optional[str] = None,
-    action_type: Optional[str] = None,
-    limit: int = 50
-):
-    """Retrieves live user activity & investigative telemetry stream from SQL."""
-    logs = db_manager.get_user_activity(user_id=user_id, action_type=action_type, limit=limit)
-    return {
-        "total": len(logs),
-        "logs": logs
-    }
-
-@app.post("/api/users/activity")
-def log_user_action(req: UserActivityLogRequest):
-    """Explicitly records an investigator telemetry action in SQL."""
-    log = db_manager.log_user_activity(
-        user_id=req.user_id,
-        officer_name=req.officer_name,
-        role=req.role,
-        action_type=req.action_type,
-        target_resource=req.target_resource,
-        details=req.details
-    )
-    return {"success": True, "log": log}
-
-@app.get("/api/users/notes")
-def get_case_notes(
-    user_id: Optional[str] = None,
-    suspect_id: Optional[str] = None,
-    case_id: Optional[str] = None,
-    limit: int = 50
-):
-    """Retrieves case notes and annotations from SQL database."""
-    notes = db_manager.get_case_notes(
-        user_id=user_id,
-        suspect_id=suspect_id,
-        case_id=case_id,
-        limit=limit
-    )
-    return {"total": len(notes), "notes": notes}
-
-@app.post("/api/users/notes")
-def create_case_note(req: CaseNoteCreateRequest):
-    """Saves a new case note or investigator observation in SQL."""
-    note = db_manager.create_case_note(
-        user_id=req.user_id,
-        title=req.title,
-        note_content=req.note_content,
-        officer_name=req.officer_name,
-        case_id=req.case_id,
-        suspect_id=req.suspect_id,
-        priority=req.priority or "MEDIUM",
-        tags=req.tags or []
-    )
-    return {"success": True, "note": note}
-
-@app.delete("/api/users/notes/{note_id}")
-def delete_case_note(
-    note_id: int,
-    user_id: Optional[str] = None,
-    officer: Dict[str, Any] = Depends(get_current_officer)
-):
-    """Deletes a case note from SQL database with ownership check."""
-    caller_id = officer.get("user_id") if officer.get("is_authenticated") else user_id
-    is_admin = officer.get("is_admin") == 1
-    deleted = db_manager.delete_case_note(note_id=note_id, user_id=caller_id, is_admin=is_admin)
-    if not deleted:
-        raise HTTPException(status_code=404, detail="Note not found or unauthorized.")
-    return {"success": True, "message": f"Case Note #{note_id} deleted."}
-
-@app.get("/api/users/reports")
-def get_field_reports(
-    status: Optional[str] = None,
-    report_type: Optional[str] = None,
-    limit: int = 50
-):
-    """Retrieves field intelligence and tip-off submissions from SQL."""
-    reports = db_manager.get_field_reports(status=status, report_type=report_type, limit=limit)
-    return {"total": len(reports), "reports": reports}
-
-@app.post("/api/users/reports")
-def submit_field_report(req: FieldReportCreateRequest):
-    """Submits a new field report or citizen tip-off into SQL."""
-    report = db_manager.create_field_report(
-        subject=sanitize_input_text(req.subject, 200),
-        description=sanitize_input_text(req.description, 5000),
-        report_type=req.report_type or "FIELD_INTELLIGENCE",
-        reporter_name=sanitize_input_text(req.reporter_name, 100),
-        user_id=req.user_id,
-        location=sanitize_input_text(req.location, 200),
-        evidence_refs=sanitize_input_text(req.evidence_refs, 200) if req.evidence_refs else None
-    )
-    return {"success": True, "report": report}
-
-@app.put("/api/users/reports/{report_id}/status")
-def update_report_status(report_id: int, req: FieldReportStatusUpdateRequest):
-    """Updates field report status in SQL."""
-    updated = db_manager.update_field_report_status(report_id, req.status)
-    if not updated:
-        raise HTTPException(status_code=404, detail="Report not found.")
-    return {"success": True, "message": f"Report #{report_id} status updated to {req.status}."}
-
-@app.get("/api/users/saved-queries")
-def get_user_saved_queries(user_id: Optional[str] = None, limit: int = 30):
-    """Retrieves user query history from SQL."""
-    queries = db_manager.get_user_saved_queries(user_id=user_id, limit=limit)
-    return {"total": len(queries), "queries": queries}
-
-@app.post("/api/users/saved-queries")
-def save_user_query(req: SavedQueryCreateRequest):
-    """Saves search query or GraphRAG question in SQL."""
-    saved = db_manager.save_user_query(
-        user_id=req.user_id,
-        query_text=sanitize_input_text(req.query_text, 1000),
-        query_type=req.query_type or "GRAPHRAG",
-        result_summary=sanitize_input_text(req.result_summary, 500) if req.result_summary else None,
-        is_starred=req.is_starred or 0
-    )
-    return {"success": True, "saved_query": saved}
-
-@app.get("/api/users/{user_id}")
-def get_user_profile(user_id: str):
-    """Fetches single officer profile and telemetry statistics from SQL database."""
-    user = db_manager.get_user_by_id(user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="Officer not found in SQL database.")
-    return user
-
-@app.put("/api/users/{user_id}")
-def update_user_profile(
-    user_id: str,
-    req: UserProfileUpdateRequest,
-    officer: Dict[str, Any] = Depends(get_current_officer)
-):
-    """Updates officer profile information in SQL database."""
-    is_admin = officer.get("is_admin") == 1 or "admin" in str(officer.get("role", "")).lower()
-    if officer.get("is_authenticated") and not is_admin and officer.get("user_id") != user_id:
-        raise HTTPException(status_code=403, detail="Forbidden: You cannot modify another officer's profile.")
-
-    updates = req.model_dump(exclude_unset=True)
-    user = db_manager.update_user_profile(user_id, updates, is_admin_actor=is_admin)
-    if not user:
-        raise HTTPException(status_code=404, detail="Officer not found.")
-    return {"success": True, "user": user}
-
-@app.get("/api/database/stats")
-def get_sql_database_stats():
-    """Retrieves full SQL database telemetry, table row counts, and storage metrics."""
-    return db_manager.get_database_stats()
-
-@app.post("/api/database/query")
-def execute_sql_query(
-    req: RawSqlQueryRequest,
-    request: Request,
-    officer: Dict[str, Any] = Depends(get_current_officer)
-):
-    """Executes a safe read-only SQL query in the administrative database console."""
-    ua = request.headers.get("user-agent", "").lower()
-    is_test = "testclient" in ua or "python" in ua
-    is_admin = officer.get("is_admin") == 1 or officer.get("role") == UserRole.SYSTEM_ADMIN.value or is_test
-    if not is_admin:
-        raise HTTPException(
-            status_code=403,
-            detail="Access restricted. Administrative privileges required to execute SQL inspection queries."
-        )
-
-    try:
-        res = db_manager.execute_raw_sql(req.sql_query, limit=req.limit or 100)
-        audit_logger.log_action(
-            officer_badge=officer.get("user_id", "ADMIN-001"),
-            role=officer.get("role", UserRole.SYSTEM_ADMIN.value),
-            action="ADMIN_SQL_CONSOLE_QUERY",
-            query_or_target=req.sql_query[:80],
-            resource_data={"row_count": res.get("row_count", 0)}
-        )
-        return {"success": True, "result": res}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-# Serve frontend build if available
-FRONTEND_DIST = BASE_DIR / "frontend" / "dist"
-if FRONTEND_DIST.exists():
-    app.mount("/assets", StaticFiles(directory=FRONTEND_DIST / "assets"), name="assets")
-    
-    @app.get("/{full_path:path}")
-    def serve_frontend(full_path: str):
-        file_path = FRONTEND_DIST / full_path
-        if file_path.exists() and file_path.is_file():
-            return FileResponse(file_path)
-        return FileResponse(FRONTEND_DIST / "index.html")
 
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("backend.app:app", host="0.0.0.0", port=8000, reload=False)
+    app.run(host="0.0.0.0", port=5000, debug=True)
