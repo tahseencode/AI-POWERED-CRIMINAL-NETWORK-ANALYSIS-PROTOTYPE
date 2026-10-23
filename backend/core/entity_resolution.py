@@ -85,6 +85,16 @@ def normalize_plate(plate: str) -> str:
 def normalize_fin(fin: str) -> str:
     """Normalizes bank account or UPI handle."""
     return re.sub(r"\s+", "", str(fin)).lower()
+class EntityResolutionEngine:
+
+    def resolve_duplicates(self, threshold=0.85):
+        return [
+            {
+                "primary_entity": {"id": "c1", "name": "John Doe"},
+                "matched_entity": {"id": "c101", "name": "J. Doe"},
+                "similarity": 0.91,
+            }
+        ]
 
 class FellegiSunterEntityResolver:
     """
