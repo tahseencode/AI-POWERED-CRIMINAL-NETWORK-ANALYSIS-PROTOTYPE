@@ -2,7 +2,10 @@ import re
 import os
 import io
 from typing import Dict, Any, List, Optional, Union
+class OCRProcessor:
 
+    def process_image(self, file_storage) -> str:
+        return "Simulated OCR Extracted Text: Criminal Network Evidence Document."
 class MultilingualOCRProcessor:
     """
     Multilingual Optical Character Recognition & Legacy Document Preprocessor.

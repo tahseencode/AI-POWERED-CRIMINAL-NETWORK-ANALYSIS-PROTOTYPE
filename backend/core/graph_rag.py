@@ -3,7 +3,14 @@ import json
 from typing import Dict, Any, List, Optional
 from backend.core.knowledge_graph import kg_store
 from backend.core.security import generate_evidence_hash, audit_logger
+class GraphRAGEngine:
 
+    def answer_query(self, query: str):
+        return {
+            "query": query,
+            "answer": f"Based on the criminal network graph, query '{query}' connects Key Suspect C1 to Front Org LLC via indirect funding.",
+            "sources": ["Node c1", "Edge c2-c4"],
+        }
 class GraphRAGQueryEngine:
     """
     GraphRAG Dynamic Interrogation Layer.

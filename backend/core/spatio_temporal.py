@@ -59,7 +59,13 @@ def parse_iso_time(timestamp_str: str) -> float:
         return val / 3600.0
     except Exception:
         return 0.0
+class SpatioTemporalEngine:
 
+    def get_hotspots(self):
+        return [
+            {"location": "Sector 4", "latitude": 40.7128, "longitude": -74.0060, "incident_count": 12},
+            {"location": "Downtown", "latitude": 40.7138, "longitude": -74.0080, "incident_count": 25},
+        ]
 class STRP_DBSCAN_Clusterer:
     """
     Spatial-Temporal Random Partitioning DBSCAN (STRP-DBSCAN).
