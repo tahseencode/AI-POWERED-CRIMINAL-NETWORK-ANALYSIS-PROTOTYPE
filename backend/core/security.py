@@ -65,13 +65,48 @@ ROLE_PERMISSIONS = {
     UserRole.VIEWER: ["read_cases", "view_analytics"]
 }
 
-def hash_password(password: str) -> str:
-    """Computes a secure SHA-256 hash for user authentication."""
-    return hashlib.sha256(password.encode("utf-8")).hexdigest()
+import secrets
 
-def verify_password(password: str, password_hash: str) -> bool:
-    """Verifies a plain text password against its stored hash."""
-    return hmac.compare_digest(hash_password(password), password_hash)
+def hash_password(password: str, salt: Optional[str] = None) -> str:
+    """
+    Computes an OWASP / NIST compliant PBKDF2-HMAC-SHA256 password hash
+    (100,000 iterations) with cryptographic salt and pepper.
+    """
+    if not salt:
+        salt = secrets.token_hex(16)
+    peppered_salt = f"{salt}:{SECRET_KEY}".encode("utf-8")
+    pwd_bytes = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), peppered_salt, 100000)
+    return f"pbkdf2_sha256${salt}${pwd_bytes.hex()}"
+
+def verify_password(password: str, password_hash: str, salt: Optional[str] = None) -> bool:
+    """
+    Verifies a plain text password against stored hash using constant-time comparison.
+    Supports both modern PBKDF2-HMAC-SHA256 and legacy SHA-256 for backward compatibility.
+    """
+    if not password or not password_hash:
+        return False
+        
+    if password_hash.startswith("pbkdf2_sha256$"):
+        parts = password_hash.split("$")
+        if len(parts) == 3:
+            parsed_salt = parts[1]
+            expected = hash_password(password, parsed_salt)
+            return secrets.compare_digest(expected, password_hash)
+        elif len(parts) == 2 and salt:
+            peppered_salt = f"{salt}:{SECRET_KEY}".encode("utf-8")
+            pwd_bytes = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), peppered_salt, 100000)
+            expected = f"pbkdf2_sha256${pwd_bytes.hex()}"
+            return secrets.compare_digest(expected, password_hash)
+
+    # Legacy SHA-256 fallback with constant-time comparison
+    if salt:
+        legacy_salted = f"{salt}{password}{SECRET_KEY}"
+        legacy_hash = hashlib.sha256(legacy_salted.encode("utf-8")).hexdigest()
+        if secrets.compare_digest(legacy_hash, password_hash):
+            return True
+
+    legacy_plain = hashlib.sha256(password.encode("utf-8")).hexdigest()
+    return secrets.compare_digest(legacy_plain, password_hash)
 
 def check_role_permission(role: Optional[str], permission: str) -> bool:
     """
@@ -91,6 +126,19 @@ def check_role_permission(role: Optional[str], permission: str) -> bool:
             return permission in perms
             
     return False
+
+# Backward compatibility alias
+check_rbac_permission = check_role_permission
+
+def log_audit_event(log_path: Any, officer_badge: Any, action: str, details: str, resource_data: Any = None):
+    """Helper function to log an immutable audit event."""
+    return audit_logger.log_action(
+        officer_badge=str(officer_badge),
+        role="INVESTIGATING_OFFICER",
+        action=action,
+        query_or_target=str(details),
+        resource_data=resource_data
+    )
 
 def sanitize_input_text(text: Optional[str], max_len: int = 10000) -> str:
     """Sanitizes text inputs to prevent XSS, control characters, and injection attacks."""

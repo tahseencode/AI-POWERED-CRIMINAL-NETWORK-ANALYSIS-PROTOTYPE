@@ -1428,9 +1428,11 @@ class DatabaseManager:
         import re
         sql_clean = sql_query.strip().rstrip(";")
         
-        # 1. Prohibit stacked queries
+        # 1. Prohibit stacked queries and comments
         if ";" in sql_clean:
             raise ValueError("Multiple statements and stacked queries are prohibited.")
+        if "--" in sql_clean or "/*" in sql_clean:
+            raise ValueError("SQL comments are prohibited in secure inspection queries.")
 
         # 2. Require query to start with read-only inspection commands
         allowed_starts = ("SELECT", "EXPLAIN", "PRAGMA TABLE_INFO")
@@ -1440,17 +1442,23 @@ class DatabaseManager:
         # 3. Block destructive and mutation operations
         forbidden_keywords = [
             "DROP", "DELETE", "INSERT", "UPDATE", "ALTER", "TRUNCATE", 
-            "REPLACE", "CREATE", "ATTACH", "DETACH", "VACUUM", "WRITABLE_SCHEMA"
+            "REPLACE", "CREATE", "ATTACH", "DETACH", "VACUUM", "WRITABLE_SCHEMA",
+            "LOAD_EXTENSION", "WRITEFILE", "READFILE"
         ]
         for kw in forbidden_keywords:
             if re.search(r'\b' + kw + r'\b', sql_clean, re.IGNORECASE):
                 raise ValueError(f"Destructive or mutating operation '{kw}' is restricted in SQL Console.")
 
-        # 4. Block explicit querying of sensitive credential hashes and salts
+        # 4. Block explicit querying of sensitive credential hashes, salts, and otp table
+        if re.search(r'\botp_verifications\b', sql_clean, re.IGNORECASE):
+            raise ValueError("Direct querying of the 'otp_verifications' table is restricted under digital evidence standards.")
+
         forbidden_fields = ["PASSWORD_HASH", "SALT", "OTP_CODE_HASH", "OTP_CODE_PLAIN"]
         for field in forbidden_fields:
             if re.search(r'\b' + field + r'\b', sql_clean, re.IGNORECASE):
                 raise ValueError(f"Direct querying of credential field '{field}' is restricted under statutory digital custody standards.")
+
+        limit = max(1, min(int(limit), 500))
 
         with self.get_connection() as conn:
             cursor = conn.cursor()
@@ -1483,6 +1491,14 @@ class DatabaseManager:
                     "row_count": cursor.rowcount,
                     "message": f"Query executed successfully. Affected rows: {cursor.rowcount}"
                 }
+
+    # Backward-compatible method aliases
+    get_user_profile = get_user_by_id
+    terminate_session = logout_session
+    get_activity_logs = get_user_activity
+    add_case_note = create_case_note
+    add_field_report = create_field_report
+    get_saved_queries = get_user_saved_queries
 
 # Global Singleton Database Manager instance
 db_manager = DatabaseManager()
@@ -1528,10 +1544,11 @@ class Database:
 
             cursor.execute("SELECT * FROM users WHERE username = ?", ("admin",))
             if not cursor.fetchone():
-                admin_hash = security_hash_password("admin123")
+                initial_pwd = os.getenv("ADMIN_INITIAL_PASSWORD", "Admin@Secure2026!")
+                admin_hash = security_hash_password(initial_pwd)
                 cursor.execute(
                     "INSERT INTO users (username, password_hash, role, mfa_enabled) VALUES (?, ?, ?, ?)",
-                    ("admin", admin_hash, "ADMIN", 0),
+                    ("admin", admin_hash, "ADMIN", 1),
                 )
             conn.commit()
 

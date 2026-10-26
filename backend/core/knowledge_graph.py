@@ -3,12 +3,10 @@ import re
 from typing import Dict, Any, List, Optional, Set
 from pathlib import Path
 from backend.config import GRAPH_STORE_FILE
-from backend.core.data_generator import DataGenerator
-
-
 class KnowledgeGraphEngine:
 
     def __init__(self):
+        from backend.core.data_generator import DataGenerator
         self.generator = DataGenerator()
 
     def get_full_graph(self):

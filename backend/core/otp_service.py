@@ -11,28 +11,14 @@ from pathlib import Path
 
 from backend.config import SECRET_KEY
 from backend.core.security import audit_logger, generate_evidence_hash
-class OTPService:
 
-    def __init__(self):
-        self.active_otps = {}
-
-    def generate_otp(self, user_id: int) -> str:
-        code = str(random.randint(100000, 999999))
-        self.active_otps[user_id] = code
-        return code
-
-    def verify_otp(self, user_id: int, code: str) -> bool:
-        stored_code = self.active_otps.get(user_id)
-        if stored_code and stored_code == code:
-            del self.active_otps[user_id]
-            return True
-        return False
 class OTPPurpose:
     LOGIN_2FA = "LOGIN_2FA"
     MOBILE_LOGIN = "MOBILE_LOGIN"
     REGISTRATION = "REGISTRATION"
     PASSWORD_RESET = "PASSWORD_RESET"
     STEPUP_AUTH = "STEPUP_AUTH"
+    STEP_UP_AUTH = "STEPUP_AUTH"
     EVIDENCE_EXPORT = "EVIDENCE_EXPORT"
 
 class OTPChannel:
@@ -85,6 +71,37 @@ class OTPService:
         self.default_ttl = default_ttl_seconds  # 5 minutes
         self.max_attempts = max_attempts
         self._in_memory_recent_dispatches: List[Dict[str, Any]] = []
+
+    def generate_and_send_otp(
+        self,
+        user_id_or_contact: str,
+        purpose: str = "LOGIN_2FA",
+        channel: str = "SMS_SANDES",
+        action_name: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Generates and dispatches a cryptographically secure OTP backed by database storage."""
+        from backend.core.database import db_manager
+        return db_manager.create_otp(
+            contact_target=user_id_or_contact,
+            purpose=purpose,
+            channel=channel,
+            ttl_seconds=self.default_ttl,
+            metadata={"action_name": action_name} if action_name else None
+        )
+
+    def verify_otp(
+        self,
+        user_id_or_contact: str,
+        input_code: str,
+        purpose: str = "LOGIN_2FA"
+    ) -> Dict[str, Any]:
+        """Validates OTP using secure database-backed verification with attempt lockout."""
+        from backend.core.database import db_manager
+        return db_manager.verify_otp(
+            contact_target_or_user_id=user_id_or_contact,
+            otp_code=input_code,
+            purpose=purpose
+        )
 
     def generate_numeric_code(self, length: int = 6) -> str:
         """Generates a cryptographically strong 6-digit numeric OTP."""

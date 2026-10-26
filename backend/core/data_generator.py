@@ -4,7 +4,6 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import Dict, Any, List
 from backend.config import CASE_DATA_FILE
-from backend.core.knowledge_graph import kg_store
 
 def generate_default_intelligence_cases() -> Dict[str, Any]:
     """
@@ -537,6 +536,7 @@ def generate_default_intelligence_cases() -> Dict[str, Any]:
 
 def initialize_knowledge_graph():
     """Seeds the global in-memory knowledge graph store with default intelligence case."""
+    from backend.core.knowledge_graph import kg_store
     case_data = generate_default_intelligence_cases()
     kg_store.load_from_dict(case_data["graph_data"])
     with open(CASE_DATA_FILE, "w", encoding="utf-8") as f:
