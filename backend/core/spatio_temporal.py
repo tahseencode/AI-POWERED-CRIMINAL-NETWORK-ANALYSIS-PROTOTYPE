@@ -1,8 +1,6 @@
 import math
 import re
-import time
-from datetime import datetime, timedelta
-from typing import Dict, Any, List, Tuple, Optional
+from typing import Dict, Any, List
 from backend.config import DEFAULT_EPS_SPATIAL_KM, DEFAULT_EPS_TEMPORAL_HOURS, DEFAULT_MIN_PTS
 
 def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:

@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import numpy as np
 from typing import Dict, Any, List, Tuple, Optional
 from backend.core.knowledge_graph import kg_store
-from backend.config import GNN_EMBEDDING_DIM, GNN_HIDDEN_DIM, GAT_HEADS, DEVICE, TORCH_NUM_THREADS
+from backend.config import GNN_EMBEDDING_DIM, GNN_HIDDEN_DIM, DEVICE, TORCH_NUM_THREADS
 
 # Enforce CPU execution and thread allocation for edge hardware
 if hasattr(torch, "set_num_threads"):

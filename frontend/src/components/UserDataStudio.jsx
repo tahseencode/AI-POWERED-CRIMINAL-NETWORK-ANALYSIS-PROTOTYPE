@@ -323,8 +323,6 @@ export default function UserDataStudio({ officerUser, currentRole }) {
       setSqlExecuting(false);
     }
   };
-    }
-  };
 
   // Handler: Dispatch Test OTP via Simulator
   const handleDispatchTestOtp = async (e) => {

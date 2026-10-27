@@ -1,7 +1,7 @@
 import re
 import os
 import io
-from typing import Dict, Any, List, Optional, Union
+from typing import Dict, Any, Union
 class OCRProcessor:
 
     def process_image(self, file_storage) -> str:

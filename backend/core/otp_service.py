@@ -1,16 +1,9 @@
 import hashlib
-import hmac
 import secrets
 import string
-import time
-import random
-from datetime import datetime, timezone, timedelta
 from typing import Dict, Any, List, Optional, Tuple
-from pathlib import Path 
-
 
 from backend.config import SECRET_KEY
-from backend.core.security import audit_logger, generate_evidence_hash
 
 class OTPPurpose:
     LOGIN_2FA = "LOGIN_2FA"

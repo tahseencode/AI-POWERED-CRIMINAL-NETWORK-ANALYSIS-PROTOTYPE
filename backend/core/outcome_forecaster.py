@@ -1,8 +1,6 @@
 import re
-import math
-import hashlib
-from typing import Dict, Any, List, Optional
-from datetime import datetime, timedelta, timezone
+from typing import Dict, Any
+from datetime import datetime, timezone
 class OutcomeForecastingEngine:
 
     def forecast(self, case_data: dict):

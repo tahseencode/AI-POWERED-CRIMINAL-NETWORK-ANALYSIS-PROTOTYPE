@@ -851,7 +851,8 @@ class DatabaseManager:
         self,
         status: Optional[str] = None,
         report_type: Optional[str] = None,
-        limit: int = 50
+        limit: int = 50,
+        user_id: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """Retrieves field intelligence and tip-off submissions from SQL."""
         with self.get_connection() as conn:
@@ -859,6 +860,9 @@ class DatabaseManager:
             query = "SELECT * FROM user_field_reports WHERE 1=1"
             params = []
 
+            if user_id:
+                query += " AND user_id = ?"
+                params.append(user_id)
             if status:
                 query += " AND status = ?"
                 params.append(status)

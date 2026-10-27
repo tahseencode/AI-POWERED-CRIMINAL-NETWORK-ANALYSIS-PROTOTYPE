@@ -1181,11 +1181,14 @@ def update_user_profile(user_id: str = Query(...), req: UserProfileUpdateRequest
         raise HTTPException(status_code=400, detail="Profile update failed")
     return {"status": "PROFILE_UPDATED", "user_id": user_id}
 
+@app.get("/api/users/activity")
 @app.get("/api/user/activity")
 def get_user_activity_logs(user_id: Optional[str] = Query(None), limit: int = 50):
     """Retrieves activity audit trail from SQLite database."""
-    return db_manager.get_user_activity(user_id=user_id, limit=limit)
+    logs = db_manager.get_user_activity(user_id=user_id, limit=limit)
+    return {"status": "SUCCESS", "logs": logs}
 
+@app.post("/api/users/activity")
 @app.post("/api/user/activity")
 def log_user_activity(req: UserActivityLogRequest):
     """Appends an explicit user activity record."""

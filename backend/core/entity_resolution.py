@@ -1,6 +1,6 @@
 import math
 import re
-from typing import Dict, Any, List, Tuple, Optional
+from typing import Dict, Any, List, Tuple
 from collections import defaultdict
 from backend.config import FS_MATCH_THRESHOLD, FS_UNCERTAIN_THRESHOLD
 
