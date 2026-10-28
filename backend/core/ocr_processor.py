@@ -1,7 +1,7 @@
 import re
 import os
 import io
-from typing import Dict, Any, Union
+from typing import Dict, Any, Union, Tuple
 class OCRProcessor:
 
     def process_image(self, file_storage) -> str:
@@ -111,7 +111,7 @@ class MultilingualOCRProcessor:
             "status": "PROCESSED_FOR_LEGAL_NER"
         }
 
-    def _extract_text_from_bytes(self, content_bytes: bytes, filename: str) -> (str, str):
+    def _extract_text_from_bytes(self, content_bytes: bytes, filename: str) -> Tuple[str, str]:
         """Multi-tiered extraction: PyMuPDF PDF parser -> Tesseract OCR -> EasyOCR -> Gemini Vision."""
         fname_lower = filename.lower()
 
